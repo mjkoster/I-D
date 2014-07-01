@@ -201,7 +201,6 @@ EP                                               MQ        RD
 
 <!-- ====================================================================== -->
 
-
 <section title="CoRE MQ Function Set">
 
 <section title="Client Endpoint Functions">
@@ -372,12 +371,68 @@ EP                                               MQ        RD
 
 <section title="Enabling multiple publishers">
 
-<!-- ====================================================================== -->
+<section title="Creating a topic">
 
+<t>After registration of the EP in the RD and discovering the MQ function, a designated EP acting as publisher for a particular topic is responsible for creating such topic. To do so, it will have to register the new topic in the RD and create it on the MQ function by doing a first publication as shown in <xref target="reg-fig"/>.</t>
+<t>After the topic has been created in the MQ, the MQ will be responsible of hosting this resource and to queue messages published on it as explained in 5.X</t>
+</section>
 
+<section title="Publishing a topic from multiple publishers">
+
+<t>After the topic has been registered in the RD and is created in the MQ, any device with the right access permissions can publish on that topic by using the topic field. For example in the following diagram, both EP1 and EP2 update the same topic that EP3 has previously subscribed to.</t>
+<t>After the topic has been created in the MQ, the MQ will be responsible of hosting this resource and to queue messages published on it as explained in 5.X</t>
+
+<t>
+<figure title="CoAP-MQ broker GET from endpoint Message Exchange" anchor="multi-pub-fig">
+<artwork>
+<![CDATA[
+EP1     EP2                                     MQ
+|       |            PUBLISH                    |
+| ----------------- PUT /0/TOPIC1 ------------> |
+|       |                                       |
+| <--------------- 2.04 Changed---------------- |
+|       |                                       |
+|       |            PUBLISH                    |
+|       | --------- PUT /0/TOPIC1 ------------> |
+|       |                                       |
+|       | <------- 2.04 Changed---------------- |
+|       |                                       |
+]]>
+</artwork>
+</figure>
+</t>
 
 </section>
 
+
+<section title="Subscribing to a topic with multiple publishers">
+
+<t>Subscription to this topic is the same as in 5.X, since it acts as any other resource. Following the previous example, if EP3 is subscribed to the shared topic, it should receive two updates from both EP1 and EP2.</t>
+
+<t>
+<figure title="CoAP-MQ broker GET from endpoint Message Exchange" anchor="multi-pub-sub-fig">
+<artwork>
+<![CDATA[
+EP3                                              MQ
+|                 SUBSCRIBE                     |
+| ------- GET /0/TOPIC1 Observe --------------> |
+|                                               |
+|                  PUBLISH                      |
+| <-----------  2.05 Content EP1 -------------- |
+|                                               |
+|                  PUBLISH                      |
+| <-----------  2.05 Content EP2 -------------- |
+|                                               |
+]]>
+</artwork>
+</figure>
+</t>
+
+</section>
+
+</section>
+
+<!-- ====================================================================== -->
 
 <section title="Sleep-Wakeup Cycle">
 
