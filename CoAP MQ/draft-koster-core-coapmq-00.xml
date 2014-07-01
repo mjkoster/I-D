@@ -142,10 +142,10 @@
 <!-- ====================================================================== -->
 
 <section title="Registration and discovery - RD server"> 
-<t>An endpoint wishing to use the CoapMQ protocol registers with an RD server that advertises the core.mq function set. The endpoint registers resources with the core.pubsub attribute to indicate intention to use the CoapMQ protocol.</t>
+<t>An endpoint wishing to use the CoapMQ protocol registers with an RD server that advertises the core.mq function set. The endpoint registers topics with the core.pubsub attribute to indicate intention to use the CoapMQ protocol.</t>
 
 <section title="Register PubSub Endpoint">
-<t><xref target="reg-fig"/> shows the flow of the registration operation. Discovery proceeds as per Resource Directory. When an endpoint wishes to use the CoapMQ protocol, it discovers the "core.mq" function set at the RD service and registers its CoAP-MQ resources with the RD server by creating a RD endpoint and updating it with resources having the rt="core.pubsub" attribute. An implementation MAY mix CoAP-MQ resources and CoAP REST resources on the same endpoint.</t>
+<t><xref target="reg-fig"/> shows the flow of the registration operation. Discovery proceeds as per Resource Directory. When an endpoint wishes to use the CoapMQ protocol, it discovers the "core.mq" function set at the RD service and registers its CoAP-MQ resources with the RD server by creating a RD endpoint and updating it with resources having the rt="core.pubsub" attribute. Topics are created using an initial POST operation to the registered topic or sub-topic. For example, if the registered topic is "/sensors/weather", the sub-topic "/sensors/weather/barometer" is created using POST to "/mq/sensors/weather/barometer". An implementation MAY mix CoAP-MQ resources and CoAP REST resources on the same endpoint. Endpoint registration proceeds as per normal RD registration.</t>
 
         <t>
         <figure title="Discovery and Registration Message Exchange" anchor="reg-fig">
@@ -158,11 +158,16 @@ EP                                               MQ        RD
  | <-------- 2.05 Content “</mq>; rt=core.mq”--- | ------- |
  |                                               |         |
  |                                               |         |
- |                EP REGISTRATION                |         |
- | ------------- POST /rd “</mq/0/…” ----------- | ------> |
+ |                TOPIC REGISTRATION             |         |
+ | ----POST /rd “</mq/0/xx>;rt=core.pubsub” ---- | ------> |
  |                                               |         |
  | <-------- 2.01 Created Location: /rd/1234 --- | ------- |
  |                                               |         |
+ |                                               |         |
+ |                 FIRST PUBLISH                 |         |
+ | ---------------- POST /mq/0/... ------------> |         |
+ |                                               |         |
+ | <--------------- 2.01 Created---------------- |         |
  |                                               |         |
 ]]>
 </artwork>
@@ -182,7 +187,7 @@ EP                                               MQ        RD
 |                    UNREGISTER                 |         |
 | ---------------- DELETE /rd/1234 ------------ | ------> |
 |                                               |         |
-| <-------- 2.01 Deleted Location: /rd/1234 --- | ------- |
+| <-------- 2.02 Deleted Location: /rd/1234 --- | ------- |
 |                                               |         |
 |                                               |         |
 ]]>
@@ -201,14 +206,14 @@ EP                                               MQ        RD
 
 <section title="Client Endpoint Functions">
 
-<section title="Endpoint publish to core.mq">
-<t>Client mode endpoint uses PUT to update the sensor or property resource at the core.mq server.</t>
+<section title="Endpoint publish to CoAP-MQ broker">
+<t>Client endpoint uses PUT to publish updates to the state associated with the topic at the CoAP-MQ broker.</t>
 
 <t>
-<figure title="PUT from EP Message Exchange" anchor="put-ep-fig">
+<figure title="PUBLISH from EP Message Exchange" anchor="put-ep-fig">
 <artwork>
 <![CDATA[
-EP                                               MQ        RD
+EP                                              MQ        RD
 |                                               |         |
 |                                               |         |
 |                    PUBLISH                    |         |
@@ -225,14 +230,14 @@ EP                                               MQ        RD
 </section>
 
 
-<section title="Endpoint subscribe to core.mq using GET+Observe, core.mq server publishes notifications to the endpoint">
-<t>Client mode endpoint subscribes to resource at core.rd server using GET+Observe. Updates to the REST API at the core.rd server are published to the actuator using Observe response tokens. Client may update actuator or resource based on received values associated with responses.</t>
+<section title="Endpoint subscribe to CoAP-MQ broker using GET+Observe, CoAP-MQ broker publishes notifications to the endpoint">
+<t>Client mode endpoint subscribes to the topic at the CoAP-MQ broker using GET+Observe. Published updates to the CoAP-MQ broker are published to the Endpoint using Observe response tokens. Client endpoint MAY update actuator or resource based on received values associated with responses.</t>
 
 <t>
-<figure title="Publish to the Endpoint" anchor="publish-fig">
+<figure title="Endpoint SUBSCRIBE, PUBLISH to endpoint" anchor="publish-fig">
 <artwork>
 <![CDATA[
-EP                                               MQ        RD
+EP                                              MQ        RD
 |                                               |         |
 |                                               |         |
 |                 SUBSCRIBE                     |         |
@@ -254,14 +259,14 @@ EP                                               MQ        RD
 </t>
 </section>
 
-<section title="Endpoint GET from core.mq server">
-<t>Client mode endpoint may issue GET without Observe as needed to obtain last published state from the core.mq server.</t>
+<section title="Endpoint GET from CoAP-MQ broker">
+<t>Client mode endpoint MAY issue GET to topic without Observe as needed to obtain last published state from the CoAP-MQ broker.</t>
 
 <t>
-<figure title="GET from core.mq server Message Exchange" anchor="get-mq-fig">
+<figure title="GET from CoAP-MQ broker Message Exchange" anchor="get-mq-fig">
 <artwork>
 <![CDATA[
-EP                                               MQ        RD
+EP                                              MQ        RD
 |                                               |         |
 |                                               |         |
 |                                               |         |
@@ -282,7 +287,7 @@ EP                                               MQ        RD
 
 <section title="Server Endpoint Functions">
 
-<section title="core.mq subscribe to endpoint using GET+Observe, endpoint publishes notifications to the core.mq server">
+<section title="CoAP-MQ broker subscribes to endpoint using GET+Observe, endpoint publishes notifications to the CoAP-MQ broker">
 <t>The server mode endpoint enables the core.mq server to act as a client and subscribe to a resource on the endpoint using GET + Observe. <xref target="sub-observe-fig"/> shows the flow of core.mq server subscribing to the endpoint. </t>
 
         <t>
@@ -313,11 +318,11 @@ EP                                               MQ        RD
 </section>
 
 
-<section title="core.mq publish to endpoint">
-<t>core.rd server may update server mode endpoint using PUT when REST API updates occur. Endpoint server may update actuator or resource.</t>
+<section title="CoAP-MQ broker publishes to endpoint">
+<t>CoAP-MQ broker MAY update server mode endpoint using PUT when state updates are published on the associated topic. Endpoint server MAY update actuator or resource.</t>
 
         <t>
-        <figure title="PUT by MQ Message Exchange" anchor="put-mq-fig">
+        <figure title="PUT by CoAP-MQ broker Message Exchange" anchor="put-mq-fig">
           <artwork>
             <![CDATA[
 EP                                               MQ        RD
@@ -338,10 +343,10 @@ EP                                               MQ        RD
 </section>
 
 <section title="core.mq GET from endpoint">
-<t>Core.mq server may issue GET without Observe as needed to obtain state update from the server mode endpoint.</t>
+<t>CoAP-MQ broker server MAY issue GET without Observe as needed to obtain state update from the server mode endpoint.</t>
 
         <t>
-        <figure title="GET from endpoint Message Exchange" anchor="get-ep-fig">
+        <figure title="CoAP-MQ broker GET from endpoint Message Exchange" anchor="get-ep-fig">
           <artwork>
             <![CDATA[
 EP                                               MQ        RD
@@ -364,6 +369,15 @@ EP                                               MQ        RD
 </section>
 
 <!-- ====================================================================== -->
+
+<section title="Enabling multiple publishers">
+
+<!-- ====================================================================== -->
+
+
+
+</section>
+
 
 <section title="Sleep-Wakeup Cycle">
 
@@ -400,8 +414,8 @@ EP                                               MQ        RD
  |                                               |         |
  | <-------- 2.05 Content “</mq>; rt=core.mq”--- | ------- |
  |                                               |         |
- |                   REGISTRATION                |         |
- | ------------- POST /rd “</mq/0/…” ----------- | ------> |
+ |                TOPIC REGISTRATION             |         |
+ | ----POST /rd “</mq/0/xx>;rt=core.pubsub” ---- | ------> |
  |                                               |         |
  | <-------- 2.01 Created Location: /rd/1234 --- | ------- |
  |                                               |         |
