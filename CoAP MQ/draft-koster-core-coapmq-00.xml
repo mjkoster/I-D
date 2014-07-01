@@ -199,6 +199,89 @@ EP                                               MQ        RD
 
 <section title="CoRE MQ Function Set">
 
+<section title="Client Endpoint Functions">
+
+<section title="Endpoint publish to core.mq">
+<t>Client mode endpoint uses PUT to update the sensor or property resource at the core.mq server.</t>
+
+<t>
+<figure title="PUT from EP Message Exchange" anchor="put-ep-fig">
+<artwork>
+<![CDATA[
+EP                                               MQ        RD
+|                                               |         |
+|                                               |         |
+|                    PUBLISH                    |         |
+| ----------------- PUT /0/... ---------------> |         |
+|                                               |         |
+|                                               |         |
+| <--------------- 2.04 Changed---------------- |         |
+|                                               |         |
+|                                               |         |
+]]>
+</artwork>
+</figure>
+</t>
+</section>
+
+
+<section title="Endpoint subscribe to core.mq using GET+Observe, core.mq server publishes notifications to the endpoint">
+<t>Client mode endpoint subscribes to resource at core.rd server using GET+Observe. Updates to the REST API at the core.rd server are published to the actuator using Observe response tokens. Client may update actuator or resource based on received values associated with responses.</t>
+
+<t>
+<figure title="Publish to the Endpoint" anchor="publish-fig">
+<artwork>
+<![CDATA[
+EP                                               MQ        RD
+|                                               |         |
+|                                               |         |
+|                 SUBSCRIBE                     |         |
+| ------- GET /0/... Observe: Token:XX -------> |         |
+|                                               |         |
+|                  PUBLISH                      |         |
+| <---------- 2.05 Content Observe:10---------- |         |
+|                                               |         |
+|                  PUBLISH                      |         |
+| <---------- 2.05 Content Observe:12---------- |         |
+|                                               |         |
+|                  PUBLISH                      |         |
+| <---------- 2.05 Content Observe:15---------- |         |
+|                                               |         |
+|                                               |         |
+]]>
+</artwork>
+</figure>
+</t>
+</section>
+
+<section title="Endpoint GET from core.mq server">
+<t>Client mode endpoint may issue GET without Observe as needed to obtain last published state from the core.mq server.</t>
+
+<t>
+<figure title="GET from core.mq server Message Exchange" anchor="get-mq-fig">
+<artwork>
+<![CDATA[
+EP                                               MQ        RD
+|                                               |         |
+|                                               |         |
+|                                               |         |
+| ---------------- GET /0/... ----------------> |         |
+|                                               |         |
+|                                               |         |
+| <--------------- 2.05 Content --------------- |         |
+|                                               |         |
+|                                               |         |
+]]>
+</artwork>
+</figure>
+</t>
+
+</section>
+
+</section>
+
+<section title="Server Endpoint Functions">
+
 <section title="core.mq subscribe to endpoint using GET+Observe, endpoint publishes notifications to the core.mq server">
 <t>The server mode endpoint enables the core.mq server to act as a client and subscribe to a resource on the endpoint using GET + Observe. <xref target="sub-observe-fig"/> shows the flow of core.mq server subscribing to the endpoint. </t>
 
@@ -229,58 +312,6 @@ EP                                               MQ        RD
 
 </section>
 
-<section title="Endpoint subscribe to core.mq using GET+Observe, core.mq server publishes notifications to the endpoint"> 
-<t>Client mode endpoint subscribes to resource at core.rd server using GET+Observe. Updates to the REST API at the core.rd server are published to the actuator using Observe response tokens. Client may update actuator or resource based on received values associated with responses.</t>
-
-        <t>
-        <figure title="Publish to the Endpoint" anchor="publish-fig">
-          <artwork>
-            <![CDATA[
-EP                                               MQ        RD
- |                                               |         |
- |                                               |         |
- |                 SUBSCRIBE                     |         |
- | ------- GET /0/... Observe: Token:XX -------> |         |
- |                                               |         |
- |                  PUBLISH                      |         |
- | <---------- 2.05 Content Observe:10---------- |         |
- |                                               |         |
- |                  PUBLISH                      |         |
- | <---------- 2.05 Content Observe:12---------- |         |
- |                                               |         |
- |                  PUBLISH                      |         |
- | <---------- 2.05 Content Observe:15---------- |         |
- |                                               |         |
- |                                               |         |
-]]>
-</artwork>
-</figure>
-</t>
-</section>
-
-<section title="Endpoint publish to core.mq">
-<t>Client mode endpoint uses PUT to update the sensor or property resource at the core.mq server.</t>
-
-        <t>
-        <figure title="PUT from EP Message Exchange" anchor="put-ep-fig">
-          <artwork>
-            <![CDATA[
-EP                                               MQ        RD
- |                                               |         |
- |                                               |         |
- |                    PUBLISH                    |         |
- | ----------------- PUT /0/... ---------------> |         |
- |                                               |         |
- |                                               |         |
- | <--------------- 2.04 Changed---------------- |         |
- |                                               |         |
- |                                               |         |
-]]>
-</artwork>
-</figure>
-</t>
-</section>
-
 
 <section title="core.mq publish to endpoint">
 <t>core.rd server may update server mode endpoint using PUT when REST API updates occur. Endpoint server may update actuator or resource.</t>
@@ -306,30 +337,6 @@ EP                                               MQ        RD
 
 </section>
 
-<section title="Endpoint GET from core.mq server">
-<t>Client mode endpoint may issue GET without Observe as needed to obtain state from the core.mq server.</t>
-
-        <t>
-        <figure title="GET from core.mq server Message Exchange" anchor="get-mq-fig">
-          <artwork>
-            <![CDATA[
-EP                                               MQ        RD
- |                                               |         |
- |                                               |         |
- |                                               |         |
- | ---------------- GET /0/... ----------------> |         |
- |                                               |         |
- |                                               |         |
- | <--------------- 2.05 Content --------------- |         |
- |                                               |         |
- |                                               |         |
-]]>
-</artwork>
-</figure>
-</t>
-
-</section> 
-
 <section title="core.mq GET from endpoint">
 <t>Core.mq server may issue GET without Observe as needed to obtain state update from the server mode endpoint.</t>
 
@@ -354,6 +361,7 @@ EP                                               MQ        RD
 
 </section>
 </section> 
+</section>
 
 <!-- ====================================================================== -->
 
