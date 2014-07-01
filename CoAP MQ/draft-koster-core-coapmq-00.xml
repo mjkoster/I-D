@@ -73,17 +73,19 @@
 
 <t hangText="Publish-Subscribe:">CoapMQ supports publish-subscribe pattern interactions, where an endpoint uses the core.mq function server as a broker, sending updates to be buffered and sent to zero or more subscribers. Likewise, an endpoint may register with a core.mq server to receive buffered updates published to the core.mq server by other endpoints. There is a simple binding of operations to pub-sub protocol operations, for example MQTT publish and subscribe operations.</t>
 
+<t hangText="TOpic">A Topic, in Publish-Subscribe systems, is a unique identifying string for a particular item or object being published and subscribed to.</t>
+
 </list>
 </t>
 
  <t>The following entities are used in this specification:
 <list style="hanging">
 
-<t hangText="CoAP Message Queue (MQ) Service">A service provided by a node or system where CoAP messages sent by one endpoint to another are queued (stored) by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
+<t hangText="CoAP Message Queue (CoAP-MQ) Service">A service provided by a node or system where CoAP messages sent by one endpoint to another are queued (stored) by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
 
-<t hangText="MQ Broker">A server node capable of storing messages to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations.</t>
+<t hangText="CoAP-MQ Broker">A server node capable of storing messages to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations.</t>
 
-<t hangText="MQ Endpoint">An endpoint that implements the MQ function set defined in Section 5.</t>
+<t hangText="CoAP-MQ Endpoint">An endpoint that implements the MQ function set defined in Section 5. A CoAP-MQ endpoint has two potential roles, CoAP-MQ client and CoAP-MQ server</t>
 
 </list>
 </t>
@@ -96,7 +98,7 @@
 
 <section title="RD Server with MQ function set">
 
-<t><xref target="arch-fig"/> shows an example architecture of a CoapMQ capable service. A RD service accepts registrations and registration updates from endpoints and hosts a resource discovery service for web application clients. Cached state information is updated from the endpoints to the core.mq function server. Web clients subscribe to the state of the endpoint from the core.mq server, and publish updates to the endpoint state through the core.mq server. The core.mq server performs a store-and-forward function between the web client and the CoapMQ capable endpoint.</t>
+<t><xref target="arch-fig"/> shows an example architecture of a CoAP-MQ capable service. A RD service accepts registrations and registration updates from endpoints and hosts a resource discovery service for web application clients. State information is updated from the endpoints to the core.mq function server. Web clients subscribe to the state of the endpoint from the CoAP-MQ broker, and publish updates to the endpoint state through the CoAP-MQ broker. The CoAP-MQ broker performs a store-and-forward function between the web client and the CoAP-MQ capable endpoints.</t>
 
         <t>
         <figure title="CoAP MQ Architecture" anchor="arch-fig">
@@ -121,11 +123,11 @@
 </section>
 
 <section title="Client Endpoint"> 
-<t>Client endpoints initiate all interaction with the RD server and core.mq server. If the endpoint is an actuator it will need to either use GET + Observe or periodically poll the core.mq server using GET to check for updates. A client sensor would use PUT operations to update the core.mq function server. A client sensor should update the RD server periodically to indicate that it is still alive if it has no pending data updates. Endpoints can operate in client mode even if not directly reachable from the core.mq or core.rd servers.</t>
+<t>Client endpoints initiate all interaction with the RD server and CoAP-MQ server. If the endpoint is an actuator it will need to either use GET + Observe or periodically poll the core.mq server using GET to check for updates. A client sensor would use PUT operations to update the CoAP-MQ function server. A client sensor should update the RD server periodically to indicate that it is still alive if it has no pending data updates. Endpoints can operate in client mode even if not directly reachable from the core.mq or core.rd servers.</t>
 </section> 
 
 <section title="Server endpoint">
-<t>Server endpoints require the core.mq function sever to perform a client role, initiating interaction with the endpoint. This is a preferred mode when, for example, the endpoint is a sensor and wishes to update the core.mq function server periodically upon waking up between sleep intervals in response to a GET + Observe operation. In this mode an actuator endpoint would update the RD server to indicate waking mode and ready to receive updates. The core.mq client would then use PUT operations to update the server endpoint. Server mode endpoints are required to be reachable from the core.rd and core.mq function servers.</t>
+<t>Server endpoint interactions require the CoAP-MQ broker to perform the client role, initiating interaction with the server endpoint. The CoAP-MQ client MAY then use PUT operations to update state at the server endpoint, and MAY use GET or GET+Observe to subscribe to resources at the endpoint. Server mode endpoints are required to be reachable from core.mq function servers.</t>
 </section>
 
 </section> 
@@ -133,10 +135,10 @@
 <!-- ====================================================================== -->
 
 <section title="Registration and discovery - RD server"> 
-<t>An endpoint wishing to use the CoapMQ protocol registers with an RD server that advertises the core.mq function set. The endpoint registers with the core.pubsub attribute to indicate intention to use the CoapMQ protocol.</t>
+<t>An endpoint wishing to use the CoapMQ protocol registers with an RD server that advertises the core.mq function set. The endpoint registers resources with the core.pubsub attribute to indicate intention to use the CoapMQ protocol.</t>
 
 <section title="Register PubSub Endpoint">
-<t><xref target="reg-fig"/> shows the flow of the registration operation. Discovery proceeds as per Resource Directory. When an endpoint wishes to use the CoapMQ protocol, it discovers the core.mq function set at the RD service and registers with the RD server by creating a RD endpoint and updating it with the core.pubsub attribute.</t>
+<t><xref target="reg-fig"/> shows the flow of the registration operation. Discovery proceeds as per Resource Directory. When an endpoint wishes to use the CoapMQ protocol, it discovers the "core.mq" function set at the RD service and registers its CoAP-MQ resources with the RD server by creating a RD endpoint and updating it with resources having the rt="core.pubsub" attribute. An implementation MAY mix CoAP-MQ resources and CoAP REST resources on the same endpoint.</t>
 
         <t>
         <figure title="Discovery and Registration Message Exchange" anchor="reg-fig">
