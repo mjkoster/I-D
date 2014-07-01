@@ -41,7 +41,7 @@
     <keyword>Message Queueing</keyword>
     <abstract>
 
-  <t>The CoRE Application Protocol (CoAP) and related specifications are intended to support machine-to-machine communication in systems where one or more nodes are resource constrained. The constrained resources may be electrical power, computing resources, network bandwidth, or network connectivity. The use case of constrained or limited network connectivity is envisioned by the base protocols but not well defined. This document specifies support of limited connectivity resource endpoints in CoAP and CoRE Resource Directory. This protocol extension specifies support for endpoints operated in a sleep-wakeup cycle mode and/or behind Network Address Translators (NATs).</t>
+  <t>The Constrained Application Protocol, CoAP, and related extensions are intended to support machine-to-machine communication in systems where one or more nodes are resource constrained, in particular for low power wireless sensor networks. This document defines publish-subscribe message queuing functionality for CoAP that extends the capabilities for supporting nodes with long breaks in connectivity and/or up-time.</t>
   
 </abstract>
 
@@ -51,15 +51,12 @@
 <!-- ====================================================================== -->
 
 <section anchor="introduction" title="Introduction">
-   <t>IETF CoRE supports machine to machine communication across networks of constrained devices. One important class of constrained devices includes devices that are intended to run for years from a small battery, or by scavenging energy from their environment. These devices spend most of their time in a sleeping state with no network connectivity. Likewise, the devices may be located behind Network Address Translation (NAT) gateways, In these cases, the constrained endpoint node had limited network reachability. </t>
+   <t>IETF CoRE supports machine to machine communication across networks of constrained devices. One important class of constrained devices includes devices that are intended to run for years from a small battery, or by scavenging energy from their environment. These devices spend most of their time in a sleeping state with no network connectivity.</t>
 
-   <t>Nodes with limited reachability must communicate using a client role, whereby the endpoint is responsible for initiating communication, and indicating to the network when it has a data or state update to communicate.</t>
+   <t>Devices may also have limited reachability due to certain middle-boxes, such as Network Address Translators (NATs) or firewalls. Such devices must communicate using a client role, whereby the endpoint is responsible for initiating communication.</t>
 
-   <t>This document specifies the means for nodes with limited reachability to communicate reliably in constrained resource networks, using simple extensions to the CoAP REST API and CoRE Resource Directory.</t>
+   <t>This document specifies the means for nodes with limited reachability to communicate using simple extensions to CoAP and the CoRE Resource Directory [I-D.ietf-core-resource-directory-01]. The extensions enable publish-subscribe communication using a Message Queue (MQ) broker node that enables store-and-forward messaging between two or more nodes.</t>
 
-   <t>A message store-and-forward mode is specified to be implemented in a new core.mq function set which improves the reachability and performance of constrained endpoints in the system. A core.mq function server, which acts as a message store-and-forward broker and virtual endpoint, may be associated with one or more Resource Directories.</t>
-
-   <t>New attributes are defined to enable discovery and configuration of the new function set.</t>
 </section>
 
 <!-- ====================================================================== -->
@@ -74,31 +71,19 @@
    <t>This specification makes use of the following additional terminology:
 <list style="hanging">
 
-<t hangText="Resource Directory:">An web entity that stores information about web resources and implements the REST interfaces defined in this specification for registration and lookup of those resources.</t>
-
-<t hangText="Endpoint:">An endpoint (EP) is a term used to describe a web server or client in <xref target="I-D.ietf-core-coap"/>. In the context of this specification an endpoint is used to describe a web server that registers resources to the Resource Directory. An endpoint is identified by its endpoint name, which is included during registration, and is unique within the associated domain of the registration.</t>
-
-<t hangText="Reachable:">An endpoint is reachable if it is capable of responding to unsolicited CoAP requests required to implement the protocol. It is usually associated with having a routable IP address and a protocol listener. Not-reachable endpoints may still initiate requests and receive responses.</t>
-
-<t hangText="NAT compatibility:">
-A client-only interaction mode is supported to enable the endpoint to be situated behind NAT routers and gateways. In client mode, all interaction is initiated by the client behind the NAT router.</t>
-
-<t hangText="Queueing:">Queueing mode is defined, whereby an endpoint, on waking up, may retrieve all pending messages which accumulated while the endpoint was sleeping. Queueing mode is optional and is indicated by the presence of the xx.queue attribute.</t>
-
 <t hangText="Publish-Subscribe:">CoapMQ supports publish-subscribe pattern interactions, where an endpoint uses the core.mq function server as a broker, sending updates to be buffered and sent to zero or more subscribers. Likewise, an endpoint may register with a core.mq server to receive buffered updates published to the core.mq server by other endpoints. There is a simple binding of operations to pub-sub protocol operations, for example MQTT publish and subscribe operations.</t>
 
-<t hangText="Class 0 node:">A node which contains very limited resources may be registered to a core.mq server and use the core.mq server as a proxy and virtual endpoint. The definition of a class 0 node is extended to include use cases where the endpoint node has limited power capability and/or limited reachability, in addition to potentially limited memory and processing capability. Devices of this type may be registered with the help of an external agent, power supply, or helper device.</t>
-
-<t hangText="Sleeping endpoint support:">Once an endpoint is registered, it may sleep and wake up to send and receive data at appropriate times, such as when the sensor output changes, or at regular intervals. The sleep/wakeup times are expected to be at the discretion of the endpoint. The sleeping endpoint may signal it's wakeup times to the core.rd service in order to synchronize with the core.mq function service. Sleeping endpoint support requires that the endpoint be able to initiate all transactions, including entering and leaving sleep mode. </t>
 </list>
 </t>
 
  <t>The following entities are used in this specification:
 <list style="hanging">
 
-<t hangText="RD server:">A Resource Directory server (RD) is used to register the presence and network location of CoapMQ protocol capable endpoints. Endpoints wishing to use the CoapMQ protocol register with the RD server using a special set of attributes indicating use of the core.mq function set. The RD server supporting CoAP MQ registration is responsible for indicating the availability and location of the core.mq function set.</t>
+<t hangText="CoAP Message Queue (MQ) Service">A service provided by a node or system where CoAP messages sent by one endpoint to another are queued (stored) by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
 
-<t hangText="Core.mq function server:">An endpoint at the service functions as a core.mq function server, interacting with the endpoint as needed to transfer data and state during active updates. The core.mq server may be controlled by endpoint interaction with an associated RD server.</t>
+<t hangText="MQ Broker">A server node capable of storing messages to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations.</t>
+
+<t hangText="MQ Endpoint">An endpoint that implements the MQ function set defined in Section 5.</t>
 
 </list>
 </t>
