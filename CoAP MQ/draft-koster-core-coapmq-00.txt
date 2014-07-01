@@ -1,0 +1,784 @@
+
+
+
+
+Network Working Group                                          M. Koster
+Internet-Draft                                               ARM Limited
+Intended status: Standards Track                              A. Keranen
+Expires: November 29, 2014                                      Ericsson
+                                                            May 28, 2014
+
+
+    Message Queueing in the Constrained Application Protocol (CoAP)
+                    draft-koster-core-coapmq-00.txt
+
+Abstract
+
+   The CoRE Application Protocol (CoAP) and related specifications are
+   intended to support machine-to-machine communication in systems where
+   one or more nodes are resource constrained.  The constrained
+   resources may be electrical power, computing resources, network
+   bandwidth, or network connectivity.  The use case of constrained or
+   limited network connectivity is envisioned by the base protocols but
+   not well defined.  This document specifies support of limited
+   connectivity resource endpoints in CoAP and CoRE Resource Directory.
+   This protocol extension specifies support for endpoints operated in a
+   sleep-wakeup cycle mode and/or behind Network Address Translators
+   (NATs).
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on November 29, 2014.
+
+Copyright Notice
+
+   Copyright (c) 2014 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+
+
+
+Koster & Keranen        Expires November 29, 2014               [Page 1]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   3.  Architecture  . . . . . . . . . . . . . . . . . . . . . . . .   5
+     3.1.  RD Server with MQ function set  . . . . . . . . . . . . .   5
+     3.2.  Client Endpoint . . . . . . . . . . . . . . . . . . . . .   6
+     3.3.  Server endpoint . . . . . . . . . . . . . . . . . . . . .   6
+   4.  Registration and discovery - RD server  . . . . . . . . . . .   6
+     4.1.  Register PubSub Endpoint  . . . . . . . . . . . . . . . .   7
+     4.2.  Unregister Endpoint . . . . . . . . . . . . . . . . . . .   7
+   5.  CoRE MQ Function Set  . . . . . . . . . . . . . . . . . . . .   7
+     5.1.  core.mq subscribe to endpoint using GET+Observe, endpoint
+           publishes notifications to the core.mq server . . . . . .   7
+     5.2.  Endpoint subscribe to core.mq using GET+Observe, core.mq
+           server publishes notifications to the endpoint  . . . . .   8
+     5.3.  Endpoint publish to core.mq . . . . . . . . . . . . . . .   9
+     5.4.  core.mq publish to endpoint . . . . . . . . . . . . . . .   9
+     5.5.  Endpoint GET from core.mq server  . . . . . . . . . . . .  10
+     5.6.  core.mq GET from endpoint . . . . . . . . . . . . . . . .  10
+   6.  Sleep-Wakeup Cycle  . . . . . . . . . . . . . . . . . . . . .  11
+     6.1.  Registration with lifetime > max sleep interval . . . . .  11
+     6.2.  Signal using RD update to indicate wakeup at least once
+           before lifetime . . . . . . . . . . . . . . . . . . . . .  11
+     6.3.  ACK not received timeout unregister - CoRE Observe
+           unregister method? timeout linked to max sleep, lifetime?
+           7.31 with Token?  . . . . . . . . . . . . . . . . . . . .  11
+     6.4.  RD update wakeup triggers pending endpoint ops (GET, SUB,
+           PUT), queued ops from core.mq server - can this handshake
+           with update ACK?  . . . . . . . . . . . . . . . . . . . .  11
+     6.5.  Simple publish without RD update, either PUT or Observe
+           Notification. Should this also reset the lifetime timer?   11
+     6.6.  Example . . . . . . . . . . . . . . . . . . . . . . . . .  11
+   7.  MQTT Protocol Binding . . . . . . . . . . . . . . . . . . . .  13
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .  13
+   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  13
+   10. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  13
+   11. References  . . . . . . . . . . . . . . . . . . . . . . . . .  13
+     11.1.  Normative References . . . . . . . . . . . . . . . . . .  13
+     11.2.  Informative References . . . . . . . . . . . . . . . . .  13
+
+
+
+Koster & Keranen        Expires November 29, 2014               [Page 2]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  13
+
+1.  Introduction
+
+   IETF CoRE supports machine to machine communication across networks
+   of constrained devices.  One important class of constrained devices
+   includes devices that are intended to run for years from a small
+   battery, or by scavenging energy from their environment.  These
+   devices spend most of their time in a sleeping state with no network
+   connectivity.  Likewise, the devices may be located behind Network
+   Address Translation (NAT) gateways, In these cases, the constrained
+   endpoint node had limited network reachability.
+
+   Nodes with limited reachability must communicate using a client role,
+   whereby the endpoint is responsible for initiating communication, and
+   indicating to the network when it has a data or state update to
+   communicate.
+
+   This document specifies the means for nodes with limited reachability
+   to communicate reliably in constrained resource networks, using
+   simple extensions to the CoAP REST API and CoRE Resource Directory.
+
+   A message store-and-forward mode is specified to be implemented in a
+   new core.mq function set which improves the reachability and
+   performance of constrained endpoints in the system.  A core.mq
+   function server, which acts as a message store-and-forward broker and
+   virtual endpoint, may be associated with one or more Resource
+   Directories.
+
+   New attributes are defined to enable discovery and configuration of
+   the new function set.
+
+2.  Terminology
+
+   The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL', 'SHALL NOT',
+   'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY', and 'OPTIONAL' in this
+   specification are to be interpreted as described in [1].
+
+   This specification requires readers to be familiar with all the terms
+   and concepts that are discussed in [6] and [2].  Readers should also
+   be familiar with the terms and concepts discussed in [5] and [4].
+   The URI template format, see [3], is used to describe the REST
+   interfaces defined in this specification.
+
+   This specification makes use of the following additional terminology:
+
+
+
+
+
+
+Koster & Keranen        Expires November 29, 2014               [Page 3]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+   Resource Directory:  An web entity that stores information about web
+      resources and implements the REST interfaces defined in this
+      specification for registration and lookup of those resources.
+
+   Endpoint:  An endpoint (EP) is a term used to describe a web server
+      or client in [5].  In the context of this specification an
+      endpoint is used to describe a web server that registers resources
+      to the Resource Directory.  An endpoint is identified by its
+      endpoint name, which is included during registration, and is
+      unique within the associated domain of the registration.
+
+   Reachable:  An endpoint is reachable if it is capable of responding
+      to unsolicited CoAP requests required to implement the protocol.
+      It is usually associated with having a routable IP address and a
+      protocol listener.  Not-reachable endpoints may still initiate
+      requests and receive responses.
+
+   NAT compatibility:  A client-only interaction mode is supported to
+      enable the endpoint to be situated behind NAT routers and
+      gateways.  In client mode, all interaction is initiated by the
+      client behind the NAT router.
+
+   Queueing:  Queueing mode is defined, whereby an endpoint, on waking
+      up, may retrieve all pending messages which accumulated while the
+      endpoint was sleeping.  Queueing mode is optional and is indicated
+      by the presence of the xx.queue attribute.
+
+   Publish-Subscribe:  CoapMQ supports publish-subscribe pattern
+      interactions, where an endpoint uses the core.mq function server
+      as a broker, sending updates to be buffered and sent to zero or
+      more subscribers.  Likewise, an endpoint may register with a
+      core.mq server to receive buffered updates published to the
+      core.mq server by other endpoints.  There is a simple binding of
+      operations to pub-sub protocol operations, for example MQTT
+      publish and subscribe operations.
+
+   Class 0 node:  A node which contains very limited resources may be
+      registered to a core.mq server and use the core.mq server as a
+      proxy and virtual endpoint.  The definition of a class 0 node is
+      extended to include use cases where the endpoint node has limited
+      power capability and/or limited reachability, in addition to
+      potentially limited memory and processing capability.  Devices of
+      this type may be registered with the help of an external agent,
+      power supply, or helper device.
+
+   Sleeping endpoint support:  Once an endpoint is registered, it may
+      sleep and wake up to send and receive data at appropriate times,
+      such as when the sensor output changes, or at regular intervals.
+
+
+
+Koster & Keranen        Expires November 29, 2014               [Page 4]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+      The sleep/wakeup times are expected to be at the discretion of the
+      endpoint.  The sleeping endpoint may signal it's wakeup times to
+      the core.rd service in order to synchronize with the core.mq
+      function service.  Sleeping endpoint support requires that the
+      endpoint be able to initiate all transactions, including entering
+      and leaving sleep mode.
+
+   The following entities are used in this specification:
+
+   RD server:  A Resource Directory server (RD) is used to register the
+      presence and network location of CoapMQ protocol capable
+      endpoints.  Endpoints wishing to use the CoapMQ protocol register
+      with the RD server using a special set of attributes indicating
+      use of the core.mq function set.  The RD server supporting CoAP MQ
+      registration is responsible for indicating the availability and
+      location of the core.mq function set.
+
+   Core.mq function server:  An endpoint at the service functions as a
+      core.mq function server, interacting with the endpoint as needed
+      to transfer data and state during active updates.  The core.mq
+      server may be controlled by endpoint interaction with an
+      associated RD server.
+
+3.  Architecture
+
+3.1.  RD Server with MQ function set
+
+   Figure 1 shows an example architecture of a CoapMQ capable service.
+   A RD service accepts registrations and registration updates from
+   endpoints and hosts a resource discovery service for web application
+   clients.  Cached state information is updated from the endpoints to
+   the core.mq function server.  Web clients subscribe to the state of
+   the endpoint from the core.mq server, and publish updates to the
+   endpoint state through the core.mq server.  The core.mq server
+   performs a store-and-forward function between the web client and the
+   CoapMQ capable endpoint.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Koster & Keranen        Expires November 29, 2014               [Page 5]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+    Endpoint                  Service                   Application
+                              +------+
+                              |      |
+               +- register -> |  RD  | <- discover -+
+    +------+   |              |      |              |   +--------+
+    |      | --+              +------+              +-- |  Web   |
+    |  EP  |                                            | Client |
+    |      | <-+              +------+              +-> |  app   |
+    +------+   |              |      |              |   +--------+
+               +-- pub/sub -> |  MQ  | <- pub/sub --+
+                              |      |
+                              +------+
+
+
+                      Figure 1: CoAP MQ Architecture
+
+3.2.  Client Endpoint
+
+   Client endpoints initiate all interaction with the RD server and
+   core.mq server.  If the endpoint is an actuator it will need to
+   either use GET + Observe or periodically poll the core.mq server
+   using GET to check for updates.  A client sensor would use PUT
+   operations to update the core.mq function server.  A client sensor
+   should update the RD server periodically to indicate that it is still
+   alive if it has no pending data updates.  Endpoints can operate in
+   client mode even if not directly reachable from the core.mq or
+   core.rd servers.
+
+3.3.  Server endpoint
+
+   Server endpoints require the core.mq function sever to perform a
+   client role, initiating interaction with the endpoint.  This is a
+   preferred mode when, for example, the endpoint is a sensor and wishes
+   to update the core.mq function server periodically upon waking up
+   between sleep intervals in response to a GET + Observe operation.  In
+   this mode an actuator endpoint would update the RD server to indicate
+   waking mode and ready to receive updates.  The core.mq client would
+   then use PUT operations to update the server endpoint.  Server mode
+   endpoints are required to be reachable from the core.rd and core.mq
+   function servers.
+
+4.  Registration and discovery - RD server
+
+   An endpoint wishing to use the CoapMQ protocol registers with an RD
+   server that advertises the core.mq function set.  The endpoint
+   registers with the core.pubsub attribute to indicate intention to use
+   the CoapMQ protocol.
+
+
+
+
+Koster & Keranen        Expires November 29, 2014               [Page 6]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+4.1.  Register PubSub Endpoint
+
+   Figure 2 shows the flow of the registration operation.  Discovery
+   proceeds as per Resource Directory.  When an endpoint wishes to use
+   the CoapMQ protocol, it discovers the core.mq function set at the RD
+   service and registers with the RD server by creating a RD endpoint
+   and updating it with the core.pubsub attribute.
+
+
+   EP                                               MQ        RD
+    |                  MQ DISCOVERY                 |         |
+    | -------- GET /.well-known/core?rt=core.mq --- | ------> |
+    |                                               |         |
+    | <-------- 2.05 Content "</mq>; rt=core.mq"--- | ------- |
+    |                                               |         |
+    |                                               |         |
+    |                  REGISTRATION                 |         |
+    | ------------- POST /rd "</mq/0/..." ----------- | ------> |
+    |                                               |         |
+    | <-------- 2.01 Created Location: /rd/1234 --- | ------- |
+    |                                               |         |
+    |                                               |         |
+
+
+           Figure 2: Discovery and Registration Message Exchange
+
+4.2.  Unregister Endpoint
+
+   CoapMQ endpoints indicate the end of their registration tenure by
+   either explicitly unregistering or allowing the lifetime of the
+   previous registration to expire.
+
+5.  CoRE MQ Function Set
+
+5.1.  core.mq subscribe to endpoint using GET+Observe, endpoint
+      publishes notifications to the core.mq server
+
+   The server mode endpoint enables the core.mq server to act as a
+   client and subscribe to a resource on the endpoint using GET +
+   Observe.  Figure 3 shows the flow of core.mq server subscribing to
+   the endpoint.
+
+
+
+
+
+
+
+
+
+
+Koster & Keranen        Expires November 29, 2014               [Page 7]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+   EP                                               MQ        RD
+    |                                               |         |
+    |                                               |         |
+    |                SUBSCRIBE                      |         |
+    | <------- GET /0/... Observe: Token:XX ------- |         |
+    |                                               |         |
+    |                 PUBLISH                       |         |
+    | ---------- 2.05 Content Observe:10----------> |         |
+    |                                               |         |
+    |                 PUBLISH                       |         |
+    | ---------- 2.05 Content Observe:12----------> |         |
+    |                                               |         |
+    |                 PUBLISH                       |         |
+    | ---------- 2.05 Content Observe:15----------> |         |
+    |                                               |         |
+    |                                               |         |
+
+
+                  Figure 3: GET+Observe Message Exchange
+
+5.2.  Endpoint subscribe to core.mq using GET+Observe, core.mq server
+      publishes notifications to the endpoint
+
+   Client mode endpoint subscribes to resource at core.rd server using
+   GET+Observe.  Updates to the REST API at the core.rd server are
+   published to the actuator using Observe response tokens.  Client may
+   update actuator or resource based on received values associated with
+   responses.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Koster & Keranen        Expires November 29, 2014               [Page 8]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+   EP                                               MQ        RD
+    |                                               |         |
+    |                                               |         |
+    |                 SUBSCRIBE                     |         |
+    | ------- GET /0/... Observe: Token:XX -------> |         |
+    |                                               |         |
+    |                  PUBLISH                      |         |
+    | <---------- 2.05 Content Observe:10---------- |         |
+    |                                               |         |
+    |                  PUBLISH                      |         |
+    | <---------- 2.05 Content Observe:12---------- |         |
+    |                                               |         |
+    |                  PUBLISH                      |         |
+    | <---------- 2.05 Content Observe:15---------- |         |
+    |                                               |         |
+    |                                               |         |
+
+
+                     Figure 4: Publish to the Endpoint
+
+5.3.  Endpoint publish to core.mq
+
+   Client mode endpoint uses PUT to update the sensor or property
+   resource at the core.mq server.
+
+
+   EP                                               MQ        RD
+    |                                               |         |
+    |                                               |         |
+    |                    PUBLISH                    |         |
+    | ----------------- PUT /0/... ---------------> |         |
+    |                                               |         |
+    |                                               |         |
+    | <--------------- 2.04 Changed---------------- |         |
+    |                                               |         |
+    |                                               |         |
+
+
+                  Figure 5: PUT from EP Message Exchange
+
+5.4.  core.mq publish to endpoint
+
+   core.rd server may update server mode endpoint using PUT when REST
+   API updates occur.  Endpoint server may update actuator or resource.
+
+
+
+
+
+
+
+Koster & Keranen        Expires November 29, 2014               [Page 9]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+   EP                                               MQ        RD
+    |                                               |         |
+    |                                               |         |
+    |                    PUBLISH                    |         |
+    | <---------------- PUT /0/... ---------------- |         |
+    |                                               |         |
+    |                                               |         |
+    | ---------------- 2.04 Changed---------------> |         |
+    |                                               |         |
+    |                                               |         |
+
+
+                   Figure 6: PUT by MQ Message Exchange
+
+5.5.  Endpoint GET from core.mq server
+
+   Client mode endpoint may issue GET without Observe as needed to
+   obtain state from the core.mq server.
+
+
+   EP                                               MQ        RD
+    |                                               |         |
+    |                                               |         |
+    |                                               |         |
+    | ---------------- GET /0/... ----------------> |         |
+    |                                               |         |
+    |                                               |         |
+    | <--------------- 2.05 Content --------------- |         |
+    |                                               |         |
+    |                                               |         |
+
+
+            Figure 7: GET from core.mq server Message Exchange
+
+5.6.  core.mq GET from endpoint
+
+   Core.mq server may issue GET without Observe as needed to obtain
+   state update from the server mode endpoint.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Koster & Keranen        Expires November 29, 2014              [Page 10]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+   EP                                               MQ        RD
+    |                                               |         |
+    |                                               |         |
+    |                                               |         |
+    | <--------------- GET /0/... ----------------- |         |
+    |                                               |         |
+    |                                               |         |
+    | ---------------- 2.05 Content --------------> |         |
+    |                                               |         |
+    |                                               |         |
+
+
+               Figure 8: GET from endpoint Message Exchange
+
+6.  Sleep-Wakeup Cycle
+
+6.1.  Registration with lifetime > max sleep interval
+
+   TBD
+
+6.2.  Signal using RD update to indicate wakeup at least once before
+      lifetime
+
+   TBD
+
+6.3.  ACK not received timeout unregister - CoRE Observe unregister
+      method? timeout linked to max sleep, lifetime? 7.31 with Token?
+
+   TBD
+
+6.4.  RD update wakeup triggers pending endpoint ops (GET, SUB, PUT),
+      queued ops from core.mq server - can this handshake with update
+      ACK?
+
+   TBD
+
+6.5.  Simple publish without RD update, either PUT or Observe
+      Notification.  Should this also reset the lifetime timer?
+
+   TBD
+
+6.6.  Example
+
+
+
+
+
+
+
+
+
+Koster & Keranen        Expires November 29, 2014              [Page 11]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+   EP                                               MQ        RD
+    |                                               |         |
+    |                                               |         |
+    |                   MQ DISCOVERY                |         |
+    | -------- GET /.well-known/core?rt=core.mq --- | ------> |
+    |                                               |         |
+    | <-------- 2.05 Content "</mq>; rt=core.mq"--- | ------- |
+    |                                               |         |
+    |                   REGISTRATION                |         |
+    | ------------- POST /rd "</mq/0/..." ----------- | ------> |
+    |                                               |         |
+    | <-------- 2.01 Created Location: /rd/1234 --- | ------- |
+    |                                               |         |
+    |                                               |         |
+    |                                               |         |
+    |                 WAKEUP SIGNAL                 |         |
+    |              UPDATE REGISTRATION              |         |
+    | ---------------- PUT /rd/1234 --------------- | ------> |
+    |                                               |         |
+    |                    PUBLISH                    |         |
+    | <---------------- PUT /0/... ---------------- |         |
+    |                                               |         |
+    | ---------------- 2.04 Changed---------------> |         |
+    |                                               |         |
+    |                   SUBSCRIBE                   |         |
+    | <------- GET /0/... Observe: Token:XX ------- |         |
+    |                                               |         |
+    |                   PUBLISH                     |         |
+    | ---- 2.05 Content Observe:10 Token:XX-------> |         |
+    |                                               |         |
+    |                  OK TO SLEEP                  |         |
+    | <--------------- 2.04 Changed---------------- |         |
+    |                                               |         |
+    |                                               |         |
+    |                   PUBLISH                     |         |
+    | ---- 2.05 Content Observe:10 Token:XX-------> |         |
+    |                                               |         |
+    |                                               |         |
+    |                    PUBLISH                    |         |
+    | ----------------- PUT /0/... ---------------> |         |
+    |                                               |         |
+    | <--------------- 2.04 Changed---------------- |         |
+    |                                               |         |
+    |                                               |         |
+
+
+              Figure 9: Example Sleep-Wakeup Message Exchange
+
+
+
+
+Koster & Keranen        Expires November 29, 2014              [Page 12]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+7.  MQTT Protocol Binding
+
+   TBD
+
+8.  Security Considerations
+
+   TBD
+
+9.  IANA Considerations
+
+   TBD
+
+10.  Acknowledgements
+
+   Add your name here.
+
+11.  References
+
+11.1.  Normative References
+
+   [1]        Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [2]        Shelby, Z., "Constrained RESTful Environments (CoRE) Link
+              Format", RFC 6690, August 2012.
+
+   [3]        Gregorio, J., Fielding, R., Hadley, M., Nottingham, M.,
+              and D. Orchard, "URI Template", RFC 6570, March 2012.
+
+   [4]        Shelby, Z., Bormann, C., and S. Krco, "CoRE Resource
+              Directory", draft-ietf-core-resource-directory-01 (work in
+              progress), December 2013.
+
+   [5]        Shelby, Z., Hartke, K., and C. Bormann, "Constrained
+              Application Protocol (CoAP)", draft-ietf-core-coap-18
+              (work in progress), June 2013.
+
+11.2.  Informative References
+
+   [6]        Nottingham, M., "Web Linking", RFC 5988, October 2010.
+
+Authors' Addresses
+
+   Michael Koster
+   ARM Limited
+
+   Email: Michael.Koster@arm.com
+
+
+
+
+Koster & Keranen        Expires November 29, 2014              [Page 13]
+
+Internet-Draft          Message Queueing in CoAP                May 2014
+
+
+   Ari Keranen
+   Ericsson
+
+   Email: ari.keranen@ericsson.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Koster & Keranen        Expires November 29, 2014              [Page 14]
