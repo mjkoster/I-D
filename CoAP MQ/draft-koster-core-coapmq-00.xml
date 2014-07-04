@@ -450,7 +450,7 @@ EP3                                              MQ
 <!-- ====================================================================== -->
 
 <section title="Sleep-Wakeup Operation and Message Queueing">
-<t>Normative reference to OMA LWM2M</t>
+<t>A CoAP-MQ broker MAY implement support for sleeping endpoints and queueing of messages as provided for in <xref target="OMALightweightM2M"/></t>
 </section>
 
  
