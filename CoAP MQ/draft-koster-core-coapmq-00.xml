@@ -457,7 +457,11 @@ EP3                                              MQ
 <!-- ====================================================================== -->
 
 <section anchor="SecurityConsiderations" title="Security Considerations">
-  <t>Communication security, DTLS, client-to-broker authentication, client authorization, access control to topics</t>
+<t>CoAP-MQ re-uses CoAP <xref target="RFC7252"/>, CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>, and Web Linking <xref target="RFC5988"/> and therefore the security considerations of those documents also apply to this specification. Additionally, a CoAP-MQ broker and the endpoints SHOULD authenticate each other and enforce access control policies. A malicious EP could subscribe to data it is not authorized to or mount a denial of service attack against the broker by publishing a large number of resources. The authentication can be performed using the already standardized DTLS offered mechanisms, such as certificates. DTLS also allows communication security to be established to ensure integrity and confidentiality protection of the data exchanged between these relevant parties. Provisioning the necessary credentials, trust anchors and authorization policies is non-trivial and subject of ongoing work.</t>
+
+<t>The use of a CoAP-MQ broker introduces challenges for the use of end-to-end security between the end device and the cloud-based server infrastructure since brokers terminate the exchange. While running separate DTLS sessions from the EP to the broker and from broker to the web application protects confidentially on those paths, the client/server EP does not know whether the commands coming from the broker are actually coming from the client web application. Similarly, a client web application requesting data does not know whether the data originated on the server EP. For scenarios where end-to-end security is desirable the use of application layer security is unavoidable. Application layer security would then provide a guarantee to the client EP that any request originated at the client web application. Similarly, integrity protected sensor data from a server EP will also provide guarantee to the client web application that the data originated on the EP itself. The protected data can also be verified by the intermediate broker ensuring that it stores/caches correct request/response and no malicious messages/requests are accepted. The broker would still be able to perform aggregation of data/requests collected.</t>
+
+<t>Depending on the level of trust users and system designers place in the CoAP-MQ broker, the use of end-to-end encryption may also be envisioned. The CoAP-MQ broken would then only be able to verify the request/response message/commands and store-and-forward without being able to inspect the content. The solution for providing application layer security will depend on the utilized data encoding. For example, with a JSON-based data encoding the work from the JOSE working group could be re-used. Distribution of the credentials for accomplishing end-to-end security might introduce challenges if previously unknown parties need to exchange data.</t>
 </section> 
 
 
@@ -470,8 +474,31 @@ EP3                                              MQ
 <!-- ====================================================================== -->
 
 <section anchor="iana" title="IANA Considerations">
-<t>"core.mq" function set, "core.pubsub.client" attribute, "core.pubsub.server" attribute</t>
-</section> 
+<t>This document registers two attribute values in the Resource Type (rt=) registry established with RFC 6690 <xref target="RFC6690"/>.</t>
+
+<section title="Resource Type value 'core.pubsub.client'">
+<t>
+<list style="symbols">
+<t>Attribute Value: core.pubsub.client</t>
+<t>Description: Section X of [[This document]]</t>
+<t>Reference: [[This document]]</t>
+<t>Notes: None</t>
+</list>
+</t>
+</section>
+
+<section title="Resource Type value 'core.pubsub.server'">
+<t>
+<list style="symbols">
+<t>Attribute Value: core.pubsub.server</t>
+<t>Description: Section Y of [[This document]]</t>
+<t>Reference: [[This document]]</t>
+<t>Notes: None</t>
+</list>
+</t>
+</section>
+
+</section>
 
 <!-- ====================================================================== -->
 
