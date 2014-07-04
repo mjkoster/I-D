@@ -90,7 +90,7 @@
 </list>
 </t>
 
-   <t>This specification makes use of the following additional terminology:
+<t>This specification makes use of the following additional terminology:
 <list style="hanging">
 
 <t hangText="CoAP Message Queue (CoAP-MQ) Service">A service provided by a node or system where CoAP messages sent by one endpoint to another are queued (stored) by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
@@ -517,7 +517,7 @@ EP3                                              MQ
 </section>
 
 
-  </middle>
+</middle>
 
 <!-- ====================================================================== -->
   <back>
