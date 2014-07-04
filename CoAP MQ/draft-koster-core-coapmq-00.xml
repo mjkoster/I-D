@@ -5,7 +5,7 @@
 <?rfc tocompact="yes"?>
 <?rfc tocdepth="3"?>
 <?rfc tocindent="yes"?>
-<?rfc symrefs="no"?>
+<?rfc symrefs="yes"?>
 <?rfc sortrefs="yes"?>
 <?rfc comments="yes"?>
 <?rfc inline="yes"?>
@@ -13,7 +13,7 @@
 <?rfc compact="no"?>
 <?rfc subcompact="no"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-koster-core-coapmq-00.txt">
+<rfc category="std" ipr="trust200902" docName="draft-koster-core-coapmq-00">
 
   <front>
   <title abbrev="Message Queueing in CoAP">Message Queueing in the Constrained Application Protocol (CoAP)</title>   
@@ -77,18 +77,6 @@
    specification are to be interpreted as described in <xref target="RFC2119"/>.</t>
    
    <t>This specification requires readers to be familiar with all the terms and concepts that are discussed in <xref target="RFC5988"/> and <xref target="RFC6690"/>. Readers should also be familiar with the terms and concepts discussed in <xref target="RFC7252"/> and <xref target="I-D.ietf-core-resource-directory"/>. The URI template format, see <xref target="RFC6570"/>, is used to describe the REST interfaces defined in this specification.</t>
-
-<t>The following entities are used in this specification:
-<list style="hanging">
-
-<t hangText="CoAP Message Queue (CoAP-MQ) Service:">A service provided by a node or system where CoAP messages sent by one endpoint to another are queued (stored) by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
-
-<t hangText="CoAP-MQ Broker:">A server node capable of storing messages to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations.</t>
-
-<t hangText="CoAP-MQ Endpoint:">An endpoint that implements the MQ function set defined in Section 5. A CoAP-MQ endpoint has two potential roles, CoAP-MQ client and CoAP-MQ server</t>
-
-</list>
-</t>
 
 <t>This specification makes use of the following additional terminology:
 <list style="hanging">
