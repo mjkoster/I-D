@@ -149,7 +149,7 @@
 <!-- ====================================================================== -->
 
 <section title="CoAP-MQ Registration and discovery">
-<t>An endpoint wishing to use a CoAP-MQ broker registers with an RD server that advertises a service having the "core.mq" attribute. This indicates that there is a CoAP-MQ broker at the location returned by the discovery query as shown in <xref target="reg-fig"/>. The endpoint registers topics using the "rt=core.pubsub.client" or "core.pubsub.server" (or both) attributes to indicate intention to use CoAP-MQ and which roles are supported.</t>
+<t>An endpoint wishing to use a CoAP-MQ broker registers with an RD server that advertises a link with the rt="core.mq" attribute as shown in <xref target="reg-fig"/>. This indicates that there is a CoAP-MQ broker at the location returned by the discovery query as shown in <xref target="reg-fig"/>. The endpoint registers topics using the rt="core.pubsub.client" or rt="core.pubsub.server" (or both) link relation attributes to indicate intention to use CoAP-MQ and which roles are supported.</t>
 
 <t>A server that implements a CoAP_MQ broker MAY advertize this capability by registering the rt="core.mq" with an associated Resource Directory. If a server advertizes as a CoAP-MQ Broker, it MUST support the transactions described in section 5 of this document. As server that implements the CoAP-MQ Broker MAY also implement sleeping endpoint and message queueing support referred to in Section 6 of this document.</t>
 
