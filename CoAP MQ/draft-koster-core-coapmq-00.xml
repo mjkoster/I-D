@@ -34,6 +34,15 @@
       </address>
     </author>
 	
+
+<author fullname="Jaime Jimenez" initials="J.J." surname="Jimenez">
+      <organization>Ericsson</organization>
+      <address>
+        <email>jaime.jimenez@ericsson.com</email>
+      </address>
+    </author>
+	
+
     <date year="2014"/>
     <keyword>Internet-Draft</keyword>
     <keyword>CORE</keyword>
@@ -57,6 +66,8 @@
 
    <t>This document specifies the means for nodes with limited reachability to communicate using simple extensions to CoAP and the CoRE Resource Directory [I-D.ietf-core-resource-directory-01]. The extensions enable publish-subscribe communication using a Message Queue (MQ) broker node that enables store-and-forward messaging between two or more nodes.</t>
 
+   <t>The mechanisms specified in this document are meant to address key design requirements from earlier CoRE drafts covering sleepy node support and mirror server. </t>
+
 </section>
 
 <!-- ====================================================================== -->
@@ -68,17 +79,7 @@
    
    <t>This specification requires readers to be familiar with all the terms and concepts that are discussed in <xref target="RFC5988"/> and <xref target="RFC6690"/>. Readers should also be familiar with the terms and concepts discussed in <xref target="I-D.ietf-core-coap"/> and <xref target="I-D.ietf-core-resource-directory"/>. The URI template format, see <xref target="RFC6570"/>, is used to describe the REST interfaces defined in this specification.</t>
 
-   <t>This specification makes use of the following additional terminology:
-<list style="hanging">
-
-<t hangText="Publish-Subscribe:">CoapMQ supports publish-subscribe pattern interactions, where an endpoint uses the core.mq function server as a broker, sending updates to be buffered and sent to zero or more subscribers. Likewise, an endpoint may register with a core.mq server to receive buffered updates published to the core.mq server by other endpoints. There is a simple binding of operations to pub-sub protocol operations, for example MQTT publish and subscribe operations.</t>
-
-<t hangText="TOpic">A Topic, in Publish-Subscribe systems, is a unique identifying string for a particular item or object being published and subscribed to.</t>
-
-</list>
-</t>
-
- <t>The following entities are used in this specification:
+<t>The following entities are used in this specification:
 <list style="hanging">
 
 <t hangText="CoAP Message Queue (CoAP-MQ) Service">A service provided by a node or system where CoAP messages sent by one endpoint to another are queued (stored) by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
@@ -86,6 +87,16 @@
 <t hangText="CoAP-MQ Broker">A server node capable of storing messages to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations.</t>
 
 <t hangText="CoAP-MQ Endpoint">An endpoint that implements the MQ function set defined in Section 5. A CoAP-MQ endpoint has two potential roles, CoAP-MQ client and CoAP-MQ server</t>
+
+</list>
+</t>
+
+   <t>This specification makes use of the following additional terminology:
+<list style="hanging">
+
+<t hangText="Publish-Subscribe:">CoAP-MQ supports publish-subscribe pattern interactions, where one or more endpoints use the CoAP-MQ server as a broker, sending updates to be buffered and sent to zero or more subscribers. Likewise, an endpoint may register with a CoAP-MQ broker to receive buffered updates published to the broker by other endpoints. There is a simple binding of CoAP operations to pub-sub protocol operations.</t>
+
+<t hangText="Topic">A Topic, in Publish-Subscribe systems, is a unique identifying string for a particular item or object being published and subscribed to.</t>
 
 </list>
 </t>
@@ -98,7 +109,7 @@
 
 <section title="RD Server with MQ function set">
 
-<t><xref target="arch-fig"/> shows an example architecture of a CoAP-MQ capable service. A RD service accepts registrations and registration updates from endpoints and hosts a resource discovery service for web application clients. State information is updated from the endpoints to the core.mq function server. Web clients subscribe to the state of the endpoint from the CoAP-MQ broker, and publish updates to the endpoint state through the CoAP-MQ broker. The CoAP-MQ broker performs a store-and-forward function between the web client and the CoAP-MQ capable endpoints.</t>
+<t><xref target="arch-fig"/> shows an example architecture of a CoAP-MQ capable service. A Resource Directory service accepts registrations and registration updates from endpoints and hosts a resource discovery service for web application clients. State information is updated from the endpoints to the CoAP-MQ broker. Web clients subscribe to the state of the endpoint from the CoAP-MQ broker, and publish updates to the endpoint state through the CoAP-MQ broker. The CoAP-MQ broker performs a store-and-forward function between web clients and the CoAP-MQ capable endpoints. The CoAP-MQ broker is also responsible for acting as a proxy, returning the last published value to web clients or other endpoints on behalf endpoints that are sleeping.</t>
 
         <t>
         <figure title="CoAP MQ Architecture" anchor="arch-fig">
@@ -112,9 +123,9 @@
  |      | --+              +------+              +-- |  Web   |
  |  EP  |                                            | Client |
  |      | <-+              +------+              +-> |  app   |
- +------+   |              |      |              |   +--------+
+ +------+   |              | CoAP |              |   +--------+
   |  EP  |  +-- pub/sub -> |  MQ  | <- pub/sub --+    |  app   |
-  +------+                 |      |                   +--------+
+  +------+                 |Broker|                   +--------+
                            +------+
 ]]>
 </artwork>
@@ -123,17 +134,17 @@
 </section>
 
 <section title="Client Endpoint"> 
-<t>Client endpoints initiate all interactions with the RD and MQ broker. If the endpoint is an actuator it will need to either use CoAP Observe [I-D.ietf-core-observe] or periodically poll the MQ broker to check for updates. A client endpoint would use CoAP PUT operations to update its state on the MQ broker. An endpoint updates the RD periodically to indicate that it is still alive even if it has no pending data updates. Endpoints can operate in client mode even if not directly reachable from the CoAP-MQ broker or RD.</t>
+<t>Client endpoints initiate all interactions with the RD and MQ broker. If the endpoint is an actuator it will need to either use CoAP Observe [I-D.ietf-core-observe] or periodically poll the MQ broker to check for updates. A CoAP-MQ client endpoint MUST use CoAP PUT operations to update its state on the MQ broker. An endpoint SHOULD update the RD periodically to indicate that it is still alive even if it has no pending data updates. Endpoints can operate in the client role even if not directly reachable from the CoAP-MQ broker or RD server.</t>
 
 </section> 
 
-<section title="Server endpoint">
-<t>Server endpoint interactions require the CoAP-MQ broker to perform the client role, initiating interaction with the server endpoint. The CoAP-MQ client MAY then use PUT operations to update state at the server endpoint, and MAY use GET or GET+Observe to subscribe to resources at the endpoint. Server mode endpoints are required to be reachable from core.mq function servers. In a network containing both client and server endpoints, client endpoints MAY subscribe to server endpoints directly, in broker-less configurations.</t>
+<section title="Server Endpoint">
+<t>Server endpoint interactions require the CoAP-MQ broker to perform the client role, initiating interaction with the server endpoint. The CoAP-MQ broker MAY then use PUT operations to update state at the server endpoint, and MAY use GET or GET+Observe to subscribe to resources at the endpoint. Server mode endpoints are required to be reachable from the CoAP-MQ broker. In a network containing both client and server endpoints, client endpoints MAY subscribe to server endpoints directly, in broker-less configurations, using RD or core-link-format metadata in .well-known/core to discover the CoAP-MQ capabilities and using GET+Observe to subscribe to the desired topics.</t>
 
 </section>
 
 <section title="Publish-Subscribe Topics">
-<t>Topic are strings used to identify particular resources and objects in publish-subscribe systems. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure". Implementations MAY map topics to resources, reusing existing resource addressing schemes. </t>
+<t>Topic are strings used to identify particular resources and objects in publish-subscribe systems. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure". Implementations are free to map topics to resources, reusing existing resource addressing schemes. </t>
 
 </section>
 
@@ -142,10 +153,10 @@
 <!-- ====================================================================== -->
 
 <section title="Registration and discovery - RD server"> 
-<t>An endpoint wishing to use the CoapMQ protocol registers with an RD server that advertises the core.mq function set. The endpoint registers topics with the core.pubsub attribute to indicate intention to use the CoapMQ protocol.</t>
+<t>An endpoint wishing to use a CoAP-MQ broker registers with an RD server that advertises the "core.mq" function set. The endpoint registers topics with the "rt=core.pubsub.client" or "core.pubsub.server" (or both) attribute to indicate intention to use CoAP-MQ and which roles are supported.</t>
 
 <section title="Register PubSub Endpoint">
-<t><xref target="reg-fig"/> shows the flow of the registration operation. Discovery proceeds as per Resource Directory. When an endpoint wishes to use the CoapMQ protocol, it discovers the "core.mq" function set at the RD service and registers its CoAP-MQ resources with the RD server by creating a RD endpoint and updating it with resources having the rt="core.pubsub" attribute. Topics are created using an initial POST operation to the registered topic or sub-topic. For example, if the registered topic is "/sensors/weather", the sub-topic "/sensors/weather/barometer" is created using POST to "/mq/sensors/weather/barometer". An implementation MAY mix CoAP-MQ resources and CoAP REST resources on the same endpoint. Endpoint registration proceeds as per normal RD registration.</t>
+<t><xref target="reg-fig"/> shows the flow of the registration operation. Discovery proceeds as per CoRE Resource Directory[I-D.ietf-core-resource-directory-01]. When an endpoint wishes to use CoAP-MQ, it discovers the "core.mq" function set at the RD service associated with the CoAP-MQ broker and registers its CoAP-MQ resources with the RD server by registering topics having the rt="core.pubsub" attribute. Topics are created using an initial POST operation to the registered topic or any valid sub-topic. For example, if the registered topic is "/sensors/weather", the sub-topic "/sensors/weather/barometer" is created using a POST to "/mq/sensors/weather/barometer". An implementation MAY mix CoAP-MQ resources and CoAP REST resources on the same endpoint. Endpoint registration proceeds as per normal RD registration.</t>
 
         <t>
         <figure title="Discovery and Registration Message Exchange" anchor="reg-fig">
@@ -159,7 +170,7 @@ EP                                               MQ        RD
  |                                               |         |
  |                                               |         |
  |                TOPIC REGISTRATION             |         |
- | ----POST /rd “</mq/0/xx>;rt=core.pubsub” ---- | ------> |
+ | ---POST /rd “</mq/0/xx>;rt=core.pubsub.xx”--- | ------> |
  |                                               |         |
  | <-------- 2.01 Created Location: /rd/1234 --- | ------- |
  |                                               |         |
@@ -176,7 +187,7 @@ EP                                               MQ        RD
 </section>
 
 <section title="Unregister Endpoint">
-<t>CoapMQ endpoints indicate the end of their registration tenure by either explicitly unregistering, as in <xref target="unreg-fig"/>, or allowing the lifetime of the previous registration to expire, as in <xref target="unreg-fig"/>.</t>
+<t>CoaAP-MQ endpoints indicate the end of their registration tenure by either explicitly unregistering, as in <xref target="unreg-fig"/>, or allowing the lifetime of the previous registration to expire.</t>
 
 <t>
 <figure title="Unregister Endpoint Message Exchange" anchor="unreg-fig">
@@ -201,9 +212,11 @@ EP                                               MQ        RD
 
 <!-- ====================================================================== -->
 
-<section title="CoRE MQ Function Set">
+<section title="CoAP-MQ Function Set">
+<t>This section describes the transaction flows and interactions between CoAP-MQ endpoints and CoAP-MQ brokers. Client endpoint functions are usable by endpoints using the client role, for example to enable sleep/wakeup and partial connectivity. Server role endpoint functions are usable by enpoints using the server role, for example always on, reachable, endpoints. An implementation MAY support both client role and server role at an endpoint.</t>
 
-<section title="Client Endpoint Functions">
+<section title="Client Role Endpoint Functions">
+<t>This section describes the transaction flows and interactions between CoAP-MQ endpoints and CoAP-MQ brokers where the endpoint supports the client role. A client registering the "core.pubsub.client" attribute MUST support these interactions.</t>
 
 <section title="Endpoint publish to CoAP-MQ broker">
 <t>Client endpoint uses PUT to publish updates to the state associated with the topic at the CoAP-MQ broker.</t>
@@ -284,13 +297,14 @@ EP                                              MQ        RD
 
 </section>
 
-<section title="Server Endpoint Functions">
+<section title="Server Role Endpoint Functions">
+<t>This section describes the transaction flows and interactions between CoAP-MQ endpoints and CoAP-MQ brokers where the endpoint supports the server role. A client registering the "core.pubsub.server" attribute MUST support these interactions.</t>
 
 <section title="CoAP-MQ broker subscribes to endpoint using GET+Observe, endpoint publishes notifications to the CoAP-MQ broker">
-<t>The server mode endpoint enables the core.mq server to act as a client and subscribe to a resource on the endpoint using GET + Observe. <xref target="sub-observe-fig"/> shows the flow of core.mq server subscribing to the endpoint. </t>
+<t>The server mode endpoint enables the CoAP-MQ broker to act as a client and subscribe to a resource on the endpoint using GET + Observe. <xref target="sub-observe-fig"/> shows the flow of core.mq server subscribing to the endpoint. </t>
 
         <t>
-        <figure title="GET+Observe Message Exchange" anchor="sub-observe-fig">
+        <figure title="SUBSCRIBE using GET+Observe" anchor="sub-observe-fig">
           <artwork>
             <![CDATA[
 EP                                               MQ        RD
@@ -317,11 +331,11 @@ EP                                               MQ        RD
 </section>
 
 
-<section title="CoAP-MQ broker publishes to endpoint">
+<section title="CoAP-MQ Broker Publishes to Endpoint">
 <t>CoAP-MQ broker MAY update server mode endpoint using PUT when state updates are published on the associated topic. Endpoint server MAY update actuator or resource.</t>
 
         <t>
-        <figure title="PUT by CoAP-MQ broker Message Exchange" anchor="put-mq-fig">
+        <figure title="PUBLISH to EP using PUT by CoAP-MQ Broker" anchor="put-mq-fig">
           <artwork>
             <![CDATA[
 EP                                               MQ        RD
@@ -341,11 +355,11 @@ EP                                               MQ        RD
 
 </section>
 
-<section title="core.mq GET from endpoint">
-<t>CoAP-MQ broker server MAY issue GET without Observe as needed to obtain state update from the server mode endpoint.</t>
+<section title="core.mq GET from Endpoint">
+<t>CoAP-MQ broker MAY issue GET without Observe as needed to obtain state update from the server role endpoint.</t>
 
         <t>
-        <figure title="CoAP-MQ broker GET from endpoint Message Exchange" anchor="get-ep-fig">
+        <figure title="CoAP-MQ Broker GET from Endpoint" anchor="get-ep-fig">
           <artwork>
             <![CDATA[
 EP                                               MQ        RD
@@ -369,21 +383,21 @@ EP                                               MQ        RD
 
 <!-- ====================================================================== -->
 
-<section title="Enabling multiple publishers">
+<section title="Enabling Multiple Publishers">
 
-<section title="Creating a topic">
+<section title="Creating a Topic">
 
-<t>After registration of the EP in the RD and discovering the MQ function, a designated EP acting as publisher for a particular topic is responsible for creating such topic. To do so, it will have to register the new topic in the RD and create it on the MQ function by doing a first publication as shown in <xref target="reg-fig"/>.</t>
-<t>After the topic has been created in the MQ, the MQ will be responsible of hosting this resource and to queue messages published on it as explained in 5.X</t>
+<t>After registration of the EP in the RD and discovering the CoAP-MQ function, a designated EP acting as publisher for a particular topic is responsible for creating such topic. To do so, it will have to register the new topic in the RD and create it on the MQ function by doing a first publication as shown in <xref target="reg-fig"/>.</t>
+<t>After the topic has been created in the CoAP-MQ broker, the broker will be responsible of hosting this resource and to queue messages published on it as explained in 5.X</t>
 </section>
 
-<section title="Publishing a topic from multiple publishers">
+<section title="Publishing a Topic from Multiple Publishers">
 
-<t>After the topic has been registered in the RD and is created in the MQ, any device with the right access permissions can publish on that topic by using the topic field. For example in the following diagram, both EP1 and EP2 update the same topic that EP3 has previously subscribed to.</t>
+<t>After the topic has been registered in the RD and is created in the CoAP-MQ broker, any device with the right access permissions can publish on that topic by using the topic field. For example in the following diagram, both EP1 and EP2 update the same topic that EP3 has previously subscribed to.</t>
 <t>After the topic has been created in the MQ, the MQ will be responsible of hosting this resource and to queue messages published on it as explained in 5.X</t>
 
 <t>
-<figure title="CoAP-MQ broker GET from endpoint Message Exchange" anchor="multi-pub-fig">
+<figure title="Multiple CoAP-MQ EPs PUBLISH to Broker using PUT" anchor="multi-pub-fig">
 <artwork>
 <![CDATA[
 EP1     EP2                                     MQ
@@ -410,7 +424,7 @@ EP1     EP2                                     MQ
 <t>Subscription to this topic is the same as in 5.X, since it acts as any other resource. Following the previous example, if EP3 is subscribed to the shared topic, it should receive two updates from both EP1 and EP2.</t>
 
 <t>
-<figure title="CoAP-MQ broker GET from endpoint Message Exchange" anchor="multi-pub-sub-fig">
+<figure title="CoAP-MQ Endpoint SUBSCRIBE to Broker using GET+Observe" anchor="multi-pub-sub-fig">
 <artwork>
 <![CDATA[
 EP3                                              MQ
@@ -434,83 +448,9 @@ EP3                                              MQ
 
 <!-- ====================================================================== -->
 
-<section title="Sleep-Wakeup Cycle">
+<section title="Sleep-Wakeup Operation and Message Queueing">
 
-<section title="Registration with lifetime > max sleep interval">
-<t>TBD</t>
 </section>
-
-<section title="Signal using RD update to indicate wakeup at least once before lifetime">
-<t>TBD</t>
-</section>
-
-<section title="ACK not received timeout unregister - CoRE Observe unregister method? timeout linked to max sleep, lifetime? 7.31 with Token?">
-<t>TBD</t>
-</section>
-
-<section title="RD update wakeup triggers pending endpoint ops (GET, SUB, PUT), queued ops from core.mq server - can this handshake with update ACK?">
-<t>TBD</t>
-</section>
-
-<section title="Simple publish without RD update, either PUT or Observe Notification. Should this also reset the lifetime timer?">
-<t>TBD</t>
-</section>
-
-<section title="Example">
-        <t>
-        <figure title="Example Sleep-Wakeup Message Exchange" anchor="sleep-wakeup-fig">
-          <artwork>
-            <![CDATA[
-EP                                               MQ        RD
- |                                               |         |
- |                                               |         |
- |                   MQ DISCOVERY                |         |
- | -------- GET /.well-known/core?rt=core.mq --- | ------> |
- |                                               |         |
- | <-------- 2.05 Content “</mq>; rt=core.mq”--- | ------- |
- |                                               |         |
- |                TOPIC REGISTRATION             |         |
- | ----POST /rd “</mq/0/xx>;rt=core.pubsub” ---- | ------> |
- |                                               |         |
- | <-------- 2.01 Created Location: /rd/1234 --- | ------- |
- |                                               |         |
- |                                               |         |
- |                                               |         |
- |                 WAKEUP SIGNAL                 |         |
- |              UPDATE REGISTRATION              |         |
- | ---------------- PUT /rd/1234 --------------- | ------> |
- |                                               |         |
- |                    PUBLISH                    |         |
- | <---------------- PUT /0/... ---------------- |         |
- |                                               |         |
- | ---------------- 2.04 Changed---------------> |         |
- |                                               |         |
- |                   SUBSCRIBE                   |         |
- | <------- GET /0/... Observe: Token:XX ------- |         |
- |                                               |         |
- |                   PUBLISH                     |         |
- | ---- 2.05 Content Observe:10 Token:XX-------> |         |
- |                                               |         |
- |                  OK TO SLEEP                  |         |
- | <--------------- 2.04 Changed---------------- |         |
- |                                               |         |
- |                                               |         |
- |                   PUBLISH                     |         |
- | ---- 2.05 Content Observe:10 Token:XX-------> |         |
- |                                               |         |
- |                                               |         |
- |                    PUBLISH                    |         |
- | ----------------- PUT /0/... ---------------> |         |
- |                                               |         |
- | <--------------- 2.04 Changed---------------- |         |
- |                                               |         |
- |                                               |         |
-]]>
-</artwork>
-</figure>
-</t>
-</section>
-</section> 
 
  
 <!-- ====================================================================== -->
@@ -551,9 +491,21 @@ EP                                               MQ        RD
       <?rfc include="reference.RFC.6570"?>
       <?rfc include="reference.I-D.ietf-core-resource-directory"?>
       <?rfc include="reference.I-D.ietf-core-coap"?>
-    </references> 
 
-    <references title="Informative References"> 
+<reference anchor="OMALightweightM2M">
+<front>
+<title>OMA LightweightM2M v1.0</title>
+<author>
+<organization>Open Mobile Alliance</organization>
+</author>
+<date month="12" year="2013"/>
+</front>
+<seriesInfo name="" value="http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/oma-lightweightm2m-v1-0"/>
+</reference>
+
+    </references>
+
+    <references title="Informative References">
 	      <?rfc include="reference.RFC.5988"?>
     </references>
   
