@@ -59,13 +59,13 @@
 <!-- ====================================================================== -->
 
 <section anchor="introduction" title="Introduction">
-   <t>IETF CoRE supports machine to machine communication across networks of constrained devices. One important class of constrained devices includes devices that are intended to run for years from a small battery, or by scavenging energy from their environment. These devices spend most of their time in a sleeping state with no network connectivity.</t>
+<t>The Constrained Application Protocol (CoAP) <xref target="RFC7252"/> supports machine to machine communication across networks of constrained devices. One important class of constrained devices includes devices that are intended to run for years from a small battery, or by scavenging energy from their environment. These devices spend most of their time in a sleeping state with no network connectivity.</t>
 
-   <t>Devices may also have limited reachability due to certain middle-boxes, such as Network Address Translators (NATs) or firewalls. Such devices must communicate using a client role, whereby the endpoint is responsible for initiating communication.</t>
+<t>Devices may also have limited reachability due to certain middle-boxes, such as Network Address Translators (NATs) or firewalls. Such devices must communicate using a client role, whereby the endpoint is responsible for initiating communication.</t>
 
-   <t>This document specifies the means for nodes with limited reachability to communicate using simple extensions to CoAP and the CoRE Resource Directory [I-D.ietf-core-resource-directory-01]. The extensions enable publish-subscribe communication using a Message Queue (MQ) broker node that enables store-and-forward messaging between two or more nodes.</t>
+<t>This document specifies the means for nodes with limited reachability to communicate using simple extensions to CoAP and the CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>. The extensions enable publish-subscribe communication using a Message Queue (MQ) broker node that enables store-and-forward messaging between two or more nodes.</t>
 
-   <t>The mechanisms specified in this document are meant to address key design requirements from earlier CoRE drafts covering sleepy node support and mirror server. </t>
+<t>The mechanisms specified in this document are meant to address key design requirements from earlier CoRE drafts covering sleepy node support and mirror server. </t>
 
 </section>
 
@@ -76,7 +76,7 @@
    'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY', and 'OPTIONAL' in this
    specification are to be interpreted as described in <xref target="RFC2119"/>.</t>
    
-   <t>This specification requires readers to be familiar with all the terms and concepts that are discussed in <xref target="RFC5988"/> and <xref target="RFC6690"/>. Readers should also be familiar with the terms and concepts discussed in <xref target="I-D.ietf-core-coap"/> and <xref target="I-D.ietf-core-resource-directory"/>. The URI template format, see <xref target="RFC6570"/>, is used to describe the REST interfaces defined in this specification.</t>
+   <t>This specification requires readers to be familiar with all the terms and concepts that are discussed in <xref target="RFC5988"/> and <xref target="RFC6690"/>. Readers should also be familiar with the terms and concepts discussed in <xref target="RFC7252"/> and <xref target="I-D.ietf-core-resource-directory"/>. The URI template format, see <xref target="RFC6570"/>, is used to describe the REST interfaces defined in this specification.</t>
 
 <t>The following entities are used in this specification:
 <list style="hanging">
@@ -93,9 +93,18 @@
    <t>This specification makes use of the following additional terminology:
 <list style="hanging">
 
-<t hangText="Publish-Subscribe:">CoAP-MQ supports publish-subscribe pattern interactions, where one or more endpoints use the CoAP-MQ server as a broker, sending updates to be buffered and sent to zero or more subscribers. Likewise, an endpoint may register with a CoAP-MQ broker to receive buffered updates published to the broker by other endpoints. There is a simple binding of CoAP operations to pub-sub protocol operations.</t>
+<t hangText="CoAP Message Queue (CoAP-MQ) Service">A service provided by a node or system where CoAP messages sent by one endpoint to another are queued (stored) by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
 
-<t hangText="Topic">A Topic, in Publish-Subscribe systems, is a unique identifying string for a particular item or object being published and subscribed to.</t>
+<t hangText="CoAP-MQ Broker">A server node capable of storing messages to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations.</t>
+
+<t hangText="CoAP-MQ function set">A group of well-known REST resources that together provide the CoAP-MQ service.</t>
+
+<t hangText="CoAP-MQ Endpoint">An endpoint that implements the CoAP-MQ function set. A CoAP-MQ endpoint has two potential roles, CoAP-MQ client and CoAP-MQ server.</t>
+
+<!-- This needs a bit more meat -->
+<t hangText="Publish-Subscribe (pub-sub)">A messaging paradigm where messages are published (e.g., to a broker) and potential receivers can subscribe to receive the messages.</t>
+
+<t hangText="Topic">In Publish-Subscribe systems a topic is a unique identifying string for a particular item or object being published and/or subscribed to.</t>
 
 </list>
 </t>
@@ -106,9 +115,9 @@
 
 <section anchor="architecture" title="Architecture"> 
 
-<section title="RD Server with MQ function set">
+<section title="RD Server with associated CoAP-MQ Broker">
 
-<t><xref target="arch-fig"/> shows an example architecture of a CoAP-MQ capable service. A Resource Directory service accepts registrations and registration updates from endpoints and hosts a resource discovery service for web application clients. State information is updated from the endpoints to the CoAP-MQ broker. Web clients subscribe to the state of the endpoint from the CoAP-MQ broker, and publish updates to the endpoint state through the CoAP-MQ broker. The CoAP-MQ broker performs a store-and-forward function between web clients and the CoAP-MQ capable endpoints. The CoAP-MQ broker is also responsible for acting as a proxy, returning the last published value to web clients or other endpoints on behalf endpoints that are sleeping.</t>
+<t><xref target="arch-fig"/> shows an example architecture of a CoAP-MQ capable service. A Resource Directory service accepts registrations and registration updates from one or more endpoints and hosts a resource discovery service for one or more web application clients. State information is updated from the endpoints to the CoAP-MQ broker. Web clients subscribe to the state of the endpoint from the CoAP-MQ broker, and publish updates to the endpoint state through the CoAP-MQ broker. The CoAP-MQ broker performs a store-and-forward function between web clients and the CoAP-MQ capable endpoints. The CoAP-MQ broker is also responsible for acting as a proxy, returning the last published value to web clients or other endpoints on behalf endpoints that are sleeping.</t>
 
         <t>
         <figure title="CoAP MQ Architecture" anchor="arch-fig">
@@ -513,12 +522,14 @@ EP3                                              MQ
 <!-- ====================================================================== -->
   <back>
 
-    <references title="Normative References"> 
-      <?rfc include="reference.RFC.2119"?>
-      <?rfc include="reference.RFC.6690"?>
-      <?rfc include="reference.RFC.6570"?>
-      <?rfc include="reference.I-D.ietf-core-resource-directory"?>
-      <?rfc include="reference.I-D.ietf-core-coap"?>
+<references title="Normative References">
+<?rfc include="reference.RFC.2119"?>
+<?rfc include="reference.RFC.6690"?>
+<?rfc include="reference.RFC.6570"?>
+<?rfc include="reference.I-D.ietf-core-resource-directory"?>
+<?rfc include="reference.I-D.ietf-core-observe"?>
+<!--      <?rfc include="reference.I-D.draft-ietf-core-interfaces"?> -->
+<?rfc include="reference.RFC.7252"?>
 
 <reference anchor="OMALightweightM2M">
 <front>
