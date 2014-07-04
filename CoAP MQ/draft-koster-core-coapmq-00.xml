@@ -105,7 +105,7 @@
 
 <section title="RD Server with associated CoAP-MQ Broker">
 
-<t><xref target="arch-fig"/> shows an example architecture of a CoAP-MQ capable service. A Resource Directory service accepts registrations and registration updates from one or more endpoints and hosts a resource discovery service for one or more web application clients. State information is updated from the endpoints to the CoAP-MQ broker. Web clients subscribe to the state of the endpoint from the CoAP-MQ broker, and publish updates to the endpoint state through the CoAP-MQ broker. The CoAP-MQ broker performs a store-and-forward function between web clients and the CoAP-MQ capable endpoints. The CoAP-MQ broker is also responsible for acting as a proxy, returning the last published value to web clients or other endpoints on behalf endpoints that are sleeping.</t>
+<t><xref target="arch-fig"/> shows an example architecture of a CoAP-MQ capable service. A Resource Directory (RD) service accepts registrations and registration updates from one or more endpoints and hosts a resource discovery service for one or more web application clients. State information is updated from the endpoints to the CoAP-MQ broker. Web clients subscribe to the state of the endpoint from the CoAP-MQ broker, and publish updates to the endpoint state through the CoAP-MQ broker. The CoAP-MQ broker performs a store-and-forward function between web clients and the CoAP-MQ capable endpoints. The CoAP-MQ broker is also responsible for acting as a proxy, returning the last published value to web clients or other endpoints on behalf endpoints that are sleeping.</t>
 
         <t>
         <figure title="CoAP MQ Architecture" anchor="arch-fig">
