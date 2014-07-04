@@ -359,7 +359,7 @@ EP                                               MQ        RD
 <t>CoAP-MQ broker MAY issue GET without Observe as needed to obtain state update from the server role endpoint.</t>
 
         <t>
-        <figure title="CoAP-MQ Broker GET from Endpoint" anchor="get-ep-fig">
+        <figure title="CoAP-MQ Broker GET from Server Role Endpoint" anchor="get-ep-fig">
           <artwork>
             <![CDATA[
 EP                                               MQ        RD
@@ -456,7 +456,7 @@ EP3                                              MQ
 <!-- ====================================================================== -->
 
 <section anchor="SecurityConsiderations" title="Security Considerations">
-  <t>TBD</t>
+  <t>Communication security, DTLS, client-to-broker authentication, client authorization, access control to topics</t>
 </section> 
 
 
@@ -469,14 +469,14 @@ EP3                                              MQ
 <!-- ====================================================================== -->
 
 <section anchor="iana" title="IANA Considerations">
-<t>TBD</t>
+<t>"core.mq" function set, "core.pubsub.client" attribute, "core.pubsub.server" attribute</t>
 </section> 
 
 <!-- ====================================================================== -->
 
     
 <section anchor="acks" title="Acknowledgements">
-  <t>Add your name here.</t>
+  <t>Hannes Tschofenig, Zach Shelby</t>
 </section>
 
 
