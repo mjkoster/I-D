@@ -135,7 +135,7 @@
 </section> 
 
 <section title="Server Endpoint">
-<t>Server endpoint interactions require the CoAP-MQ broker to perform the client role, initiating interaction with the server endpoint. The CoAP-MQ broker MAY then use PUT operations to update state at the server endpoint, and MAY use GET or GET+Observe to subscribe to resources at the endpoint. Server mode endpoints are required to be reachable from the CoAP-MQ broker. In a network containing both client and server endpoints, client endpoints MAY subscribe to server endpoints directly, in broker-less configurations, using RD or core-link-format metadata in .well-known/core to discover the CoAP-MQ capabilities and using GET+Observe to subscribe to the desired topics.</t>
+<t>Server endpoint interactions require the CoAP-MQ broker to perform the client role, initiating interaction with the server endpoint. The CoAP-MQ broker MAY then use PUT operations to update state at the server endpoint, and MAY use GET or GET and Observe to subscribe to resources at the endpoint. Server mode endpoints are required to be reachable from the CoAP-MQ broker. In a network containing both client and server endpoints, client endpoints MAY subscribe to server endpoints directly, in broker-less configurations, using RD or core-link-format metadata in .well-known/core to discover the CoAP-MQ capabilities and using GET and Observe to subscribe to the desired topics.</t>
 
 </section>
 
@@ -149,11 +149,11 @@
 <!-- ====================================================================== -->
 
 <section title="CoAP-MQ Registration and discovery">
-<t>An endpoint wishing to use a CoAP-MQ broker registers with an RD server that advertises a link with the rt="core.mq" attribute as shown in <xref target="reg-fig"/>. This indicates that there is a CoAP-MQ broker at the location returned by the discovery query as shown in <xref target="reg-fig"/>. The endpoint registers topics using the rt="core.pubsub.client" or rt="core.pubsub.server" (or both) link relation attributes to indicate intention to use CoAP-MQ and which roles are supported.</t>
+<t>An endpoint wishing to use a CoAP-MQ broker registers with an RD server that advertises a link with the rt="core.mq" attribute as shown in <xref target="reg-fig"/>. This indicates that there is a CoAP-MQ broker at the location returned by the discovery query as shown in <xref target="reg-fig"/>. The endpoint registers topics using the core link resource type (rt=) "core.pubsub.client" or "core.pubsub.server" (or both) attributes to indicate intention to use CoAP-MQ and which roles are supported.</t>
 
 <t>A server that implements a CoAP_MQ broker MAY advertize this capability by registering the rt="core.mq" with an associated Resource Directory. If a server advertizes as a CoAP-MQ Broker, it MUST support the transactions described in section 5 of this document. As server that implements the CoAP-MQ Broker MAY also implement sleeping endpoint and message queueing support referred to in Section 6 of this document.</t>
 
-<section title="Register PubSub Endpoint">
+<section title="Register CoAP-MQ Endpoint">
 <t><xref target="reg-fig"/> shows the flow of the registration operation. Discovery proceeds as per CoRE Resource Directory[I-D.ietf-core-resource-directory-01]. When an endpoint wishes to use CoAP-MQ, it discovers the rt="core.mq" attribute at the RD service associated with the CoAP-MQ broker and registers its CoAP-MQ resources with the RD server by registering topics having the rt="core.pubsub" attribute. Topics are created using an initial POST operation to the registered topic or any valid sub-topic. For example, if the registered topic is "/sensors/weather", the sub-topic "/sensors/weather/barometer" is created using a POST to "/mq/sensors/weather/barometer". An implementation MAY mix CoAP-MQ resources and CoAP REST resources on the same endpoint. Endpoint registration proceeds as per normal RD registration.</t>
 
         <t>
@@ -168,7 +168,7 @@ EP                                               MQ        RD
  |                                               |         |
  |                                               |         |
  |                TOPIC REGISTRATION             |         |
- | ---POST /rd “</mq/0/xx>;rt=core.pubsub.xx”--- | ------> |
+ | -POST /rd “</mq/0/xx>;rt=core.pubsub.client”- | ------> |
  |                                               |         |
  | <-------- 2.01 Created Location: /rd/1234 --- | ------- |
  |                                               |         |
@@ -217,7 +217,7 @@ EP                                               MQ        RD
 <t>This section describes the transaction flows and interactions between CoAP-MQ endpoints and CoAP-MQ brokers where the endpoint supports the client role. A client registering the "core.pubsub.client" attribute MUST support the client role endpoint functions and interactions described in this section.</t>
 
 <section title="Client Endpoint PUBLISH to CoAP-MQ broker">
-<t>Client endpoint PUBLISH updates to CoAP-MQ broker.</t>
+<t>Client endpoint PUBLISHes updates to CoAP-MQ broker. A CoAP-MQ client endpoint MAY use PUT to publish state updates to the CoAP-MQ broker.</t>
 
 <t>
 <figure title="Client Role PUBLISH from EP to Broker" anchor="put-ep-fig">
@@ -241,7 +241,7 @@ EP                                              MQ        RD
 
 
 <section title="Client Endpoint SUBSCRIBE, Broker PUBLISH">
-<t>Client mode endpoint subscribes to the topic at the CoAP-MQ broker using GET+Observe. Published updates to the CoAP-MQ broker are published to the Endpoint using Observe response tokens. Client endpoint MAY update actuator or resource based on received values associated with responses. A CoAP-MQ broker MUST publish updates to subscribed endpoints upon receiving published updates on the associated topics.</t>
+<t>Client mode endpoint subscribes to the topic at the CoAP-MQ broker using GET and Observe. Published updates to the CoAP-MQ broker are published to the Endpoint using Observe response tokens. Client endpoint MAY update actuator or resource based on received values associated with responses. A CoAP-MQ broker MUST publish updates to subscribed endpoints upon receiving published updates on the associated topics.</t>
 
 <t>
 <figure title="Client Role Endpoint SUBSCRIBE, Broker PUBLISH to Endpoint" anchor="publish-fig">
