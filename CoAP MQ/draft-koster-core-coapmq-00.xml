@@ -222,7 +222,7 @@ EP                                               MQ        RD
 <t>Client endpoint uses PUT to publish updates to the state associated with the topic at the CoAP-MQ broker.</t>
 
 <t>
-<figure title="PUBLISH from EP Message Exchange" anchor="put-ep-fig">
+<figure title="Client Role PUBLISH from EP to Broker" anchor="put-ep-fig">
 <artwork>
 <![CDATA[
 EP                                              MQ        RD
@@ -246,7 +246,7 @@ EP                                              MQ        RD
 <t>Client mode endpoint subscribes to the topic at the CoAP-MQ broker using GET+Observe. Published updates to the CoAP-MQ broker are published to the Endpoint using Observe response tokens. Client endpoint MAY update actuator or resource based on received values associated with responses.</t>
 
 <t>
-<figure title="Endpoint SUBSCRIBE, PUBLISH to endpoint" anchor="publish-fig">
+<figure title="Client Role Endpoint SUBSCRIBE, Broker PUBLISH to Endpoint" anchor="publish-fig">
 <artwork>
 <![CDATA[
 EP                                              MQ        RD
@@ -271,7 +271,7 @@ EP                                              MQ        RD
 </t>
 </section>
 
-<section title="Endpoint GET from CoAP-MQ broker">
+<section title="Endpoint GET from CoAP-MQ Broker">
 <t>Client mode endpoint MAY issue GET to topic without Observe as needed to obtain last published state from the CoAP-MQ broker.</t>
 
 <t>
@@ -298,13 +298,13 @@ EP                                              MQ        RD
 </section>
 
 <section title="Server Role Endpoint Functions">
-<t>This section describes the transaction flows and interactions between CoAP-MQ endpoints and CoAP-MQ brokers where the endpoint supports the server role. A client registering the "core.pubsub.server" attribute MUST support these interactions.</t>
+<t>This section describes the transaction flows and interactions between CoAP-MQ endpoints and CoAP-MQ brokers where the endpoint supports the server role. An endpoint registering the "core.pubsub.server" attribute MUST support these interactions.</t>
 
 <section title="CoAP-MQ broker subscribes to endpoint using GET+Observe, endpoint publishes notifications to the CoAP-MQ broker">
 <t>The server mode endpoint enables the CoAP-MQ broker to act as a client and subscribe to a resource on the endpoint using GET + Observe. <xref target="sub-observe-fig"/> shows the flow of core.mq server subscribing to the endpoint. </t>
 
         <t>
-        <figure title="SUBSCRIBE using GET+Observe" anchor="sub-observe-fig">
+        <figure title="Broker SUBSCRIBE to Server Role EP using GET+Observe" anchor="sub-observe-fig">
           <artwork>
             <![CDATA[
 EP                                               MQ        RD
@@ -331,11 +331,11 @@ EP                                               MQ        RD
 </section>
 
 
-<section title="CoAP-MQ Broker Publishes to Endpoint">
+<section title="CoAP-MQ Broker Publishes to Server Role Endpoint">
 <t>CoAP-MQ broker MAY update server mode endpoint using PUT when state updates are published on the associated topic. Endpoint server MAY update actuator or resource.</t>
 
         <t>
-        <figure title="PUBLISH to EP using PUT by CoAP-MQ Broker" anchor="put-mq-fig">
+        <figure title="Broker PUBLISH to EP using PUT by CoAP-MQ Broker" anchor="put-mq-fig">
           <artwork>
             <![CDATA[
 EP                                               MQ        RD
@@ -355,7 +355,7 @@ EP                                               MQ        RD
 
 </section>
 
-<section title="core.mq GET from Endpoint">
+<section title="Broker GET from Server Role Endpoint">
 <t>CoAP-MQ broker MAY issue GET without Observe as needed to obtain state update from the server role endpoint.</t>
 
         <t>
@@ -449,7 +449,7 @@ EP3                                              MQ
 <!-- ====================================================================== -->
 
 <section title="Sleep-Wakeup Operation and Message Queueing">
-
+<t>Normative reference to OMA LWM2M</t>
 </section>
 
  
