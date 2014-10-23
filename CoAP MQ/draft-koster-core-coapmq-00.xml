@@ -130,7 +130,7 @@
 </section>
 
 <section title="Client Endpoint"> 
-<t>Client endpoints initiate all interactions with the RD and MQ broker. If the endpoint is an actuator it will need to either use CoAP Observe [I-D.ietf-core-observe] or periodically poll the MQ broker to check for updates. A CoAP-MQ client endpoint MUST use CoAP PUT operations to update its state on the MQ broker. An endpoint SHOULD update the RD periodically to indicate that it is still alive even if it has no pending data updates. Endpoints can operate in the client role even if not directly reachable from the CoAP-MQ broker or RD server.</t>
+<t>Client endpoints initiate all interactions with the RD and MQ broker. If the endpoint is an actuator it will need to either use CoAP Observe <xref target="I-D.ietf-core-observe"/> or periodically poll the MQ broker to check for updates. A CoAP-MQ client endpoint MUST use CoAP PUT operations to update its state on the MQ broker. An endpoint SHOULD update the RD periodically to indicate that it is still alive even if it has no pending data updates. Endpoints can operate in the client role even if not directly reachable from the CoAP-MQ broker or RD server.</t>
 
 </section> 
 
@@ -140,7 +140,7 @@
 </section>
 
 <section title="Publish-Subscribe Topics">
-<t>Topic are strings used to identify particular resources and objects in publish-subscribe systems. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure". Implementations are free to map topics to resources, reusing existing resource addressing schemes. </t>
+<t>Topics are strings used to identify particular resources and objects in publish-subscribe systems. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure". Implementations are free to map topics to resources, reusing existing resource addressing schemes. </t>
 
 </section>
 
@@ -151,7 +151,7 @@
 <section title="CoAP-MQ Registration and discovery">
 <t>An endpoint wishing to use a CoAP-MQ broker registers with an RD server that advertises a link with the rt="core.mq" attribute as shown in <xref target="reg-fig"/>. This indicates that there is a CoAP-MQ broker at the location returned by the discovery query as shown in <xref target="reg-fig"/>. The endpoint registers topics using the core link resource type (rt=) "core.pubsub.client" or "core.pubsub.server" (or both) attributes to indicate intention to use CoAP-MQ and which roles are supported.</t>
 
-<t>A server that implements a CoAP_MQ broker MAY advertize this capability by registering the rt="core.mq" with an associated Resource Directory. If a server advertizes as a CoAP-MQ Broker, it MUST support the transactions described in section 5 of this document. As server that implements the CoAP-MQ Broker MAY also implement sleeping endpoint and message queueing support referred to in Section 6 of this document.</t>
+<t>A server that implements a CoAP-MQ broker MAY advertize this capability by registering the rt=core.mq" with an associated Resource Directory. If a server advertizes as a CoAP-MQ Broker, it MUST support the transactions described in section 5 of this document. As server that implements the CoAP-MQ Broker MAY also implement sleeping endpoint and message queueing support referred to in Section 6 of this document.</t>
 
 <section title="Register CoAP-MQ Endpoint">
 <t><xref target="reg-fig"/> shows the flow of the registration operation. Discovery proceeds as per CoRE Resource Directory[I-D.ietf-core-resource-directory-01]. When an endpoint wishes to use CoAP-MQ, it discovers the rt="core.mq" attribute at the RD service associated with the CoAP-MQ broker and registers its CoAP-MQ resources with the RD server by registering topics having the rt="core.pubsub" attribute. Topics are created using an initial POST operation to the registered topic or any valid sub-topic. For example, if the registered topic is "/sensors/weather", the sub-topic "/sensors/weather/barometer" is created using a POST to "/mq/sensors/weather/barometer". An implementation MAY mix CoAP-MQ resources and CoAP REST resources on the same endpoint. Endpoint registration proceeds as per normal RD registration.</t>
