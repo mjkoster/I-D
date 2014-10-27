@@ -5,9 +5,9 @@
 Network Working Group                                          M. Koster
 Internet-Draft                                               ARM Limited
 Intended status: Standards Track                              A. Keranen
-Expires: April 29, 2015                                       J. Jimenez
+Expires: April 30, 2015                                       J. Jimenez
                                                                 Ericsson
-                                                        October 26, 2014
+                                                        October 27, 2014
 
 
     Publish-Subscribe in the Constrained Application Protocol (CoAP)
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 29, 2015.
+   This Internet-Draft will expire on April 30, 2015.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Koster, et al.           Expires April 29, 2015                 [Page 1]
+Koster, et al.           Expires April 30, 2015                 [Page 1]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Koster, et al.           Expires April 29, 2015                 [Page 2]
+Koster, et al.           Expires April 30, 2015                 [Page 2]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
@@ -165,7 +165,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                 [Page 3]
+Koster, et al.           Expires April 30, 2015                 [Page 3]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
@@ -221,7 +221,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                 [Page 4]
+Koster, et al.           Expires April 30, 2015                 [Page 4]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
@@ -230,13 +230,13 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
    Client endpoints initiate all interactions with the RD and CoAP-
    PubSub broker.  If the endpoint is an actuator it will need to either
-   use CoAP Observe [I-D.ietf-core-observe] or periodically poll the MQ
-   broker to check for updates.  A CoAP-PubSub client endpoint MUST use
-   CoAP PUT operations to update its state on the PubSub broker.  An
-   endpoint SHOULD update the RD periodically to indicate that it is
-   still alive even if it has no pending data updates.  Endpoints can
-   operate in the client role even if not directly reachable from the
-   CoAP-PubSub broker or RD server.
+   use CoAP Observe [I-D.ietf-core-observe] or periodically poll the
+   PubSub broker to check for updates.  A CoAP-PubSub client endpoint
+   MUST use CoAP PUT operations to update its state on the PubSub
+   broker.  An endpoint SHOULD update the RD periodically to indicate
+   that it is still alive even if it has no pending data updates.
+   Endpoints can operate in the client role even if not directly
+   reachable from the CoAP-PubSub broker or RD server.
 
 3.3.  Server Endpoint
 
@@ -277,7 +277,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                 [Page 5]
+Koster, et al.           Expires April 30, 2015                 [Page 5]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
@@ -303,11 +303,11 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
    Endpoint registration proceeds as per normal RD registration.
 
 
-   EP                                               MQ        RD
+   EP                                             Broker      RD
     |                  PubSub DISCOVERY             |         |
     | ---- GET /.well-known/core?rt=core.pubsub --- | ------> |
     |                                               |         |
-    | <-----2.05 Content "</mq>;rt=core.pubsub"---- | ------- |
+    | <--2.05 Content "</pubsub>;rt=core.pubsub"--- | ------- |
     |                                               |         |
     |                                               |         |
     |                TOPIC REGISTRATION             |         |
@@ -333,12 +333,12 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                 [Page 6]
+Koster, et al.           Expires April 30, 2015                 [Page 6]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
-   EP                                               MQ        RD
+   EP                                           Broker       RD
    |                                               |         |
    |                    UNREGISTER                 |         |
    | ---------------- DELETE /rd/1234 ------------ | ------> |
@@ -389,12 +389,12 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                 [Page 7]
+Koster, et al.           Expires April 30, 2015                 [Page 7]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
-   EP                                              MQ        RD
+   EP                                            Broker      RD
    |                                               |         |
    |                                               |         |
    |                    PUBLISH                    |         |
@@ -419,7 +419,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
    the associated topics.
 
 
-   EP                                              MQ        RD
+   EP                                            Broker      RD
    |                                               |         |
    |                                               |         |
    |                 SUBSCRIBE                     |         |
@@ -445,7 +445,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                 [Page 8]
+Koster, et al.           Expires April 30, 2015                 [Page 8]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
@@ -456,7 +456,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
    to obtain last published state from the CoAP-PubSub broker.
 
 
-   EP                                              MQ        RD
+   EP                                            Broker      RD
    |                                               |         |
    |                                               |         |
    |                                               |         |
@@ -501,12 +501,12 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                 [Page 9]
+Koster, et al.           Expires April 30, 2015                 [Page 9]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
-   EP                                               MQ        RD
+   EP                                            Broker      RD
     |                                               |         |
     |                                               |         |
     |                SUBSCRIBE                      |         |
@@ -534,7 +534,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
    updates from the broker.
 
 
-   EP                                               MQ        RD
+   EP                                             Broker      RD
     |                                               |         |
     |                                               |         |
     |                    PUBLISH                    |         |
@@ -557,12 +557,12 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                [Page 10]
+Koster, et al.           Expires April 30, 2015                [Page 10]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
-   EP                                               MQ        RD
+   EP                                             Broker      RD
     |                                               |         |
     |                                               |         |
     |                                               |         |
@@ -580,11 +580,11 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 6.1.  Creating a Topic
 
-   After registration of the EP in the RD and discovering the CoAP-MQ
-   function, a designated EP acting as publisher for a particular topic
-   is responsible for creating such topic.  To do so, it will have to
-   register the new topic in the RD and create it on the PubSub function
-   by doing a first publication as shown in Figure 2.
+   After registration of the EP in the RD and discovering the CoAP-
+   PubSub function, a designated EP acting as publisher for a particular
+   topic is responsible for creating such topic.  To do so, it will have
+   to register the new topic in the RD and create it on the PubSub
+   function by doing a first publication as shown in Figure 2.
 
    After the topic has been created in the CoAP-PubSub broker, the
    broker will be responsible of hosting this resource and to queue
@@ -613,12 +613,12 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                [Page 11]
+Koster, et al.           Expires April 30, 2015                [Page 11]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
-   EP1     EP2                                     MQ
+   EP1     EP2                                  Broker
    |       |            PUBLISH                    |
    | ------------ PUT /pubsub/0/TOPIC1 ----------> |
    |       |                                       |
@@ -641,7 +641,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
    both EP1 and EP2.
 
 
-   EP3                                              MQ
+   EP3                                           Broker
    |                 SUBSCRIBE                     |
    | ----- GET /pubsub/0/TOPIC1 Observe ---------> |
    |                                               |
@@ -669,7 +669,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                [Page 12]
+Koster, et al.           Expires April 30, 2015                [Page 12]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
@@ -725,7 +725,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                [Page 13]
+Koster, et al.           Expires April 30, 2015                [Page 13]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
@@ -781,7 +781,7 @@ Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
 
 
-Koster, et al.           Expires April 29, 2015                [Page 14]
+Koster, et al.           Expires April 30, 2015                [Page 14]
 
 Internet-Draft          Publish-Subscribe in CoAP           October 2014
 
@@ -837,4 +837,4 @@ Authors' Addresses
 
 
 
-Koster, et al.           Expires April 29, 2015                [Page 15]
+Koster, et al.           Expires April 30, 2015                [Page 15]

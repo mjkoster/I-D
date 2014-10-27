@@ -130,7 +130,7 @@
 </section>
 
 <section title="Client Endpoint">
-<t>Client endpoints initiate all interactions with the RD and CoAP-PubSub broker. If the endpoint is an actuator it will need to either use CoAP Observe [I-D.ietf-core-observe] or periodically poll the MQ broker to check for updates. A CoAP-PubSub client endpoint MUST use CoAP PUT operations to update its state on the PubSub broker. An endpoint SHOULD update the RD periodically to indicate that it is still alive even if it has no pending data updates. Endpoints can operate in the client role even if not directly reachable from the CoAP-PubSub broker or RD server.</t>
+<t>Client endpoints initiate all interactions with the RD and CoAP-PubSub broker. If the endpoint is an actuator it will need to either use CoAP Observe [I-D.ietf-core-observe] or periodically poll the PubSub broker to check for updates. A CoAP-PubSub client endpoint MUST use CoAP PUT operations to update its state on the PubSub broker. An endpoint SHOULD update the RD periodically to indicate that it is still alive even if it has no pending data updates. Endpoints can operate in the client role even if not directly reachable from the CoAP-PubSub broker or RD server.</t>
 
 </section> 
 
@@ -160,11 +160,11 @@
         <figure title="Discovery and Registration" anchor="reg-fig">
           <artwork>
             <![CDATA[
-EP                                               MQ        RD
+EP                                             Broker      RD
  |                  PubSub DISCOVERY             |         |
  | ---- GET /.well-known/core?rt=core.pubsub --- | ------> |
  |                                               |         |
- | <-----2.05 Content “</mq>;rt=core.pubsub”---- | ------- |
+ | <--2.05 Content “</pubsub>;rt=core.pubsub”--- | ------- |
  |                                               |         |
  |                                               |         |
  |                TOPIC REGISTRATION             |         |
@@ -191,7 +191,7 @@ EP                                               MQ        RD
 <figure title="Unregister Endpoint" anchor="unreg-fig">
 <artwork>
 <![CDATA[
-EP                                               MQ        RD
+EP                                           Broker       RD
 |                                               |         |
 |                    UNREGISTER                 |         |
 | ---------------- DELETE /rd/1234 ------------ | ------> |
@@ -223,7 +223,7 @@ EP                                               MQ        RD
 <figure title="Client Role PUBLISH from EP to Broker" anchor="put-ep-fig">
 <artwork>
 <![CDATA[
-EP                                              MQ        RD
+EP                                            Broker      RD
 |                                               |         |
 |                                               |         |
 |                    PUBLISH                    |         |
@@ -247,7 +247,7 @@ EP                                              MQ        RD
 <figure title="Client Role Endpoint SUBSCRIBE, Broker PUBLISH to Endpoint" anchor="publish-fig">
 <artwork>
 <![CDATA[
-EP                                              MQ        RD
+EP                                            Broker      RD
 |                                               |         |
 |                                               |         |
 |                 SUBSCRIBE                     |         |
@@ -273,10 +273,10 @@ EP                                              MQ        RD
 <t>Client mode endpoint MAY issue GET to topic without Observe as needed to obtain last published state from the CoAP-PubSub broker.</t>
 
 <t>
-<figure title="Client EP GET from CoAP-PubSub Broker" anchor="get-mq-fig">
+<figure title="Client EP GET from CoAP-PubSub Broker" anchor="get-pubsub-fig">
 <artwork>
 <![CDATA[
-EP                                              MQ        RD
+EP                                            Broker      RD
 |                                               |         |
 |                                               |         |
 |                                               |         |
@@ -305,7 +305,7 @@ EP                                              MQ        RD
         <figure title="Broker SUBSCRIBE to Server Role EP" anchor="sub-observe-fig">
           <artwork>
             <![CDATA[
-EP                                               MQ        RD
+EP                                            Broker      RD
  |                                               |         |
  |                                               |         |
  |                SUBSCRIBE                      |         |
@@ -333,10 +333,10 @@ EP                                               MQ        RD
 <t>CoAP-PubSub broker MUST update server mode endpoint using PUT when upon receiving updates published on the associated topics. Endpoint server MAY update actuator or resource upon receiving published state updates from the broker.</t>
 
         <t>
-        <figure title="Broker PUBLISH to Server Role EP" anchor="put-mq-fig">
+        <figure title="Broker PUBLISH to Server Role EP" anchor="put-pubsub-fig">
           <artwork>
             <![CDATA[
-EP                                               MQ        RD
+EP                                             Broker      RD
  |                                               |         |
  |                                               |         |
  |                    PUBLISH                    |         |
@@ -360,7 +360,7 @@ EP                                               MQ        RD
         <figure title="Broker GET from Server Role Endpoint" anchor="get-ep-fig">
           <artwork>
             <![CDATA[
-EP                                               MQ        RD
+EP                                             Broker      RD
  |                                               |         |
  |                                               |         |
  |                                               |         |
@@ -385,7 +385,7 @@ EP                                               MQ        RD
 
 <section title="Creating a Topic">
 
-<t>After registration of the EP in the RD and discovering the CoAP-MQ function, a designated EP acting as publisher for a particular topic is responsible for creating such topic. To do so, it will have to register the new topic in the RD and create it on the PubSub function by doing a first publication as shown in <xref target="reg-fig"/>.</t>
+<t>After registration of the EP in the RD and discovering the CoAP-PubSub function, a designated EP acting as publisher for a particular topic is responsible for creating such topic. To do so, it will have to register the new topic in the RD and create it on the PubSub function by doing a first publication as shown in <xref target="reg-fig"/>.</t>
 <t>After the topic has been created in the CoAP-PubSub broker, the broker will be responsible of hosting this resource and to queue messages published on it as explained in Section 5</t>
 </section>
 
@@ -398,7 +398,7 @@ EP                                               MQ        RD
 <figure title="Multiple CoAP-PubSub EPs PUBLISH to Broker" anchor="multi-pub-fig">
 <artwork>
 <![CDATA[
-EP1     EP2                                     MQ
+EP1     EP2                                  Broker
 |       |            PUBLISH                    |
 | ------------ PUT /pubsub/0/TOPIC1 ----------> |
 |       |                                       |
@@ -425,7 +425,7 @@ EP1     EP2                                     MQ
 <figure title="CoAP-PubSub Endpoint SUBSCRIBE to Broker" anchor="multi-pub-sub-fig">
 <artwork>
 <![CDATA[
-EP3                                              MQ
+EP3                                           Broker
 |                 SUBSCRIBE                     |
 | ----- GET /pubsub/0/TOPIC1 Observe ---------> |
 |                                               |
