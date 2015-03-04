@@ -13,10 +13,10 @@
 <?rfc compact="no"?>
 <?rfc subcompact="no"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-00">
+<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-01">
 
   <front>
-  <title abbrev="Publish-Subscribe in CoAP">Publish-Subscribe in the Constrained Application Protocol (CoAP)</title>
+  <title abbrev="Publish-Subscribe Broker for CoAP">Publish-Subscribe Broker for the Constrained Application Protocol (CoAP)</title>
 
     <author fullname="Michael Koster" initials="M.K." surname="Koster">
       <organization>ARM Limited</organization>
@@ -42,15 +42,15 @@
     </author>
 	
 
-    <date year="2014"/>
+    <date year="2015"/>
     <keyword>Internet-Draft</keyword>
-    <keyword>CORE</keyword>
+    <keyword>CoRE</keyword>
     <keyword>CoAP</keyword>
     <keyword>Publish Subscribe</keyword>
     <abstract>
 
-  <t>The Constrained Application Protocol, CoAP, and related extensions are intended to support machine-to-machine communication in systems where one or more nodes are resource constrained, in particular for low power wireless sensor networks. This document defines publish-subscribe and message queuing functionality for CoAP that extends the capabilities for supporting nodes with long breaks in connectivity and/or up-time.</t>
-  
+  <t>The Constrained Application Protocol (CoAP), and related extensions are intended to support machine-to-machine communication in systems where one or more nodes are resource constrained, in particular for low power wireless sensor networks. This document defines a publish-subscribe broker for CoAP that extends the capabilities of CoAP for supporting nodes with long breaks in connectivity and/or up-time.</t>
+
 </abstract>
 
   </front>
@@ -59,13 +59,15 @@
 <!-- ====================================================================== -->
 
 <section anchor="introduction" title="Introduction">
-<t>The Constrained Application Protocol (CoAP) <xref target="RFC7252"/> supports machine to machine communication across networks of constrained devices. One important class of constrained devices includes devices that are intended to run for years from a small battery, or by scavenging energy from their environment. These devices spend most of their time in a sleeping state with no network connectivity.</t>
+<t>The Constrained Application Protocol (CoAP) <xref target="RFC7252"/> supports machine-to-machine communication across networks of constrained devices. CoAP uses a request/response model where clients make requests to servers in order to request actions on resources. Depending on the situation the same device may act either as a server or a client. </t>
 
-<t>Devices may also have limited reachability due to certain middle-boxes, such as Network Address Translators (NATs) or firewalls. Such devices must communicate using a client role, whereby the endpoint is responsible for initiating communication.</t>
+<t>One important class of constrained devices includes devices that are intended to run for years from a small battery, or by scavenging energy from their environment. These devices have limited reachability, because they spend most of their time in a sleeping state with no network connectivity. Devices may also have limited reachability due to certain middle-boxes, such as Network Address Translators (NATs) or firewalls. Such middle-boxes often prevent connecting to a device from the Internet unless the connection was initiated by the device. </t>
 
-<t>This document specifies the means for nodes with limited reachability to communicate using simple extensions to CoAP and the CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>. The extensions enable publish-subscribe communication using a broker node that enables store-and-forward messaging between two or more nodes.</t>
+<t>This document specifies the means for nodes with limited reachability to communicate using simple extensions to CoAP. The extensions enable publish-subscribe communication using a broker node that enables store-and-forward messaging between two or more nodes. Furthermore the extensions facilitate many-to-many communication using CoAP. </t>
 
+<!--
 <t>The mechanisms specified in this document are meant to address key design requirements from earlier CoRE drafts covering sleepy node support and mirror server. </t>
+-->
 
 </section>
 
@@ -76,23 +78,24 @@
    'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY', and 'OPTIONAL' in this
    specification are to be interpreted as described in <xref target="RFC2119"/>.</t>
    
-   <t>This specification requires readers to be familiar with all the terms and concepts that are discussed in <xref target="RFC5988"/> and <xref target="RFC6690"/>. Readers should also be familiar with the terms and concepts discussed in <xref target="RFC7252"/> and <xref target="I-D.ietf-core-resource-directory"/>. The URI template format, see <xref target="RFC6570"/>, is used to describe the REST interfaces defined in this specification.</t>
+   <t>This specification requires readers to be familiar with all the terms and concepts that are discussed in <xref target="RFC5988"/> and <xref target="RFC6690"/>. Readers should also be familiar with the terms and concepts discussed in <xref target="RFC7252"/> and <xref target="I-D.ietf-core-resource-directory"/>. The URI template format <xref target="RFC6570"/> is used to describe the REST interfaces defined in this specification.</t>
 
 <t>This specification makes use of the following additional terminology:
 <list style="hanging">
 
-<t hangText="CoAP Publish-Subscribe (CoAP-PubSub) Service:">A service provided by a node or system where CoAP messages sent by one endpoint to another are queued (stored) by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
+<t hangText="CoAP Publish-Subscribe (CoAP-PubSub) Service:">A service provided by a node or system where CoAP messages sent by one endpoint to another are stored by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
 
 <t hangText="CoAP-PubSub Broker:">A server node capable of storing messages to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations.</t>
 
 <t hangText="CoAP-PubSub function set:">A group of well-known REST resources that together provide the CoAP-PubSub service.</t>
 
+<!--
 <t hangText="CoAP-PubSub Endpoint">An endpoint that implements the CoAP-PubSub function set. A CoAP-PubSub endpoint has two potential modes, CoAP-PubSub Client and CoAP-PubSub Server.</t>
-
+-->
 <!-- This needs a bit more meat -->
 <t hangText="Publish-Subscribe (pub-sub):">A messaging paradigm where messages are published (e.g., to a broker) and potential receivers can subscribe to receive the messages.</t>
 
-<t hangText="Topic:">In Publish-Subscribe systems a topic is a unique identifying string for a particular item or object being published and/or subscribed to.</t>
+<t hangText="Topic:">In Publish-Subscribe systems a topic is a unique identifying string for a particular item being published and/or subscribed to.</t>
 
 </list>
 </t>
