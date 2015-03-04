@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" []>
+<?xml-stylesheet type='text/xsl' href='http://xml.resource.org/authoring/rfc2629.xslt' ?>
+<?rfc toc="yes"?>
+<?rfc tocompact="yes"?>
+<?rfc tocdepth="3"?>
+<?rfc tocindent="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes"?>
+<?rfc comments="yes"?>
+<?rfc inline="yes"?>
+<?rfc strict="no"?>
+<?rfc compact="no"?>
+<?rfc subcompact="no"?>
+
+<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-01">
+
+  <front>
+  <title abbrev="Publish-Subscribe in CoAP">Publish-Subscribe in the Constrained Application Protocol (CoAP)</title>
+
+    <author fullname="Michael Koster" initials="M.K." surname="Koster">
+      <organization>ARM Limited</organization>
+      <address>
+	    <email>Michael.Koster@arm.com</email>
+      </address>
+    </author>
+
+    
+    <author fullname="Ari Keranen" initials="A.K." surname="Keranen">
+      <organization>Ericsson</organization>
+      <address>
+        <email>ari.keranen@ericsson.com</email>
+      </address>
+    </author>
+	
+
+<author fullname="Jaime Jimenez" initials="J.J." surname="Jimenez">
+      <organization>Ericsson</organization>
+      <address>
+        <email>jaime.jimenez@ericsson.com</email>
+      </address>
+    </author>
+	
+
+    <date year="2015"/>
+    <keyword>Internet-Draft</keyword>
+    <keyword>CORE</keyword>
+    <keyword>CoAP</keyword>
+    <keyword>Publish Subscribe</keyword>
+    <abstract>
+
+  <t>The Constrained Application Protocol, CoAP, and related extensions are intended to support machine-to-machine communication in systems where one or more nodes are resource constrained, in particular for low power wireless sensor networks. This document defines publish-subscribe and message queuing functionality for CoAP that extends the capabilities for supporting nodes with long breaks in connectivity and/or up-time.</t>
+  
+</abstract>
+
+  </front>
+  <middle>
+
+<!-- ====================================================================== -->
+
+<section anchor="introduction" title="Introduction">
+<t>The Constrained Application Protocol (CoAP) <xref target="RFC7252"/> supports machine to machine communication across networks of constrained devices. One important class of constrained devices includes devices that are intended to run for years from a small battery, or by scavenging energy from their environment. These devices spend most of their time in a sleeping state with no network connectivity.</t>
+
+<t>Devices may also have limited reachability due to certain middle-boxes, such as Network Address Translators (NATs) or firewalls. Such devices must communicate using a client role, whereby the endpoint is responsible for initiating communication.</t>
+
+<t>This document specifies the means for nodes with limited reachability to communicate using simple extensions to CoAP and the CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>. The extensions enable publish-subscribe communication using a broker node that enables store-and-forward messaging between two or more nodes.</t>
+
+<t>The mechanisms specified in this document are meant to address key design requirements from earlier CoRE drafts covering sleepy node support and mirror server. </t>
+
+</section>
+
+<!-- ====================================================================== -->
+
+<section title="Terminology">
+   <t>The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL', 'SHALL NOT',
+   'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY', and 'OPTIONAL' in this
+   specification are to be interpreted as described in <xref target="RFC2119"/>.</t>
+   
+   <t>This specification requires readers to be familiar with all the terms and concepts that are discussed in <xref target="RFC5988"/> and <xref target="RFC6690"/>. Readers should also be familiar with the terms and concepts discussed in <xref target="RFC7252"/> and <xref target="I-D.ietf-core-resource-directory"/>. The URI template format, see <xref target="RFC6570"/>, is used to describe the REST interfaces defined in this specification.</t>
+
+<t>This specification makes use of the following additional terminology:
+<list style="hanging">
+
+<t hangText="CoAP Publish-Subscribe (CoAP-PubSub) Service:">A service provided by a node or system where CoAP messages sent by one endpoint to another are queued (stored) by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
+
+<t hangText="CoAP-PubSub Broker:">A server node capable of storing messages to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations.</t>
+
+<t hangText="CoAP-PubSub function set:">A group of well-known REST resources that together provide the CoAP-PubSub service.</t>
+
+<t hangText="CoAP-PubSub Client">A client that implements the CoAP-PubSub function set.</t>
+
+<!-- This needs a bit more meat -->
+<t hangText="Publish-Subscribe (pub-sub):">A messaging paradigm where messages are published (e.g., to a broker) and potential receivers can subscribe to receive the messages.</t>
+
+<t hangText="Topic:">In Publish-Subscribe systems a topic is a unique identifying string for a particular item or object being published and/or subscribed to.</t>
+
+</list>
+</t>
+
+</section>
+	  
+<!-- ====================================================================== -->
+
+<section anchor="architecture" title="Architecture"> 
+
+<section title="CoAP-PubSub Architecture">
+
+<t><xref target="arch-fig"/> Figure 1 shows the architecture of a CoAP PubSub service. CoAP PubSub Clients interact with a CoAP PubSub Broker through the CoAP PubSub interface which is hosted by the Broker. State information is updated between the Clients and the Broker. The CoAP PubSub Broker performs a store-and-forward function of state updates between certain CoAP PubSub Clients. Clients Subscribe to state updates which are Published by other Clients, and which are forwarded by the Broker to the subscribing clients. The CoAP PubSub Broker also acts as a REST proxy, retaining the last state update provided by clients to supply in response to Read requests from Clients.
+
+</t>
+
+        <t>
+        <figure title="CoAP-PubSub Architecture" anchor="arch-fig">
+          <artwork>
+            <![CDATA[
+
+      Clients        PubSub         Broker
+      +------+         |
+      | CoAP |         |
+      |PubSub|---------|------+
+      |Client|         |      |    +------+
+      +------+         |      +----| CoAP |
+                       |           |PubSub|
+      +------+         |      +----|Broker|
+      | CoAP |         |      |    +------+
+      |PubSub|---------|------+
+      |Client|         |
+      +------+         |
+
+]]>
+</artwork>
+</figure>
+</t>
+</section>
+
+<section title="CoAP PubSub Broker">
+<t>A CoAP PubSub Broker is a CoAP Server that exposes an interface for clients to use to initiate publish-subscribe interactions.
+</t>
+
+</section>
+
+<section title="CoAP PubSub Client">
+<t>A CoAP PubSub Client is a CoAP endpoint that interacts with a CoAP PubSub Broker using the PubSub interface. Clients initiate all interactions with the CoAP-PubSub broker. Sensor Clients will Publish state updates to the Broker. Actuator Clients subscribe to state updates from the broker. Application clients publish and subscribe in orer to exchange state upadates with Sensors and Actuators.</t>
+
+</section> 
+
+
+<section title="CoAP PubSub Topics">
+<t>A  PubSub Topic is a strings used to identify particular resources and objects in a publish-subscribe system. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure". Each topic may </t>
+
+</section>
+
+</section>
+
+<!-- ====================================================================== -->
+
+<section title="CoAP-PubSub Function Set">
+<t>
+</t>
+
+<section title="DISCOVER">
+<t> CoAP PubSub Clients discover CoAP PubSub Brokers by uisng CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory.
+</t>
+
+        <t>
+        <figure title="DISCOVER" anchor="discover-fig">
+          <artwork>
+            <![CDATA[
+
+EP                                             Broker
+ |                     DISCOVER                  |
+ | ------ GET /.well-known/core?rt=core.ps ----->|
+ |                                               |
+ | <------2.05 Content “</ps>;rt=core.ps”--------|
+ |                                               |
+ |                                               |
+
+]]>
+</artwork>
+</figure>
+</t>
+</section>
+
+<section title="CREATE">
+<t>
+Clients MAY Create Topics on the broker. A client wishing to cerate a topic MUST use CoAP POST to the PubSub function set location with a payload of the desired topic. The Topic MUST be a valid URI as described in [ref]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return 2.xx if the topic is created and 4.xx if the topic can not be created. Broker MAY remove topics if max-age is excedded without any publishes to the topic. Broker MUST return 4.xx to clients attempting to Read or Subscribe to expired topics.
+</t>
+
+<t>
+<figure title="CREATE" anchor="create-fig">
+<artwork>
+<![CDATA[
+EP                                           Broker
+|                                               |
+|                    CREATE                     |
+| ---------------- POST /ps <topic1> ----------->|
+|                                               |
+| <---------------- 2.xx Created ---------------|
+|                                               |
+|                                               |
+]]>
+</artwork>
+</figure>
+</t>
+
+</section>
+
+
+<section title="PUBLISH">
+<t>The Client endpoint PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client endpoint MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAp PubSub Broker MUST return 2.xx if the publish is accepted, or 4.xx if the topic does not exist. </t>
+
+<t>
+<figure title="PUBLISH" anchor="put-ep-fig">
+<artwork>
+<![CDATA[
+EP                                            Broker
+|                                               |
+|                                               |
+|                    PUBLISH                    |
+| ---------- PUT /ps/topic1 <payload> --------> |
+|                                               |
+|                                               |
+| <--------------- 2.04 Changed---------------- |
+|                                               |
+|                                               |
+]]>
+</artwork>
+</figure>
+</t>
+</section>
+
+
+<section title="SUBSCRIBE">
+<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MUST return a 2.05 Content response along with the most recent update if the topic contains a valid value, or 4.xx if the value is expired, or 4.xx if the topic does not exist.
+</t>
+
+<t>
+<figure title="SUBSCRIBE" anchor="publish-fig">
+<artwork>
+<![CDATA[
+EP                                            Broker
+|                                               |
+|                                               |
+|                 SUBSCRIBE                     |
+| ----- GET /ps/topic1 Observe: Token:XX -----> |
+|                                               |
+|                  PUBLISH                      |
+| <---------- 2.05 Content Observe:10---------- |
+|                                               |
+|                  PUBLISH                      |
+| <---------- 2.05 Content Observe:12---------- |
+|                                               |
+]]>
+</artwork>
+</figure>
+</t>
+</section>
+
+<section title="READ">
+<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. he Broker MUST return a 2.05 Content response along with the most recent update if the topic contains a valid value, or 4.xx if the value is expired, or 4.xx if the topic does not exist.
+</t>
+
+<t>
+<figure title="READ" anchor="get-pubsub-fig">
+<artwork>
+<![CDATA[
+EP                                            Broker
+|                                               |
+|                                               |
+|                     READ                      |
+| -------------- GET /ps/topic1  -------------> |
+|                                               |
+|                                               |
+| <--------------- 2.05 Content --------------- |
+|                                               |
+|                                               |
+]]>
+</artwork>
+</figure>
+</t>
+
+</section>
+
+<section title="REMOVE">
+<t> A CoAp PubSub Client wishing to remove a topic MUST use a CoAP Delete operation on the URL of the topic. The CoAP PubSub Broker MUST return 2.xx Deleted if the Delete operation is successful, 4.xx if the operation is unsuccessful, and 4.xx if the topic does not exist.
+</t>
+
+<t>
+<figure title="REMOVE" anchor="get-pubsub-fig">
+<artwork>
+<![CDATA[
+EP                                            Broker
+|                                               |
+|                                               |
+|                   REMOVE                      |
+| ------------- DELETE /ps/topic1 ------------> |
+|                                               |
+|                                               |
+| <-------------- 2.xx Deleted ---------------- |
+|                                               |
+|                                               |
+]]>
+</artwork>
+</figure>
+</t>
+
+</section>
+
+</section>
+
+<!-- ====================================================================== -->
+
+<section title="CoAP PubSub Operation with Resource Directory">
+<t>A CoAP PubSub Broker may register a PubSub Function Set with a Resource Directory. A PubSub Client may use Resource Directory to discover a PubSub Broker.
+</t>
+
+<t>A CoAP PubSub CLient may register CoRE Links (RFC6690) to created PubSub Topics with a Resource Directory. A PubSub Client may use Resource Directory to discover PubSub Topics. A client wishing to register PubSub Topics with a RD MUST use the context relation (CON) to indicate that the context of the registered links is the PubSub Broker.
+</t>
+
+</section>
+
+
+<!-- ====================================================================== -->
+
+<section title="Sleep-Wakeup Operation">
+<t>A CoAP PubSub client may sleep between publishing state updates to the Broker. A CoAP PubSub client may sleep between retrieving state updates from the broker when using the READ operation to retrieve the state updates. A CoAP PubSub Client must not sleep while subscribed to state updates from the Broker.</t>
+</section>
+
+ 
+<!-- ====================================================================== -->
+
+<section anchor="SecurityConsiderations" title="Security Considerations">
+<t>CoAP-PubSub re-uses CoAP <xref target="RFC7252"/>, CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>, and Web Linking <xref target="RFC5988"/> and therefore the security considerations of those documents also apply to this specification. Additionally, a CoAP-PubSub broker and the endpoints SHOULD authenticate each other and enforce access control policies. A malicious EP could subscribe to data it is not authorized to or mount a denial of service attack against the broker by publishing a large number of resources. The authentication can be performed using the already standardized DTLS offered mechanisms, such as certificates. DTLS also allows communication security to be established to ensure integrity and confidentiality protection of the data exchanged between these relevant parties. Provisioning the necessary credentials, trust anchors and authorization policies is non-trivial and subject of ongoing work.</t>
+
+<t>The use of a CoAP-PubSub broker introduces challenges for the use of end-to-end security between the end device and the cloud-based server infrastructure since brokers terminate the exchange. While running separate DTLS sessions from the EP to the broker and from broker to the web application protects confidentially on those paths, the client/server EP does not know whether the commands coming from the broker are actually coming from the client web application. Similarly, a client web application requesting data does not know whether the data originated on the server EP. For scenarios where end-to-end security is desirable the use of application layer security is unavoidable. Application layer security would then provide a guarantee to the client EP that any request originated at the client web application. Similarly, integrity protected sensor data from a server EP will also provide guarantee to the client web application that the data originated on the EP itself. The protected data can also be verified by the intermediate broker ensuring that it stores/caches correct request/response and no malicious messages/requests are accepted. The broker would still be able to perform aggregation of data/requests collected.</t>
+
+<t>Depending on the level of trust users and system designers place in the CoAP-PubSub broker, the use of end-to-end encryption may also be envisioned. The CoAP-PubSub broken would then only be able to verify the request/response message/commands and store-and-forward without being able to inspect the content. The solution for providing application layer security will depend on the utilized data encoding. For example, with a JSON-based data encoding the work from the JOSE working group could be re-used. Distribution of the credentials for accomplishing end-to-end security might introduce challenges if previously unknown parties need to exchange data.</t>
+</section> 
+
+
+<!-- ====================================================================== -->
+<!-- 
+<section anchor="PrivacyConsiderations" title="Privacy Considerations">
+  <t>TBD</t>
+</section>
+--> 
+<!-- ====================================================================== -->
+
+<section anchor="iana" title="IANA Considerations">
+<t>This document registers two attribute values in the Resource Type (rt=) registry established with RFC 6690 <xref target="RFC6690"/>.</t>
+
+<section title="Resource Type value 'core.pubsub.client'">
+<t>
+<list style="symbols">
+<t>Attribute Value: core.pubsub.client</t>
+<t>Description: Section X of [[This document]]</t>
+<t>Reference: [[This document]]</t>
+<t>Notes: None</t>
+</list>
+</t>
+</section>
+
+<section title="Resource Type value 'core.pubsub.server'">
+<t>
+<list style="symbols">
+<t>Attribute Value: core.pubsub.server</t>
+<t>Description: Section Y of [[This document]]</t>
+<t>Reference: [[This document]]</t>
+<t>Notes: None</t>
+</list>
+</t>
+</section>
+
+</section>
+
+<!-- ====================================================================== -->
+
+    
+<section anchor="acks" title="Acknowledgements">
+  <t>The authors would like to thank Hannes Tschofenig, Zach Shelby, Mohit Sethi, and Anders Eriksson for their contributions and reviews</t>
+</section>
+
+
+</middle>
+
+<!-- ====================================================================== -->
+  <back>
+
+<references title="Normative References">
+<?rfc include="reference.RFC.2119"?>
+<?rfc include="reference.RFC.6690"?>
+<?rfc include="reference.RFC.6570"?>
+<?rfc include="reference.I-D.ietf-core-resource-directory"?>
+<?rfc include="reference.I-D.ietf-core-observe"?>
+<!--      <?rfc include="reference.I-D.draft-ietf-core-interfaces"?> -->
+<?rfc include="reference.RFC.7252"?>
+
+<reference anchor="OMALightweightM2M">
+<front>
+<title>OMA LightweightM2M v1.0</title>
+<author>
+<organization>Open Mobile Alliance</organization>
+</author>
+<date month="12" year="2013"/>
+</front>
+<seriesInfo name="" value="http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/oma-lightweightm2m-v1-0"/>
+</reference>
+
+    </references>
+
+    <references title="Informative References">
+	      <?rfc include="reference.RFC.5988"?>
+    </references>
+  
+  </back>
+
+</rfc>
