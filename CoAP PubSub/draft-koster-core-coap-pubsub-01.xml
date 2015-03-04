@@ -351,22 +351,11 @@ EP                                            Broker
 <section anchor="iana" title="IANA Considerations">
 <t>This document registers two attribute values in the Resource Type (rt=) registry established with RFC 6690 <xref target="RFC6690"/>.</t>
 
-<section title="Resource Type value 'core.pubsub.client'">
+<section title="Resource Type value 'core.ps'">
 <t>
 <list style="symbols">
-<t>Attribute Value: core.pubsub.client</t>
+<t>Attribute Value: core.ps</t>
 <t>Description: Section X of [[This document]]</t>
-<t>Reference: [[This document]]</t>
-<t>Notes: None</t>
-</list>
-</t>
-</section>
-
-<section title="Resource Type value 'core.pubsub.server'">
-<t>
-<list style="symbols">
-<t>Attribute Value: core.pubsub.server</t>
-<t>Description: Section Y of [[This document]]</t>
 <t>Reference: [[This document]]</t>
 <t>Notes: None</t>
 </list>
@@ -379,7 +368,7 @@ EP                                            Broker
 
     
 <section anchor="acks" title="Acknowledgements">
-  <t>The authors would like to thank Hannes Tschofenig, Zach Shelby, Mohit Sethi, and Anders Eriksson for their contributions and reviews</t>
+  <t>The authors would like to thank Hannes Tschofenig, Zach Shelby, Mohit Sethi, Peter Van der Stok, and Anders Eriksson for their contributions and reviews</t>
 </section>
 
 
