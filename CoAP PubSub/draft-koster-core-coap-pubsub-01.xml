@@ -212,7 +212,7 @@ EP                                           Broker
 <t>The Client endpoint PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client endpoint MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAp PubSub Broker MUST return 2.xx if the publish is accepted, or 4.xx if the topic does not exist. </t>
 
 <t>
-<figure title="PUBLISH" anchor="put-ep-fig">
+<figure title="PUBLISH" anchor="publish-fig">
 <artwork>
 <![CDATA[
 EP                                            Broker
@@ -237,7 +237,7 @@ EP                                            Broker
 </t>
 
 <t>
-<figure title="SUBSCRIBE" anchor="publish-fig">
+<figure title="SUBSCRIBE" anchor="subscribe-fig">
 <artwork>
 <![CDATA[
 EP                                            Broker
@@ -263,7 +263,7 @@ EP                                            Broker
 </t>
 
 <t>
-<figure title="READ" anchor="get-pubsub-fig">
+<figure title="READ" anchor="read-fig">
 <artwork>
 <![CDATA[
 EP                                            Broker
@@ -288,7 +288,7 @@ EP                                            Broker
 </t>
 
 <t>
-<figure title="REMOVE" anchor="get-pubsub-fig">
+<figure title="REMOVE" anchor="remove-fig">
 <artwork>
 <![CDATA[
 EP                                            Broker
