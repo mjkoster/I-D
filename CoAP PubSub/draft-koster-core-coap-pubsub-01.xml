@@ -145,8 +145,8 @@
 </section> 
 
 
-<section title="CoAP PubSub Topics">
-<t>A  PubSub Topic is a strings used to identify particular resources and objects in a publish-subscribe system. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure". Each topic may </t>
+<section title="CoAP PubSub Topic">
+<t>A  PubSub Topic is a strings used to identify particular resources and objects in a publish-subscribe system. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure" or "EP-33543/sen/3303/0/5700".</t>
 
 </section>
 
@@ -154,8 +154,8 @@
 
 <!-- ====================================================================== -->
 
-<section title="CoAP-PubSub Function Set">
-<t>
+<section title="CoAP PubSub Function Set">
+<t>This section defines the interfaces between a CoAP PubSub Broker and PubSub Clients, which is called the CoAP PubSub Function Set. The examples throughout this section assume the use of CoAP [RFC7252]. A CoAP PubSub Broker implementing this specification MUST support the discover, create, publish, subscribe, and remove operations defined in this section.
 </t>
 
 <section title="DISCOVER">
