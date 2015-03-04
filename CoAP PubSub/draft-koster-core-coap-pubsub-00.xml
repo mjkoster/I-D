@@ -108,8 +108,9 @@
 
 <section title="RD Server with associated CoAP-PubSub Broker">
 
-<t><xref target="arch-fig"/> shows an example architecture of a CoAP-PubSub capable service. A Resource Directory (RD) service accepts registrations and registration updates from one or more endpoints and hosts a resource discovery service for one or more web application clients. State information is updated from the endpoints to the CoAP-PubSub broker. Web clients subscribe to the state of the endpoint from the CoAP-PubSub broker, and publish updates to the endpoint state through the CoAP-PubSub broker. The CoAP-PubSub broker performs a store-and-forward function between web clients and the CoAP-PubSub capable endpoints. The CoAP-PubSub broker is also responsible for acting as a proxy, returning the last published value to web clients or other endpoints on behalf endpoints that are sleeping.</t>
+<t><xref target="arch-fig"/> shows an example architecture of a CoAP-PubSub capable service. A CoAP PubSub broker registers itself to a Resource Directory (RD) so that it can be discovered by endpoints and applications. An endpoint discovers the PubSub broker from the RD and can create new topics on the broker. On these topics the endpoint can publish the resources it hosts.</t>
 
+<t>An application that is interested in the resources hosted by the endpoint can subscribe to the matching topics on the PubSub broker. When new resource representations are published by the endpoint, the broker forwards these representations to the registered subscriber(s). The broker will also cache the representations and forward the cached representations to subscribers that request it after the representation was published. </t>
         <t>
         <figure title="CoAP-PubSub Architecture" anchor="arch-fig">
           <artwork>
@@ -117,14 +118,14 @@
  Endpoints                  Service                   Applications
                            +------+
                            |      |
-            +- register -> |  RD  | <- discover -+
+            +- discover -> |  RD  | <- discover -+
  +------+   |              |      |              |   +--------+
- |      | --+              +------+              +-- |  Web   |
- |  EP  |                                            | Client |
- |      | <-+              +------+              +-> |  app   |
+ |      | --+              +--^---+              +-- |        |
+ |  EP  |                     | register             |  App   |
+ |      | <-+              +-- ---+              +-> |        |
  +------+   |              | CoAP |              |   +--------+
-  |  EP  |  +-- pub/sub -> |PubSub| <- pub/sub --+    |  app   |
-  +------+                 |Broker|                   +--------+
+            +-- pub/sub -> |PubSub| <- pub/sub --+   
+                           |Broker| 
                            +------+
 ]]>
 </artwork>
@@ -132,15 +133,12 @@
 </t>
 </section>
 
+<!--
 <section title="Client Endpoint">
 <t>Client endpoints initiate all interactions with the RD and CoAP-PubSub broker. If the endpoint is an actuator it will need to either use CoAP Observe [I-D.ietf-core-observe] or periodically poll the PubSub broker to check for updates. A CoAP-PubSub client endpoint MUST use CoAP PUT operations to update its state on the PubSub broker. An endpoint SHOULD update the RD periodically to indicate that it is still alive even if it has no pending data updates. Endpoints can operate in the client role even if not directly reachable from the CoAP-PubSub broker or RD server.</t>
 
 </section> 
-
-<section title="Server Endpoint">
-<t>Server endpoint interactions require the CoAP-PubSub broker to perform the client role, initiating interaction with the server endpoint. The CoAP-PubSub broker MAY then use PUT operations to update state at the server endpoint, and MAY use GET or GET and Observe to subscribe to resources at the endpoint. Server mode endpoints are required to be reachable from the CoAP-PubSub broker. In a network containing both client and server endpoints, client endpoints MAY subscribe to server endpoints directly, in broker-less configurations, using RD or core-link-format metadata in .well-known/core to discover the CoAP-PubSub capabilities and using GET and Observe to subscribe to the desired topics.</t>
-
-</section>
+-->
 
 <section title="Publish-Subscribe Topics">
 <t>Topic are strings used to identify particular resources and objects in publish-subscribe systems. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure". Implementations are free to map topics to resources, reusing existing resource addressing schemes. </t>
