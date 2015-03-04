@@ -140,7 +140,7 @@
 </section>
 
 <section title="CoAP PubSub Client">
-<t>A CoAP PubSub Client is a CoAP endpoint that interacts with a CoAP PubSub Broker using the PubSub interface. Clients initiate all interactions with the CoAP-PubSub broker. Sensor Clients will Publish state updates to the Broker. Actuator Clients subscribe to state updates from the broker. Application clients publish and subscribe in orer to exchange state upadates with Sensors and Actuators.</t>
+<t>A CoAP PubSub Client interacts with a CoAP PubSub Broker using the CoAP PubSub interface. Clients initiate all interactions with the CoAP-PubSub broker. Sensor Clients Publish state updates to the Broker. Actuator Clients read from or subscribe to state updates from the broker. Application clients make use of both publish and subscribe in order to exchange state upadates with Sensors and Actuators.</t>
 
 </section> 
 
@@ -154,7 +154,9 @@
 
 <!-- ====================================================================== -->
 
-<section title="CoAP PubSub Function Set">
+<section anchor="function-set" title="CoAP PubSub Function Set">
+<t>This section is normative.
+</t>
 <t>This section defines the interfaces between a CoAP PubSub Broker and PubSub Clients, which is called the CoAP PubSub Function Set. The examples throughout this section assume the use of CoAP [RFC7252]. A CoAP PubSub Broker implementing this specification MUST support the discover, create, publish, subscribe, and remove operations defined in this section.
 </t>
 
