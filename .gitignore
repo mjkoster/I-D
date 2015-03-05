@@ -1,0 +1,7 @@
+
+# text versions of the draft
+draft-*.txt
+
+# Previous versions used by Makefile
+draft-*.r*.xml*
+draft-*-diff.html
