@@ -11,7 +11,7 @@
 # or with make command line arguments: "make PV=10 showdiff"
 
 # The default name of the Internet Draft XML file (without xml extension)
-DRAFT = draft-koster-core-coap-pubsub-01
+DRAFT = draft-koster-core-coap-pubsub
 
 # The version control system in use “git” or “svn”
 VCS = git
