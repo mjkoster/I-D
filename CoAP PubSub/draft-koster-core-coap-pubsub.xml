@@ -143,7 +143,7 @@
 </section>
 
 <section title="CoAP PubSub Client">
-<t>A CoAP PubSub Client interacts with a CoAP PubSub Broker using the CoAP PubSub interface. Clients initiate all interactions with the CoAP-PubSub broker. Sensor Clients Publish state updates to the Broker. Actuator Clients read from or subscribe to state updates from the broker. Application clients make use of both publish and subscribe in order to exchange state upadates with Sensors and Actuators.</t>
+<t>A CoAP PubSub Client interacts with a CoAP PubSub Broker using the CoAP PubSub interface. Clients initiate all interactions with the CoAP-PubSub broker. Sensor Clients Publish state updates to the Broker. Actuator Clients read from or subscribe to state updates from the broker. Application clients make use of both publish and subscribe in order to exchange state updates with Sensors and Actuators.</t>
 
 </section> 
 
@@ -164,7 +164,7 @@
 </t>
 
 <section title="DISCOVER">
-<t> CoAP PubSub Clients discover CoAP PubSub Brokers by uisng CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory.
+<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory.
 </t>
 
         <t>
@@ -188,7 +188,7 @@ EP                                             Broker
 
 <section title="CREATE">
 <t>
-Clients MAY Create Topics on the broker. A client wishing to cerate a topic MUST use CoAP POST to the PubSub function set location with a payload of the desired topic. The Topic MUST be a valid URI as described in [ref]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return 2.xx if the topic is created and 4.xx if the topic can not be created. Broker MAY remove topics if max-age is excedded without any publishes to the topic. Broker MUST return 4.xx to clients attempting to Read or Subscribe to expired topics.
+Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload of the desired topic. The Topic MUST be a valid URI as described in [ref]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return 2.xx if the topic is created and 4.xx if the topic can not be created. Broker MAY remove topics if max-age is exceeded without any publishes to the topic. Broker MUST return 4.xx to clients attempting to Read or Subscribe to expired topics.
 </t>
 
 <t>
@@ -212,7 +212,7 @@ EP                                           Broker
 
 
 <section title="PUBLISH">
-<t>The Client endpoint PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client endpoint MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAp PubSub Broker MUST return 2.xx if the publish is accepted, or 4.xx if the topic does not exist. </t>
+<t>The Client endpoint PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client endpoint MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAP PubSub Broker MUST return 2.xx if the publish is accepted, or 4.xx if the topic does not exist. </t>
 
 <t>
 <figure title="PUBLISH" anchor="publish-fig">
@@ -287,7 +287,7 @@ EP                                            Broker
 </section>
 
 <section title="REMOVE">
-<t> A CoAp PubSub Client wishing to remove a topic MUST use a CoAP Delete operation on the URL of the topic. The CoAP PubSub Broker MUST return 2.xx Deleted if the Delete operation is successful, 4.xx if the operation is unsuccessful, and 4.xx if the topic does not exist.
+<t> A CoAP PubSub Client wishing to remove a topic MUST use a CoAP Delete operation on the URL of the topic. The CoAP PubSub Broker MUST return 2.xx Deleted if the Delete operation is successful, 4.xx if the operation is unsuccessful, and 4.xx if the topic does not exist.
 </t>
 
 <t>
@@ -319,7 +319,7 @@ EP                                            Broker
 <t>A CoAP PubSub Broker may register a PubSub Function Set with a Resource Directory. A PubSub Client may use Resource Directory to discover a PubSub Broker.
 </t>
 
-<t>A CoAP PubSub CLient may register CoRE Links (RFC6690) to created PubSub Topics with a Resource Directory. A PubSub Client may use Resource Directory to discover PubSub Topics. A client wishing to register PubSub Topics with a RD MUST use the context relation (CON) to indicate that the context of the registered links is the PubSub Broker.
+<t>A CoAP PubSub Client may register CoRE Links (RFC6690) to created PubSub Topics with a Resource Directory. A PubSub Client may use Resource Directory to discover PubSub Topics. A client wishing to register PubSub Topics with a RD MUST use the context relation (CON) to indicate that the context of the registered links is the PubSub Broker.
 </t>
 
 </section>
@@ -327,7 +327,7 @@ EP                                            Broker
 
 <!-- ====================================================================== -->
 
-<section title="Sleep-Wakeup Operation">
+<section title="Sleep-Wake up Operation">
 <t>A CoAP PubSub client may sleep between publishing state updates to the Broker. A CoAP PubSub client may sleep between retrieving state updates from the broker when using the READ operation to retrieve the state updates. A CoAP PubSub Client must not sleep while subscribed to state updates from the Broker.</t>
 </section>
 

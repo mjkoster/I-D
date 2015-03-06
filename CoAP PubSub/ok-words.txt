@@ -1,9 +1,8 @@
-personal_ws-1.1 en 44 
+personal_ws-1.1 en 41 
 Eriksson
 coap
 CoAP
 ietf
-IETF
 al
 Tschofenig
 NATs
@@ -13,7 +12,6 @@ LightweightM
 Acknowledgements
 Stok
 oma
-OMA
 reachability
 Bradner
 Ari
@@ -21,7 +19,6 @@ CoRE
 Hartke
 OMALightweightM
 koster
-Koster
 Hadley
 RESTful
 Keranen
