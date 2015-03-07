@@ -248,7 +248,7 @@ Client                                          Broker
   |                                               |
   |                                               |
   |                 SUBSCRIBE                     |
-  | ----- GET /ps/topic1 Observe: Token:XX -----> |
+  | ----- GET /ps/topic1 Observe:0 Token:XX ----> |
   |                                               |
   |                  PUBLISH                      |
   | <---------- 2.05 Content Observe:10---------- |
@@ -263,7 +263,7 @@ Client                                          Broker
 </section>
 
 <section title="UNSUBSCRIBE">
-<t>CoAP PubSub Clients UNSUBSCRIBE to topics on the Broker using the CoAP Cancel Observation operation. A CoAP PubSub Client wishing to UNSUBSCRIBE to a topic on a Broker MUST either use CoAP GET+Observe with an Observe parameter of 1 or send a CoAP Reset message in response to a PUBLISH <xref target="I-D.ietf-core-observe"/>.
+<t>CoAP PubSub Clients UNSUBSCRIBE to topics on the Broker using the CoAP Cancel Observation operation. A CoAP PubSub Client wishing to UNSUBSCRIBE to a topic on a Broker MUST either use CoAP GET+Observe with an Observe parameter of 1 or send a CoAP Reset message in response to a PUBLISH <xref target="I-D.ietf-core-observe"/>. <xref target="unsubscribe-fig"/> shows an example of a client UNSUBSCRIBE using the Observe=1 cancellation method.
 </t>
 
 <t>
@@ -274,7 +274,7 @@ Client                                          Broker
   |                                               |
   |                                               |
   |                 UNSUBSCRIBE                   |
-  | ----- GET /ps/topic1 Observe: Token:XX -----> |
+  | ----- GET /ps/topic1 Observe:1 Token:XX ----> |
   |                                               |
   |                  PUBLISH                      |
   | <---------- 2.05 Content Observe:10---------- |
@@ -286,7 +286,7 @@ Client                                          Broker
 </section>
 
 <section title="READ">
-<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.
+<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. <xref target="read-fig"/> shows an example of s successful READ from topic1.
 </t>
 
 <t>
@@ -311,7 +311,7 @@ Client                                          Broker
 </section>
 
 <section title="REMOVE">
-<t> A CoAP PubSub Client wishing to REMOVE a topic MUST use a CoAP Delete operation on the URL of the topic. The CoAP PubSub Broker MUST return 2.02 Deleted if the REMOVE operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be REMOVEd.
+<t> A CoAP PubSub Client wishing to REMOVE a topic MUST use a CoAP Delete operation on the URL of the topic. The CoAP PubSub Broker MUST return 2.02 Deleted if the REMOVE operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be REMOVEd. <xref target="subscribe-fig"/> shows a successful REMOVE of topic1.
 </t>
 
 <t>
@@ -351,8 +351,8 @@ Client                                         Broker
 
 <!-- ====================================================================== -->
 
-<section title="Sleep-Wake up Operation">
-<t>A CoAP PubSub client may sleep between publishing state updates to the Broker. A CoAP PubSub client may sleep between retrieving state updates from the broker when using the READ operation to retrieve the state updates. A CoAP PubSub Client must not sleep while subscribed to state updates from the Broker.</t>
+<section title="Sleep-Wake Operation">
+<t>A CoAP PubSub client MAY sleep between PUBLISH operations to a Broker. A CoAP PubSub client MAY sleep between READ operations from a broker. A CoAP PubSub Client SHOULD NOT sleep while SUBSCRIBEd to any topics on a Broker.</t>
 </section>
 
  
