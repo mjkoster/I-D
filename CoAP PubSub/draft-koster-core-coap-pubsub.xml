@@ -160,7 +160,7 @@
 </t>
 
 <section title="DISCOVER">
-<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> Is an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery.
+<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery.
 </t>
 
         <t>
@@ -238,7 +238,7 @@ Client                                          Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.<xref target="subscribe-fig"/> shows an example of subscribing to "topic1" and receiving two PUBLISH responses from the broker.
+<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.<xref target="subscribe-fig"/> shows an example of subscribing to "topic1" and receiving two PUBLISH responses from the broker.
 </t>
 
 <t>
@@ -287,7 +287,7 @@ Client                                          Broker
 </section>
 
 <section title="READ">
-<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. <xref target="read-fig"/> shows an example of s successful READ from topic1.
+<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. <xref target="read-fig"/> shows an example of s successful READ from topic1.
 </t>
 
 <t>
