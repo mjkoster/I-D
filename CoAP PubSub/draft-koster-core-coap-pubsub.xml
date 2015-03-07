@@ -161,11 +161,11 @@
 <section anchor="function-set" title="CoAP PubSub Function Set">
 <t>This section is normative.
 </t>
-<t>This section defines the interfaces between a CoAP PubSub Broker and PubSub Clients, which is called the CoAP PubSub Function Set. The examples throughout this section assume the use of CoAP [RFC7252]. A CoAP PubSub Broker implementing this specification MUST support the discover, create, publish, subscribe, and remove operations defined in this section.
+<t>This section defines the interfaces between a CoAP PubSub Broker and PubSub Clients, which is called the CoAP PubSub Function Set. The examples throughout this section assume the use of CoAP [RFC7252]. A CoAP PubSub Broker implementing this specification MUST support the DISCOVER, CREATE, PUBLISH, SUBSCRIBE, UNSUBSCRIBE, READ, and REMOVE operations defined in this section.
 </t>
 
 <section title="DISCOVER">
-<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory.
+<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> Is an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery.
 </t>
 
         <t>
@@ -173,13 +173,13 @@
           <artwork>
             <![CDATA[
 
-EP                                             Broker
- |                     DISCOVER                  |
- | ------ GET /.well-known/core?rt=core.ps ----->|
- |                                               |
- | <------2.05 Content “</ps>;rt=core.ps”--------|
- |                                               |
- |                                               |
+Client                                          Broker
+  |                     DISCOVER                  |
+  | ------ GET /.well-known/core?rt=core.ps ----->|
+  |                                               |
+  | <------2.05 Content “</ps>;rt=core.ps”--------|
+  |                                               |
+  |                                               |
 
 ]]>
 </artwork>
@@ -188,20 +188,21 @@ EP                                             Broker
 </section>
 
 <section title="CREATE">
-<t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [RFC3986]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic. </t>
+<t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [RFC3986]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic. <xref target="create-fig"/> shows an example of a topic called "topic1" being successfully created.
+</t>
 
 <t>
 <figure title="CREATE" anchor="create-fig">
 <artwork>
 <![CDATA[
-EP                                           Broker
-|                                               |
-|                    CREATE                     |
-| --------------- POST /ps <topic1> ----------->|
-|                                               |
-| <---------------- 2.01 Created ---------------|
-|                                               |
-|                                               |
+Client                                          Broker
+  |                                               |
+  |                    CREATE                     |
+  | --------------- POST /ps "topic1" ----------->|
+  |                                               |
+  | <---------------- 2.01 Created ---------------|
+  |                                               |
+  |                                               |
 ]]>
 </artwork>
 </figure>
@@ -211,22 +212,23 @@ EP                                           Broker
 
 
 <section title="PUBLISH">
-<t>The CoAP PubSub Client PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAP PubSub Broker MUST return a response code of 2.04 Changed if the publish is accepted. The Broker MUST return a response code of 4.04 Not Found if the topic does not exist. </t>
+<t>The CoAP PubSub Client PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAP PubSub Broker MUST return a response code of 2.04 Changed if the publish is accepted. The Broker MUST return a response code of 4.04 Not Found if the topic does not exist. <xref target="publish-fig"/> shows an example of a new value being successfully published to the topic "topic1".
+</t>
 
 <t>
 <figure title="PUBLISH" anchor="publish-fig">
 <artwork>
 <![CDATA[
-EP                                            Broker
-|                                               |
-|                                               |
-|                    PUBLISH                    |
-| ---------- PUT /ps/topic1 <payload> --------> |
-|                                               |
-|                                               |
-| <--------------- 2.04 Changed---------------- |
-|                                               |
-|                                               |
+Client                                          Broker
+  |                                               |
+  |                                               |
+  |                    PUBLISH                    |
+  | ---------- PUT /ps/topic1 "1033.3"  --------> |
+  |                                               |
+  |                                               |
+  | <--------------- 2.04 Changed---------------- |
+  |                                               |
+  |                                               |
 ]]>
 </artwork>
 </figure>
@@ -235,24 +237,25 @@ EP                                            Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. The Broker MUST continue to PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic.</t>
+<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. The Broker MUST continue to PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic. <xref target="subscribe-fig"/> shows an example of subscribing to "topic1" and receiving two PUBLISH responses from the broker. 
+</t>
 
 <t>
 <figure title="SUBSCRIBE" anchor="subscribe-fig">
 <artwork>
 <![CDATA[
-EP                                            Broker
-|                                               |
-|                                               |
-|                 SUBSCRIBE                     |
-| ----- GET /ps/topic1 Observe: Token:XX -----> |
-|                                               |
-|                  PUBLISH                      |
-| <---------- 2.05 Content Observe:10---------- |
-|                                               |
-|                  PUBLISH                      |
-| <---------- 2.05 Content Observe:12---------- |
-|                                               |
+Client                                          Broker
+  |                                               |
+  |                                               |
+  |                 SUBSCRIBE                     |
+  | ----- GET /ps/topic1 Observe: Token:XX -----> |
+  |                                               |
+  |                  PUBLISH                      |
+  | <---------- 2.05 Content Observe:10---------- |
+  |                                               |
+  |                  PUBLISH                      |
+  | <---------- 2.05 Content Observe:12---------- |
+  |                                               |
 ]]>
 </artwork>
 </figure>
@@ -260,21 +263,22 @@ EP                                            Broker
 </section>
 
 <section title="UNSUBSCRIBE">
-<t>CoAP PubSub Clients UNSUBSCRIBE to topics on the Broker using the CoAP Cancel Observation operation. A CoAP PubSub Client wishing to UNSUBSCRIBE to a topic on a Broker MUST either use CoAP GET+Observe with an Observe parameter of 1 or send a CoAP Reset message in response to a PUBLISH <xref target="I-D.ietf-core-observe"/>.</t>
+<t>CoAP PubSub Clients UNSUBSCRIBE to topics on the Broker using the CoAP Cancel Observation operation. A CoAP PubSub Client wishing to UNSUBSCRIBE to a topic on a Broker MUST either use CoAP GET+Observe with an Observe parameter of 1 or send a CoAP Reset message in response to a PUBLISH <xref target="I-D.ietf-core-observe"/>.
+</t>
 
 <t>
 <figure title="UNSUBSCRIBE" anchor="unsubscribe-fig">
 <artwork>
 <![CDATA[
-EP                                            Broker
-|                                               |
-|                                               |
-|                 UNSUBSCRIBE                   |
-| ----- GET /ps/topic1 Observe: Token:XX -----> |
-|                                               |
-|                  PUBLISH                      |
-| <---------- 2.05 Content Observe:10---------- |
-|                                               |
+Client                                          Broker
+  |                                               |
+  |                                               |
+  |                 UNSUBSCRIBE                   |
+  | ----- GET /ps/topic1 Observe: Token:XX -----> |
+  |                                               |
+  |                  PUBLISH                      |
+  | <---------- 2.05 Content Observe:10---------- |
+  |                                               |
 ]]>
 </artwork>
 </figure>
@@ -282,22 +286,23 @@ EP                                            Broker
 </section>
 
 <section title="READ">
-<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.</t>
+<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.
+</t>
 
 <t>
 <figure title="READ" anchor="read-fig">
 <artwork>
 <![CDATA[
-EP                                            Broker
-|                                               |
-|                                               |
-|                     READ                      |
-| -------------- GET /ps/topic1  -------------> |
-|                                               |
-|                                               |
-| <--------------- 2.05 Content --------------- |
-|                                               |
-|                                               |
+Client                                          Broker
+  |                                               |
+  |                                               |
+  |                     READ                      |
+  | -------------- GET /ps/topic1  -------------> |
+  |                                               |
+  |                                               |
+  | <--------------- 2.05 Content --------------- |
+  |                                               |
+  |                                               |
 ]]>
 </artwork>
 </figure>
@@ -313,16 +318,16 @@ EP                                            Broker
 <figure title="REMOVE" anchor="remove-fig">
 <artwork>
 <![CDATA[
-EP                                            Broker
-|                                               |
-|                                               |
-|                   REMOVE                      |
-| ------------- DELETE /ps/topic1 ------------> |
-|                                               |
-|                                               |
-| <-------------- 2.02 Deleted ---------------- |
-|                                               |
-|                                               |
+Client                                         Broker
+ |                                               |
+ |                                               |
+ |                   REMOVE                      |
+ | ------------- DELETE /ps/topic1 ------------> |
+ |                                               |
+ |                                               |
+ | <-------------- 2.02 Deleted ---------------- |
+ |                                               |
+ |                                               |
 ]]>
 </artwork>
 </figure>
@@ -371,7 +376,7 @@ EP                                            Broker
 <!-- ====================================================================== -->
 
 <section anchor="iana" title="IANA Considerations">
-<t>This document registers one attribute value in the Resource Type (rt=) registry established with RFC 6690 <xref target="RFC6690"/>.</t>
+<t>This document registers one attribute value in the Resource Type (rt=) registry established with <xref target="RFC6690"/> and one CoAP Response Code in the CoRE Parameters Registry.</t>
 
 <section title="Resource Type value 'core.ps'">
 <t>
@@ -384,13 +389,11 @@ EP                                            Broker
 </t>
 </section>
 
-<t>This document registers one CoAP Response Code in the CoRE Parameters Registry.</t>
-
-<section title="Response Code '2.06 No Content'">
+<section title="Response Code value '2.06 No Content'">
 <t>
 <list style="symbols">
-<t>CoAP REsponse Code: 2.06 No Content</t>
-<t>Description: Section X of [[This document]]</t>
+<t>Response Code: 2.06</t>
+<t>Description: No Content</t>
 <t>Reference: [[This document]]</t>
 <t>Notes: None</t>
 </list>
