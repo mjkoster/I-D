@@ -188,9 +188,7 @@ EP                                             Broker
 </section>
 
 <section title="CREATE">
-<t>
-Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload of the desired topic. The Topic MUST be a valid URI as described in [ref]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return 2.xx if the topic is created and 4.xx if the topic can not be created. Broker MAY remove topics if max-age is exceeded without any publishes to the topic. Broker MUST return 4.xx to clients attempting to Read or Subscribe to expired topics.
-</t>
+<t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [ref]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic. </t>
 
 <t>
 <figure title="CREATE" anchor="create-fig">
@@ -201,7 +199,7 @@ EP                                           Broker
 |                    CREATE                     |
 | ---------------- POST /ps <topic1> ----------->|
 |                                               |
-| <---------------- 2.xx Created ---------------|
+| <---------------- 2.01 Created ---------------|
 |                                               |
 |                                               |
 ]]>
@@ -213,7 +211,7 @@ EP                                           Broker
 
 
 <section title="PUBLISH">
-<t>The Client endpoint PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client endpoint MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAP PubSub Broker MUST return 2.xx if the publish is accepted, or 4.xx if the topic does not exist. </t>
+<t>The Client endpoint PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client endpoint MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAP PubSub Broker MUST return a response code of 2.04 Changed if the publish is accepted. The Broker MUST return a response code of 4.04 Not Found if the topic does not exist. </t>
 
 <t>
 <figure title="PUBLISH" anchor="publish-fig">
@@ -237,8 +235,7 @@ EP                                            Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MUST return a 2.05 Content response along with the most recent update if the topic contains a valid value, or 4.xx if the value is expired, or 4.xx if the topic does not exist.
-</t>
+<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.</t>
 
 <t>
 <figure title="SUBSCRIBE" anchor="subscribe-fig">
@@ -263,8 +260,7 @@ EP                                            Broker
 </section>
 
 <section title="READ">
-<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. he Broker MUST return a 2.05 Content response along with the most recent update if the topic contains a valid value, or 4.xx if the value is expired, or 4.xx if the topic does not exist.
-</t>
+<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.</t>
 
 <t>
 <figure title="READ" anchor="read-fig">
@@ -288,7 +284,7 @@ EP                                            Broker
 </section>
 
 <section title="REMOVE">
-<t> A CoAP PubSub Client wishing to remove a topic MUST use a CoAP Delete operation on the URL of the topic. The CoAP PubSub Broker MUST return 2.xx Deleted if the Delete operation is successful, 4.xx if the operation is unsuccessful, and 4.xx if the topic does not exist.
+<t> A CoAP PubSub Client wishing to REMOVE a topic MUST use a CoAP Delete operation on the URL of the topic. The CoAP PubSub Broker MUST return 2.02 Deleted if the REMOVE operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be REMOVEd.
 </t>
 
 <t>
@@ -302,7 +298,7 @@ EP                                            Broker
 | ------------- DELETE /ps/topic1 ------------> |
 |                                               |
 |                                               |
-| <-------------- 2.xx Deleted ---------------- |
+| <-------------- 2.02 Deleted ---------------- |
 |                                               |
 |                                               |
 ]]>
