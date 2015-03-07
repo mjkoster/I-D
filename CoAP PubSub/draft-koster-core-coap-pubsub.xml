@@ -83,19 +83,20 @@
 <t>This specification makes use of the following additional terminology:
 <list style="hanging">
 
-<t hangText="CoAP Publish-Subscribe (CoAP-PubSub) Service:">A service provided by a node or system where CoAP messages sent by one endpoint to another are stored by intermediate node(s) and forwarded only when suitable, e.g., when the message recipient endpoint is not sleeping.</t>
+<t hangText="Publish-Subscribe (pub-sub):">A messaging paradigm where messages are published to a broker and potential receivers can subscribe to the broker to receive messages. The publishers do not (need to) know where the message will be eventually sent: the publications and subscriptions are matched by a broker and publications are delivered by the broker to subscribed receivers. </t>
 
-<t hangText="CoAP-PubSub Broker:">A server node capable of storing messages to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations.</t>
+<t hangText="Topic:">A unique identifier for a particular item being published and/or subscribed to. A broker uses the topics to match subscriptions to publications. </t>
+
+<t hangText="CoAP-PubSub Broker:">A server node capable of receiving messages (publications) to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations. The broker can also temporarily store publications to satisfy future subscriptions. </t>
 
 <t hangText="CoAP-PubSub function set:">A group of well-known REST resources that together provide the CoAP-PubSub service.</t>
 
 <!--
 <t hangText="CoAP-PubSub Endpoint">An endpoint that implements the CoAP-PubSub function set. A CoAP-PubSub endpoint has two potential modes, CoAP-PubSub Client and CoAP-PubSub Server.</t>
 -->
-<!-- This needs a bit more meat -->
-<t hangText="Publish-Subscribe (pub-sub):">A messaging paradigm where messages are published (e.g., to a broker) and potential receivers can subscribe to receive the messages.</t>
 
-<t hangText="Topic:">In Publish-Subscribe systems a topic is a unique identifying string for a particular item being published and/or subscribed to.</t>
+
+
 
 </list>
 </t>
