@@ -161,7 +161,7 @@
 <section anchor="function-set" title="CoAP PubSub Function Set">
 <t>This section is normative.
 </t>
-<t>This section defines the interfaces between a CoAP PubSub Broker and PubSub Clients, which is called the CoAP PubSub Function Set. The examples throughout this section assume the use of CoAP [RFC7252]. A CoAP PubSub Broker implementing this specification MUST support the DISCOVER, CREATE, PUBLISH, SUBSCRIBE, UNSUBSCRIBE, READ, and REMOVE operations defined in this section.
+<t>This section defines the interfaces between a CoAP PubSub Broker and PubSub Clients, which is called the CoAP PubSub Function Set. The examples throughout this section assume the use of CoAP [RFC7252]. A CoAP PubSub Broker implementing this specification MUST support the DISCOVER, CREATE, PUBLISH, SUBSCRIBE, UNSUBSCRIBE, READ, and REMOVE operations defined in this section. With the exception of PUBLISH, all operations in the CoAP PubSub Function Set MUST use confirmable (CON) operations.
 </t>
 
 <section title="DISCOVER">
@@ -212,7 +212,13 @@ Client                                          Broker
 
 
 <section title="PUBLISH">
-<t>The CoAP PubSub Client PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAP PubSub Broker MUST return a response code of 2.04 Changed if the publish is accepted. The Broker MUST return a response code of 4.04 Not Found if the topic does not exist. <xref target="publish-fig"/> shows an example of a new value being successfully published to the topic "topic1".
+<t>The CoAP PubSub Client PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. A client MAY use confirmable (CON) or non-confirmable (NON) messages to PUBLISH updates to a broker. If the client PUBLISHes using a confirmable message, the Broker MUST return a response code of 2.04 Changed if the publish is accepted. If the client PUBLISHes using a confirmable message, the Broker MUST return a response code of 4.04 Not Found if the topic does not exist. 
+</t>
+
+<t>The Broker MUST PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic. If a client PUBLISHes to a broker using non-confirmable messages, the broker MAY PUBLISH those messages to SUBSCRIBEd clients using non-confirmable messages. If a client PUBLISHes to a broker using confirmable messages, the broker MUST also PUBLISH those messages to SUBSCRIBEd clients using confirmable messages. If a client PUBLISHes to a broker with the max-age option, the broker MUST PUBLISH to SUBSCRIBEd clients including the same value for the max-age option.
+</t>
+
+<t><xref target="publish-fig"/> shows an example of a new value being successfully published to the topic "topic1".
 </t>
 
 <t>
@@ -237,7 +243,7 @@ Client                                          Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. The Broker MUST continue to PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic. <xref target="subscribe-fig"/> shows an example of subscribing to "topic1" and receiving two PUBLISH responses from the broker. 
+<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.<xref target="subscribe-fig"/> shows an example of subscribing to "topic1" and receiving two PUBLISH responses from the broker.
 </t>
 
 <t>
