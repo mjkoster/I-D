@@ -109,7 +109,7 @@
 
 <section title="CoAP-PubSub Architecture">
 
-<t><xref target="arch-fig"/> Figure 1 shows the architecture of a CoAP PubSub service. CoAP PubSub Clients interact with a CoAP PubSub Broker through the CoAP PubSub interface which is hosted by the Broker. State information is updated between the Clients and the Broker. The CoAP PubSub Broker performs a store-and-forward function of state updates between certain CoAP PubSub Clients. Clients Subscribe to state updates which are Published by other Clients, and which are forwarded by the Broker to the subscribing clients. The CoAP PubSub Broker also acts as a REST proxy, retaining the last state update provided by clients to supply in response to Read requests from Clients.
+<t><xref target="arch-fig"/> shows the architecture of a CoAP PubSub service. CoAP PubSub Clients interact with a CoAP PubSub Broker through the CoAP PubSub interface which is hosted by the Broker. State information is updated between the Clients and the Broker. The CoAP PubSub Broker performs a store-and-forward function of state updates between certain CoAP PubSub Clients. Clients Subscribe to state updates which are Published by other Clients, and which are forwarded by the Broker to the subscribing clients. The CoAP PubSub Broker also acts as a REST proxy, retaining the last state update provided by clients to supply in response to Read requests from Clients.
 
 </t>
 
@@ -188,7 +188,7 @@ EP                                             Broker
 </section>
 
 <section title="CREATE">
-<t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [ref]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic. </t>
+<t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [RFC3986]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic. </t>
 
 <t>
 <figure title="CREATE" anchor="create-fig">
@@ -197,7 +197,7 @@ EP                                             Broker
 EP                                           Broker
 |                                               |
 |                    CREATE                     |
-| ---------------- POST /ps <topic1> ----------->|
+| --------------- POST /ps <topic1> ----------->|
 |                                               |
 | <---------------- 2.01 Created ---------------|
 |                                               |
@@ -211,7 +211,7 @@ EP                                           Broker
 
 
 <section title="PUBLISH">
-<t>The Client endpoint PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client endpoint MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAP PubSub Broker MUST return a response code of 2.04 Changed if the publish is accepted. The Broker MUST return a response code of 4.04 Not Found if the topic does not exist. </t>
+<t>The CoAP PubSub Client PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. The CoAP PubSub Broker MUST return a response code of 2.04 Changed if the publish is accepted. The Broker MUST return a response code of 4.04 Not Found if the topic does not exist. </t>
 
 <t>
 <figure title="PUBLISH" anchor="publish-fig">
@@ -235,7 +235,7 @@ EP                                            Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.</t>
+<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. The Broker MUST continue to PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic.</t>
 
 <t>
 <figure title="SUBSCRIBE" anchor="subscribe-fig">
@@ -252,6 +252,28 @@ EP                                            Broker
 |                                               |
 |                  PUBLISH                      |
 | <---------- 2.05 Content Observe:12---------- |
+|                                               |
+]]>
+</artwork>
+</figure>
+</t>
+</section>
+
+<section title="UNSUBSCRIBE">
+<t>CoAP PubSub Clients UNSUBSCRIBE to topics on the Broker using the CoAP Cancel Observation operation. A CoAP PubSub Client wishing to UNSUBSCRIBE to a topic on a Broker MUST either use CoAP GET+Observe with an Observe parameter of 1 or send a CoAP Reset message in response to a PUBLISH <xref target="I-D.ietf-core-observe"/>.</t>
+
+<t>
+<figure title="UNSUBSCRIBE" anchor="unsubscribe-fig">
+<artwork>
+<![CDATA[
+EP                                            Broker
+|                                               |
+|                                               |
+|                 UNSUBSCRIBE                   |
+| ----- GET /ps/topic1 Observe: Token:XX -----> |
+|                                               |
+|                  PUBLISH                      |
+| <---------- 2.05 Content Observe:10---------- |
 |                                               |
 ]]>
 </artwork>
@@ -316,7 +338,7 @@ EP                                            Broker
 <t>A CoAP PubSub Broker may register a PubSub Function Set with a Resource Directory. A PubSub Client may use Resource Directory to discover a PubSub Broker.
 </t>
 
-<t>A CoAP PubSub Client may register CoRE Links (RFC6690) to created PubSub Topics with a Resource Directory. A PubSub Client may use Resource Directory to discover PubSub Topics. A client wishing to register PubSub Topics with a RD MUST use the context relation (CON) to indicate that the context of the registered links is the PubSub Broker.
+<t>A CoAP PubSub Client may register CoRE Links <xref target="RFC6690"/> to created PubSub Topics with a Resource Directory. A PubSub Client may use Resource Directory to discover PubSub Topics. A client wishing to register PubSub Topics with a RD MUST use the context relation (CON) to indicate that the context of the registered links is the PubSub Broker.
 </t>
 
 </section>
@@ -349,12 +371,25 @@ EP                                            Broker
 <!-- ====================================================================== -->
 
 <section anchor="iana" title="IANA Considerations">
-<t>This document registers two attribute values in the Resource Type (rt=) registry established with RFC 6690 <xref target="RFC6690"/>.</t>
+<t>This document registers one attribute value in the Resource Type (rt=) registry established with RFC 6690 <xref target="RFC6690"/>.</t>
 
 <section title="Resource Type value 'core.ps'">
 <t>
 <list style="symbols">
 <t>Attribute Value: core.ps</t>
+<t>Description: Section X of [[This document]]</t>
+<t>Reference: [[This document]]</t>
+<t>Notes: None</t>
+</list>
+</t>
+</section>
+
+<t>This document registers one CoAP Response Code in the CoRE Parameters Registry.</t>
+
+<section title="Response Code '2.06 No Content'">
+<t>
+<list style="symbols">
+<t>CoAP REsponse Code: 2.06 No Content</t>
 <t>Description: Section X of [[This document]]</t>
 <t>Reference: [[This document]]</t>
 <t>Notes: None</t>
@@ -368,7 +403,7 @@ EP                                            Broker
 
     
 <section anchor="acks" title="Acknowledgements">
-  <t>The authors would like to thank Hannes Tschofenig, Zach Shelby, Mohit Sethi, Peter Van der Stok, and Anders Eriksson for their contributions and reviews</t>
+  <t>The authors would like to thank Hannes Tschofenig, Zach Shelby, Mohit Sethi, Peter Van der Stok, Tim Kellogg, and Anders Eriksson for their contributions and reviews</t>
 </section>
 
 
@@ -378,6 +413,7 @@ EP                                            Broker
   <back>
 
 <references title="Normative References">
+<?rfc include="reference.RFC.3986"?>
 <?rfc include="reference.RFC.2119"?>
 <?rfc include="reference.RFC.6690"?>
 <?rfc include="reference.RFC.6570"?>
@@ -386,16 +422,6 @@ EP                                            Broker
 <!--      <?rfc include="reference.I-D.draft-ietf-core-interfaces"?> -->
 <?rfc include="reference.RFC.7252"?>
 
-<reference anchor="OMALightweightM2M">
-<front>
-<title>OMA LightweightM2M v1.0</title>
-<author>
-<organization>Open Mobile Alliance</organization>
-</author>
-<date month="12" year="2013"/>
-</front>
-<seriesInfo name="" value="http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/oma-lightweightm2m-v1-0"/>
-</reference>
 
     </references>
 
