@@ -85,18 +85,13 @@
 
 <t hangText="Publish-Subscribe (pub-sub):">A messaging paradigm where messages are published to a broker and potential receivers can subscribe to the broker to receive messages. The publishers do not (need to) know where the message will be eventually sent: the publications and subscriptions are matched by a broker and publications are delivered by the broker to subscribed receivers. </t>
 
-<t hangText="Topic:">A unique identifier for a particular item being published and/or subscribed to. A broker uses the topics to match subscriptions to publications. </t>
+<t hangText="CoAP-PubSub function set:">A group of well-known REST resources that together provide the CoAP-PubSub service.</t>
 
 <t hangText="CoAP-PubSub Broker:">A server node capable of receiving messages (publications) to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations. The broker can also temporarily store publications to satisfy future subscriptions. </t>
 
-<t hangText="CoAP-PubSub function set:">A group of well-known REST resources that together provide the CoAP-PubSub service.</t>
+<t hangText="CoAP-PubSub Client">A CoAP client that implements the CoAP-PubSub function set. </t>
 
-<!--
-<t hangText="CoAP-PubSub Endpoint">An endpoint that implements the CoAP-PubSub function set. A CoAP-PubSub endpoint has two potential modes, CoAP-PubSub Client and CoAP-PubSub Server.</t>
--->
-
-
-
+<t hangText="Topic:">A unique identifier for a particular item being published and/or subscribed to. A broker uses the topics to match subscriptions to publications. </t>
 
 </list>
 </t>
