@@ -163,6 +163,30 @@
 <t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery.
 </t>
 
+<t>The DISCOVER interface is specified as follows:
+<list style="hanging">
+<t hangText="Interaction:">Client -> Broker</t>
+<t hangText="Method:">GET</t>
+<t hangText="URI Template:">/.well-known/core{?rt}</t>
+<t hangText="URI Template Variables:">
+<list style="hanging">
+<t hangText="rt := ">Resource Type (optional). MAY contain the value "core.ps"</t>
+</list>
+</t>
+<t hangText="Content-Format:">application/link-format (if any)</t>
+</list>
+</t>
+
+<t>The following response codes are defined for this interface:
+<list style="hanging">
+<t hangText="Success:"> 2.05 "Content" with an
+application/link-format payload containing one or more matching entries for the broker resource. A PubSub broker SHOULD use the value "ps" for the link subject variable whenever possible.</t>
+<t hangText="Failure:"> 4.04 "Not Found" is returned in case no matching entry is found for a unicast request.</t>
+<t hangText="Failure:"> 4.00 "Bad Request" is returned in case of a malformed request for a unicast request.</t>
+<t hangText="Failure:"> No error response to a multicast request.</t>
+</list>
+</t>
+
         <t>
         <figure title="DISCOVER" anchor="discover-fig">
           <artwork>
@@ -182,8 +206,32 @@ Client                                          Broker
 </t>
 </section>
 
+
 <section title="CREATE">
 <t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [RFC3986]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic. <xref target="create-fig"/> shows an example of a topic called "topic1" being successfully created.
+</t>
+
+<t>The CREATE interface is specified as follows:
+<list style="hanging">
+  <t hangText="Interaction:">Client -> Broker</t>
+  <t hangText="Method:">POST</t>
+  <t hangText="URI Template:">/{+ps}</t>
+  <t hangText="URI Template Variables:">
+    <list style="hanging">
+      <t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery. A PubSub broker SHOULD use the value "ps" for this variable whenever possible.</t>
+    </list>
+  </t>
+  <t hangText="Content-Format:">text/plain</t>
+  <t hangText="Payload:">The desired topic to CREATE</t>
+</list>
+</t>
+
+<t>The following response codes are defined for this interface:
+<list style="hanging">
+<t hangText="Success:"> 2.01 "Created". Successful Creation of the topic</t>
+<t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
+<t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
+</list>
 </t>
 
 <t>
@@ -211,6 +259,31 @@ Client                                          Broker
 </t>
 
 <t>The Broker MUST PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic. If a client PUBLISHes to a broker using non-confirmable messages, the broker MAY PUBLISH those messages to SUBSCRIBEd clients using non-confirmable messages. If a client PUBLISHes to a broker using confirmable messages, the broker MUST also PUBLISH those messages to SUBSCRIBEd clients using confirmable messages. If a client PUBLISHes to a broker with the max-age option, the broker MUST PUBLISH to SUBSCRIBEd clients including the same value for the max-age option.
+</t>
+
+<t>The PUBLISH interface is specified as follows:
+<list style="hanging">
+<t hangText="Interaction:">Client -> Broker</t>
+<t hangText="Method:">PUT</t>
+<t hangText="URI Template:">/{+ps}/{topic}</t>
+<t hangText="URI Template Variables:">
+<list style="hanging">
+<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="topic := ">The desired topic to PUBLISH on.</t>
+</list>
+</t>
+<t hangText="Content-Format:">Any valid CoAP Content Format</t>
+<t hangText="Payload:">Representation of the topic value (CoAP resource state representation) in the indicated Content-Format</t>
+</list>
+</t>
+
+<t>The following response codes are defined for this interface:
+<list style="hanging">
+<t hangText="Success:"> 2.04 "Changed". Successful PUBLISH, topic is updated</t>
+<t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
+<t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
+<t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
+</list>
 </t>
 
 <t><xref target="publish-fig"/> shows an example of a new value being successfully published to the topic "topic1".
@@ -241,6 +314,32 @@ Client                                          Broker
 <t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.<xref target="subscribe-fig"/> shows an example of subscribing to "topic1" and receiving two PUBLISH responses from the broker.
 </t>
 
+<t>The SUBSCRIBE interface is specified as follows:
+<list style="hanging">
+<t hangText="Interaction:">Client -> Broker</t>
+<t hangText="Method:">GET+Observe</t>
+<t hangText="URI Template:">/{+ps}/{topic}</t>
+<t hangText="URI Template Variables:">
+<list style="hanging">
+<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="topic := ">The desired topic to SUBSCRIBE to.</t>
+</list>
+</t>
+<t hangText="Content-Format:">Any valid CoAP Content Format</t>
+<t hangText="Response Payload:">Representation of the topic value (CoAP resource state representation) in the indicated Content-Format</t>
+</list>
+</t>
+
+<t>The following response codes are defined for this interface:
+<list style="hanging">
+<t hangText="Success:"> 2.05 "Content". Successful SUBSCRIBE, current value included</t>
+<t hangText="Success:"> 2.06 "No Content". Successful SUBSCRIBE, value not included</t>
+<t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
+<t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
+<t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
+</list>
+</t>
+
 <t>
 <figure title="SUBSCRIBE" anchor="subscribe-fig">
 <artwork>
@@ -263,8 +362,35 @@ Client                                          Broker
 </t>
 </section>
 
+
 <section title="UNSUBSCRIBE">
 <t>CoAP PubSub Clients UNSUBSCRIBE to topics on the Broker using the CoAP Cancel Observation operation. A CoAP PubSub Client wishing to UNSUBSCRIBE to a topic on a Broker MUST either use CoAP GET+Observe with an Observe parameter of 1 or send a CoAP Reset message in response to a PUBLISH <xref target="I-D.ietf-core-observe"/>. <xref target="unsubscribe-fig"/> shows an example of a client UNSUBSCRIBE using the Observe=1 cancellation method.
+</t>
+
+<t>The UNSUBSCRIBE interface is specified as follows:
+<list style="hanging">
+<t hangText="Interaction:">Client -> Broker</t>
+<t hangText="Method:">GET+Observe</t>
+<t hangText="URI Template:">/{+ps}/{topic}</t>
+<t hangText="URI Template Variables:">
+<list style="hanging">
+<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="topic := ">The desired topic to UNSUBSCRIBE from.</t>
+</list>
+</t>
+<t hangText="Content-Format:">Any valid CoAP Content Format</t>
+<t hangText="Response Payload:">Representation of the topic value (CoAP resource state representation) in the indicated Content-Format</t>
+</list>
+</t>
+
+<t>The following response codes are defined for this interface:
+<list style="hanging">
+<t hangText="Success:"> 2.05 "Content". Successful UNSUBSCRIBE, current value included</t>
+<t hangText="Success:"> 2.06 "No Content". Successful UNSUBSCRIBE, value not included</t>
+<t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
+<t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
+<t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
+</list>
 </t>
 
 <t>
@@ -277,8 +403,8 @@ Client                                          Broker
   |                 UNSUBSCRIBE                   |
   | ----- GET /ps/topic1 Observe:1 Token:XX ----> |
   |                                               |
-  |                  PUBLISH                      |
-  | <---------- 2.05 Content Observe:10---------- |
+  |                  RESPONSE                     |
+  | <------------- 2.05 Content ----------------- |
   |                                               |
 ]]>
 </artwork>
@@ -286,8 +412,35 @@ Client                                          Broker
 </t>
 </section>
 
+
 <section title="READ">
 <t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. <xref target="read-fig"/> shows an example of s successful READ from topic1.
+</t>
+
+<t>The READ interface is specified as follows:
+<list style="hanging">
+<t hangText="Interaction:">Client -> Broker</t>
+<t hangText="Method:">GET</t>
+<t hangText="URI Template:">/{+ps}/{topic}</t>
+<t hangText="URI Template Variables:">
+<list style="hanging">
+<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="topic := ">The desired topic to READ.</t>
+</list>
+</t>
+<t hangText="Content-Format:">Any valid CoAP Content Format</t>
+<t hangText="Response Payload:">Representation of the topic value (CoAP resource state representation) in the indicated Content-Format</t>
+</list>
+</t>
+
+<t>The following response codes are defined for this interface:
+<list style="hanging">
+<t hangText="Success:"> 2.05 "Content". Successful READ, current value included</t>
+<t hangText="Success:"> 2.06 "No Content". Topic exists, value not included</t>
+<t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
+<t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
+<t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
+</list>
 </t>
 
 <t>
@@ -311,8 +464,34 @@ Client                                          Broker
 
 </section>
 
+
 <section title="REMOVE">
-<t> A CoAP PubSub Client wishing to REMOVE a topic MUST use a CoAP Delete operation on the URL of the topic. The CoAP PubSub Broker MUST return 2.02 Deleted if the REMOVE operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be REMOVEd. <xref target="subscribe-fig"/> shows a successful REMOVE of topic1.
+<t> A CoAP PubSub Client wishing to REMOVE a topic MUST use a CoAP Delete operation on the URI of the topic. The CoAP PubSub Broker MUST return 2.02 Deleted if the REMOVE operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be REMOVEd. <xref target="subscribe-fig"/> shows a successful REMOVE of topic1.
+</t>
+
+<t>The REMOVE interface is specified as follows:
+<list style="hanging">
+<t hangText="Interaction:">Client -> Broker</t>
+<t hangText="Method:">GET</t>
+<t hangText="URI Template:">/{+ps}/{topic}</t>
+<t hangText="URI Template Variables:">
+<list style="hanging">
+<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="topic := ">The desired topic to REMOVE.</t>
+</list>
+</t>
+<t hangText="Content-Format:">Any valid CoAP Content Format</t>
+<t hangText="Response Payload:">Representation of the topic value (CoAP resource state representation) in the indicated Content-Format</t>
+</list>
+</t>
+
+<t>The following response codes are defined for this interface:
+<list style="hanging">
+<t hangText="Success:"> 2.02 "Deleted". Successful REMOVE</t>
+<t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
+<t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
+<t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
+</list>
 </t>
 
 <t>
@@ -344,7 +523,7 @@ Client                                         Broker
 <t>A CoAP PubSub Broker may register a PubSub Function Set with a Resource Directory. A PubSub Client may use Resource Directory to discover a PubSub Broker.
 </t>
 
-<t>A CoAP PubSub Client may register CoRE Links <xref target="RFC6690"/> to created PubSub Topics with a Resource Directory. A PubSub Client may use Resource Directory to discover PubSub Topics. A client wishing to register PubSub Topics with a RD MUST use the context relation (CON) to indicate that the context of the registered links is the PubSub Broker.
+<t>A CoAP PubSub Client may register CoRE Links <xref target="RFC6690"/> to created PubSub Topics with a Resource Directory. A PubSub Client may use Resource Directory to discover PubSub Topics. A client which registers PubSub Topics with a RD MUST use the context relation (CON) to indicate that the context of the registered links is the PubSub Broker.
 </t>
 
 </section>
@@ -360,9 +539,9 @@ Client                                         Broker
 <!-- ====================================================================== -->
 
 <section anchor="SecurityConsiderations" title="Security Considerations">
-<t>CoAP-PubSub re-uses CoAP <xref target="RFC7252"/>, CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>, and Web Linking <xref target="RFC5988"/> and therefore the security considerations of those documents also apply to this specification. Additionally, a CoAP-PubSub broker and the endpoints SHOULD authenticate each other and enforce access control policies. A malicious EP could subscribe to data it is not authorized to or mount a denial of service attack against the broker by publishing a large number of resources. The authentication can be performed using the already standardized DTLS offered mechanisms, such as certificates. DTLS also allows communication security to be established to ensure integrity and confidentiality protection of the data exchanged between these relevant parties. Provisioning the necessary credentials, trust anchors and authorization policies is non-trivial and subject of ongoing work.</t>
+<t>CoAP-PubSub re-uses CoAP <xref target="RFC7252"/>, CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>, and Web Linking <xref target="RFC5988"/> and therefore the security considerations of those documents also apply to this specification. Additionally, a CoAP-PubSub broker and the clients SHOULD authenticate each other and enforce access control policies. A malicious client could subscribe to data it is not authorized to or mount a denial of service attack against the broker by publishing a large number of resources. The authentication can be performed using the already standardized DTLS offered mechanisms, such as certificates. DTLS also allows communication security to be established to ensure integrity and confidentiality protection of the data exchanged between these relevant parties. Provisioning the necessary credentials, trust anchors and authorization policies is non-trivial and subject of ongoing work.</t>
 
-<t>The use of a CoAP-PubSub broker introduces challenges for the use of end-to-end security between the end device and the cloud-based server infrastructure since brokers terminate the exchange. While running separate DTLS sessions from the EP to the broker and from broker to the web application protects confidentially on those paths, the client/server EP does not know whether the commands coming from the broker are actually coming from the client web application. Similarly, a client web application requesting data does not know whether the data originated on the server EP. For scenarios where end-to-end security is desirable the use of application layer security is unavoidable. Application layer security would then provide a guarantee to the client EP that any request originated at the client web application. Similarly, integrity protected sensor data from a server EP will also provide guarantee to the client web application that the data originated on the EP itself. The protected data can also be verified by the intermediate broker ensuring that it stores/caches correct request/response and no malicious messages/requests are accepted. The broker would still be able to perform aggregation of data/requests collected.</t>
+<t>The use of a CoAP-PubSub broker introduces challenges for the use of end-to-end security between for example a client device on a sensor network and a client application running in a cloud-based server infrastructure since brokers terminate the exchange. While running separate DTLS sessions from the client device to the broker and from broker to client application protects confidentially on those paths, the client device does not know whether the commands coming from the broker are actually coming from the client application. Similarly, a client application requesting data does not know whether the data originated on the client device. For scenarios where end-to-end security is desirable the use of application layer security is unavoidable. Application layer security would then provide a guarantee to the client device that any request originated at the client application. Similarly, integrity protected sensor data from a client device will also provide guarantee to the client application that the data originated on the client device itself. The protected data can also be verified by the intermediate broker ensuring that it stores/caches correct request/response and no malicious messages/requests are accepted. The broker would still be able to perform aggregation of data/requests collected.</t>
 
 <t>Depending on the level of trust users and system designers place in the CoAP-PubSub broker, the use of end-to-end encryption may also be envisioned. The CoAP-PubSub broken would then only be able to verify the request/response message/commands and store-and-forward without being able to inspect the content. The solution for providing application layer security will depend on the utilized data encoding. For example, with a JSON-based data encoding the work from the JOSE working group could be re-used. Distribution of the credentials for accomplishing end-to-end security might introduce challenges if previously unknown parties need to exchange data.</t>
 </section> 
