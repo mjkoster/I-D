@@ -156,11 +156,11 @@
 <section anchor="function-set" title="CoAP PubSub Function Set">
 <t>This section is normative.
 </t>
-<t>This section defines the interfaces between a CoAP PubSub Broker and PubSub Clients, which is called the CoAP PubSub Function Set. The examples throughout this section assume the use of CoAP [RFC7252]. A CoAP PubSub Broker implementing this specification MUST support the DISCOVER, CREATE, PUBLISH, SUBSCRIBE, UNSUBSCRIBE, READ, and REMOVE operations defined in this section. With the exception of PUBLISH, all operations in the CoAP PubSub Function Set MUST use confirmable (CON) operations.
+<t>This section defines the interfaces between a CoAP PubSub Broker and PubSub Clients, which is called the CoAP PubSub Function Set. The examples throughout this section assume the use of CoAP [RFC7252]. A CoAP PubSub Broker implementing this specification MUST support the DISCOVER, CREATE, PUBLISH, SUBSCRIBE, UNSUBSCRIBE, READ, and REMOVE operations defined in this section. With the exception of PUBLISH, all operations in the CoAP PubSub Function Set MUST use confirmable (CON) CoAP messages.
 </t>
 
 <section title="DISCOVER">
-<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery.
+<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery. A broker wishing to advertize the CoAP PubSub Function Set for Simple Discovery or through a Resource Directory MUST use the link relation rt="core.ps".
 </t>
 
 <t>The DISCOVER interface is specified as follows:
@@ -208,7 +208,7 @@ Client                                          Broker
 
 
 <section title="CREATE">
-<t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [RFC3986]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic. <xref target="create-fig"/> shows an example of a topic called "topic1" being successfully created.
+<t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [RFC3986]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if a new topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic. <xref target="create-fig"/> shows an example of a topic called "topic1" being successfully created.
 </t>
 
 <t>The CREATE interface is specified as follows:
@@ -231,6 +231,7 @@ Client                                          Broker
 <t hangText="Success:"> 2.01 "Created". Successful Creation of the topic</t>
 <t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
 <t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
+<t hangText="Failure:"> 4.03 "Forbidden". Topic already exists.</t>
 </list>
 </t>
 
@@ -258,7 +259,7 @@ Client                                          Broker
 <t>The CoAP PubSub Client PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. A client MAY use confirmable (CON) or non-confirmable (NON) messages to PUBLISH updates to a broker. If the client PUBLISHes using a confirmable message, the Broker MUST return a response code of 2.04 Changed if the publish is accepted. If the client PUBLISHes using a confirmable message, the Broker MUST return a response code of 4.04 Not Found if the topic does not exist. 
 </t>
 
-<t>The Broker MUST PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic. If a client PUBLISHes to a broker using non-confirmable messages, the broker MAY PUBLISH those messages to SUBSCRIBEd clients using non-confirmable messages. If a client PUBLISHes to a broker using confirmable messages, the broker MUST also PUBLISH those messages to SUBSCRIBEd clients using confirmable messages. If a client PUBLISHes to a broker with the max-age option, the broker MUST PUBLISH to SUBSCRIBEd clients including the same value for the max-age option.
+<t>The Broker MUST PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic. If a client PUBLISHes to a broker using non-confirmable messages, the broker MAY PUBLISH those messages to SUBSCRIBEd clients using non-confirmable messages. If a client PUBLISHes to a broker using confirmable messages, the broker MUST also PUBLISH those messages to SUBSCRIBEd clients using confirmable messages. If a client PUBLISHes to a broker with the max-age option, the broker MUST PUBLISH to SUBSCRIBEd clients including the same value for the max-age option. A broker MUST use CoAP Notification as described in <xref target="I-D.ietf-core-observe"/> to PUBLISH to subscribed clients.
 </t>
 
 <t>The PUBLISH interface is specified as follows:
@@ -311,7 +312,7 @@ Client                                          Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP GET+Observe. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.<xref target="subscribe-fig"/> shows an example of subscribing to "topic1" and receiving two PUBLISH responses from the broker.
+<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP Observe as described in <xref target="I-D.ietf-core-observe"/>. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.04 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. <xref target="subscribe-fig"/> shows an example of subscribing to "topic1" and receiving two PUBLISH responses from the broker.
 </t>
 
 <t>The SUBSCRIBE interface is specified as follows:
@@ -414,7 +415,7 @@ Client                                          Broker
 
 
 <section title="READ">
-<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.06 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. <xref target="read-fig"/> shows an example of s successful READ from topic1.
+<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.04 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. <xref target="read-fig"/> shows an example of s successful READ from topic1.
 </t>
 
 <t>The READ interface is specified as follows:
