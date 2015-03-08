@@ -87,7 +87,7 @@
 
 <t hangText="CoAP-PubSub function set:">A group of well-known REST resources that together provide the CoAP-PubSub service.</t>
 
-<t hangText="CoAP-PubSub Broker:">A server node capable of receiving messages (publications) to and from other nodes and able to match subscriptions and publications in order to route messages to right destinations. The broker can also temporarily store publications to satisfy future subscriptions. </t>
+<t hangText="CoAP-PubSub Broker:">A server node capable of receiving messages (publications) from and sending messages to other nodes, and able to match subscriptions and publications in order to route messages to the right destinations. The broker can also temporarily store publications to satisfy future subscriptions. </t>
 
 <t hangText="CoAP-PubSub Client">A CoAP client that implements the CoAP-PubSub function set. </t>
 
@@ -473,7 +473,7 @@ Client                                          Broker
 <t>The REMOVE interface is specified as follows:
 <list style="hanging">
 <t hangText="Interaction:">Client -> Broker</t>
-<t hangText="Method:">GET</t>
+<t hangText="Method:">DELETE</t>
 <t hangText="URI Template:">/{+ps}/{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
@@ -481,8 +481,8 @@ Client                                          Broker
 <t hangText="topic := ">The desired topic to REMOVE.</t>
 </list>
 </t>
-<t hangText="Content-Format:">Any valid CoAP Content Format</t>
-<t hangText="Response Payload:">Representation of the topic value (CoAP resource state representation) in the indicated Content-Format</t>
+<t hangText="Content-Format:">None</t>
+<t hangText="Response Payload:">None</t>
 </list>
 </t>
 
