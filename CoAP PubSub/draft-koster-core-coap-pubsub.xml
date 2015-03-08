@@ -145,7 +145,7 @@
 
 
 <section title="CoAP PubSub Topic">
-<t>A  PubSub Topic is a strings used to identify particular resources and objects in a publish-subscribe system. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure" or "EP-33543/sen/3303/0/5700".</t>
+<t>A  PubSub Topic is a string used to identify a particular resource or object in a publish-subscribe system. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure" or "EP-33543/sen/3303/0/5700".</t>
 
 </section>
 
@@ -333,7 +333,7 @@ Client                                          Broker
 <t>The following response codes are defined for this interface:
 <list style="hanging">
 <t hangText="Success:"> 2.05 "Content". Successful SUBSCRIBE, current value included</t>
-<t hangText="Success:"> 2.06 "No Content". Successful SUBSCRIBE, value not included</t>
+<t hangText="Success:"> 2.04 "No Content". Successful SUBSCRIBE, value not included</t>
 <t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
 <t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
 <t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
@@ -386,7 +386,7 @@ Client                                          Broker
 <t>The following response codes are defined for this interface:
 <list style="hanging">
 <t hangText="Success:"> 2.05 "Content". Successful UNSUBSCRIBE, current value included</t>
-<t hangText="Success:"> 2.06 "No Content". Successful UNSUBSCRIBE, value not included</t>
+<t hangText="Success:"> 2.04 "No Content". Successful UNSUBSCRIBE, value not included</t>
 <t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
 <t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
 <t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
@@ -436,7 +436,7 @@ Client                                          Broker
 <t>The following response codes are defined for this interface:
 <list style="hanging">
 <t hangText="Success:"> 2.05 "Content". Successful READ, current value included</t>
-<t hangText="Success:"> 2.06 "No Content". Topic exists, value not included</t>
+<t hangText="Success:"> 2.04 "No Content". Topic exists, value not included</t>
 <t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
 <t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
 <t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
@@ -556,24 +556,24 @@ Client                                         Broker
 <!-- ====================================================================== -->
 
 <section anchor="iana" title="IANA Considerations">
-<t>This document registers one attribute value in the Resource Type (rt=) registry established with <xref target="RFC6690"/> and one CoAP Response Code in the CoRE Parameters Registry.</t>
+<t>This document registers one attribute value in the Resource Type (rt=) registry established with <xref target="RFC6690"/> and appends to the definition of one CoAP Response Code in the CoRE Parameters Registry.</t>
 
 <section title="Resource Type value 'core.ps'">
 <t>
 <list style="symbols">
 <t>Attribute Value: core.ps</t>
-<t>Description: Section X of [[This document]]</t>
+<t>Description: <xref target="function-set"/> of [[This document]]</t>
 <t>Reference: [[This document]]</t>
 <t>Notes: None</t>
 </list>
 </t>
 </section>
 
-<section title="Response Code value '2.06 No Content'">
+<section title="Response Code value '2.04'">
 <t>
 <list style="symbols">
-<t>Response Code: 2.06</t>
-<t>Description: No Content</t>
+<t>Response Code: 2.04</t>
+<t>Description: Add No Content response to GET to the existing definition of the 2.04 response code.</t>
 <t>Reference: [[This document]]</t>
 <t>Notes: None</t>
 </list>
