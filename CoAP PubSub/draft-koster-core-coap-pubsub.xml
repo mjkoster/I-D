@@ -527,7 +527,13 @@ Client                                         Broker
 <!-- ====================================================================== -->
 
 <section title="Sleep-Wake Operation">
-<t>A CoAP PubSub client MAY sleep between publish operations to a Broker. A CoAP PubSub client MAY sleep between READ operations from a broker. A CoAP PubSub Client SHOULD NOT sleep while subscribed to any topics on a Broker.</t>
+
+<t>CoAP PubSub provides a way for client nodes to sleep between operations, conserving energy during idle periods. This is made possible by shifting the server role to the broker, allowing the broker to be always-on and respond to requests from other clients while a particular client is sleeping.</t>
+
+<t>For example, the broker will retain the last state update received from a sleeping client, in order to supply the most recent state update to other clients in response to read and subscribe operations.</t>
+
+<t>Likewise, the broker will retain the last state update recieved on the topic such that a sleeping client, upon waking, can perform a read operation to the broker to update its own state from the most recent system state update.</t>
+
 </section>
 
  
