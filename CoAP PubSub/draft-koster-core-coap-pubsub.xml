@@ -61,7 +61,7 @@
 <section anchor="introduction" title="Introduction">
 <t>The Constrained Application Protocol (CoAP) <xref target="RFC7252"/> supports machine-to-machine communication across networks of constrained devices. CoAP uses a request/response model where clients make requests to servers in order to request actions on resources. Depending on the situation the same device may act either as a server or a client. </t>
 
-<t>One important class of constrained devices includes devices that are intended to run for years from a small battery, or by scavenging energy from their environment. These devices have limited reachability, because they spend most of their time in a sleeping state with no network connectivity. Devices may also have limited reachability due to certain middle-boxes, such as Network Address Translators (NATs) or firewalls. Such middle-boxes often prevent connecting to a device from the Internet unless the connection was initiated by the device. </t>
+<t>One important class of constrained devices includes devices that are intended to run for years from a small battery, or by scavenging energy from their environment. These devices have limited reachability because they spend most of their time in a sleeping state with no network connectivity. Devices may also have limited reachability due to certain middle-boxes, such as Network Address Translators (NATs) or firewalls. Such middle-boxes often prevent connecting to a device from the Internet unless the connection was initiated by the device. </t>
 
 <t>This document specifies the means for nodes with limited reachability to communicate using simple extensions to CoAP. The extensions enable publish-subscribe communication using a broker node that enables store-and-forward messaging between two or more nodes. Furthermore the extensions facilitate many-to-many communication using CoAP. </t>
 
@@ -89,7 +89,7 @@
 
 <t hangText="CoAP-PubSub Broker:">A server node capable of receiving messages (publications) from and sending messages to other nodes, and able to match subscriptions and publications in order to route messages to the right destinations. The broker can also temporarily store publications to satisfy future subscriptions. </t>
 
-<t hangText="CoAP-PubSub Client">A CoAP client that implements the CoAP-PubSub function set. </t>
+<t hangText="CoAP-PubSub Client:">A CoAP client that implements the CoAP-PubSub function set. </t>
 
 <t hangText="Topic:">A unique identifier for a particular item being published and/or subscribed to. A broker uses the topics to match subscriptions to publications. </t>
 
@@ -160,7 +160,7 @@
 </t>
 
 <section title="DISCOVER">
-<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery. A broker wishing to advertize the CoAP PubSub Function Set for Simple Discovery or through a Resource Directory MUST use the link relation rt="core.ps".
+<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through Resource Directory. A CoAP PubSub Broker MAY indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery. A broker wishing to advertise the CoAP PubSub Function Set for Simple Discovery or through a Resource Directory MUST use the link relation rt="core.ps".
 </t>
 
 <t>The DISCOVER interface is specified as follows:
@@ -262,7 +262,7 @@ Client                                          Broker
 <t>The CoAP PubSub Client PUBLISHes updates to CoAP-PubSub broker. A CoAP-PubSub client MUST use PUT to publish state updates to the CoAP-PubSub broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the Publish request. A client MAY use confirmable (CON) or non-confirmable (NON) messages to PUBLISH updates to a broker. If the client PUBLISHes using a confirmable message, the Broker MUST return a response code of 2.04 Changed if the publish is accepted. If the client PUBLISHes using a confirmable message, the Broker MUST return a response code of 4.04 Not Found if the topic does not exist. 
 </t>
 
-<t>The Broker MUST PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic. If a client PUBLISHes to a broker using non-confirmable messages, the broker MAY PUBLISH those messages to SUBSCRIBEd clients using non-confirmable messages. If a client PUBLISHes to a broker using confirmable messages, the broker MUST also PUBLISH those messages to SUBSCRIBEd clients using confirmable messages. If a client PUBLISHes to a broker with the max-age option, the broker MUST PUBLISH to SUBSCRIBEd clients including the same value for the max-age option. If a client PUBLISHes to a particular topic on a broker with a payload encooded in a particular CoAP Content-Format, the broker MUST PUBLISH to SUBSCRIBEd clients on that topic using the same CoAP Content-Format. A broker MUST use CoAP Notification as described in <xref target="I-D.ietf-core-observe"/> to PUBLISH to subscribed clients.
+<t>The Broker MUST PUBLISH updates to all clients subscribed on a particular topic each time it receives a PUBLISH on that topic. If a client PUBLISHes to a broker using non-confirmable messages, the broker MAY PUBLISH those messages to SUBSCRIBEd clients using non-confirmable messages. If a client PUBLISHes to a broker using confirmable messages, the broker MUST also PUBLISH those messages to SUBSCRIBEd clients using confirmable messages. If a client PUBLISHes to a broker with the max-age option, the broker MUST PUBLISH to SUBSCRIBEd clients including the same value for the max-age option. If a client PUBLISHes to a particular topic on a broker with a payload encoded in a particular CoAP Content-Format, the broker MUST PUBLISH to SUBSCRIBEd clients on that topic using the same CoAP Content-Format. A broker MUST use CoAP Notification as described in <xref target="I-D.ietf-core-observe"/> to PUBLISH to subscribed clients.
 </t>
 
 <t>The PUBLISH interface is specified as follows:
@@ -344,7 +344,7 @@ Client                                          Broker
 </list>
 </t>
 
-<t><xref target="subscribe-fig"/> shows an example of Client2 subscribing to "topic1" and receiving two PUBLISH responses from the broker. The first PUBLISH from the broker uses the last stored value associated with the topic1. The second PUBLISH from the broker is in response to the PUBLISH recieved from  Client1.
+<t><xref target="subscribe-fig"/> shows an example of Client2 subscribing to "topic1" and receiving two PUBLISH responses from the broker. The first PUBLISH from the broker uses the last stored value associated with the topic1. The second PUBLISH from the broker is in response to the PUBLISH received from  Client1.
 </t>
 
 <t>
