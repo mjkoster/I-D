@@ -208,7 +208,7 @@ Client                                          Broker
 
 
 <section title="CREATE">
-<t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [RFC3986]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if a new topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic. <xref target="create-fig"/> shows an example of a topic called "topic1" being successfully created.
+<t>Clients MAY Create Topics on the broker. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The Topic MUST be a valid URI as described in [RFC3986]. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of 2.01 Created if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if a new topic can not be created. Broker MAY remove topics if the max-age of the topic is exceeded without any publishes to the topic.
 </t>
 
 <t>The CREATE interface is specified as follows:
@@ -233,6 +233,9 @@ Client                                          Broker
 <t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
 <t hangText="Failure:"> 4.03 "Forbidden". Topic already exists.</t>
 </list>
+</t>
+
+<t><xref target="create-fig"/> shows an example of a topic called "topic1" being successfully created.
 </t>
 
 <t>
@@ -287,7 +290,7 @@ Client                                          Broker
 </list>
 </t>
 
-<t><xref target="publish-fig"/> shows an example of a new value being successfully published to the topic "topic1".
+<t><xref target="publish-fig"/> shows an example of a new value being successfully published to the topic "topic1". See <xref target="subscribe-fig"/> for an example of a broker forwarding a message from a PUBLISHing client to a SUBSCRIBEd client.
 </t>
 
 <t>
@@ -312,7 +315,7 @@ Client                                          Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP Observe as described in <xref target="I-D.ietf-core-observe"/>. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.04 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. <xref target="subscribe-fig"/> shows an example of subscribing to "topic1" and receiving two PUBLISH responses from the broker.
+<t>CoAP PubSub Clients SUBSCRIBE to topics on the Broker using CoAP Observe as described in <xref target="I-D.ietf-core-observe"/>. A CoAP PubSub Client wishing to Subscribe to a topic on a Broker MUST use CoAP GET+Observe. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.04 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. 
 </t>
 
 <t>The SUBSCRIBE interface is specified as follows:
@@ -341,22 +344,30 @@ Client                                          Broker
 </list>
 </t>
 
+<t><xref target="subscribe-fig"/> shows an example of Client2 subscribing to "topic1" and receiving two PUBLISH responses from the broker. The first PUBLISH from the broker uses the last stored value associated with the topic1. The second PUBLISH from the broker is in response to the PUBLISH recieved from  Client1.
+</t>
+
 <t>
 <figure title="SUBSCRIBE" anchor="subscribe-fig">
 <artwork>
 <![CDATA[
-Client                                          Broker
-  |                                               |
-  |                                               |
-  |                 SUBSCRIBE                     |
-  | ----- GET /ps/topic1 Observe:0 Token:XX ----> |
-  |                                               |
-  |                  PUBLISH                      |
-  | <---------- 2.05 Content Observe:10---------- |
-  |                                               |
-  |                  PUBLISH                      |
-  | <---------- 2.05 Content Observe:12---------- |
-  |                                               |
+Client1   Client2                                          Broker
+  |          |                                               |
+  |          |                                               |
+  |          |                 SUBSCRIBE                     |
+  |          | ----- GET /ps/topic1 Observe:0 Token:XX ----> |
+  |          |                                               |
+  |          |                  PUBLISH                      |
+  |          | <---------- 2.05 Content Observe:10---------- |
+  |          |                                               |
+  |          |                                               |
+  |          |                                               |
+  |          |                  PUBLISH                      |
+  | ---------|----------- PUT /ps/topic1 "1033.3"  --------> |
+  |          |                                               |
+  |          |                  PUBLISH                      |
+  |          | <---------- 2.05 Content Observe:11---------- |
+  |          |                                               |
 ]]>
 </artwork>
 </figure>
@@ -365,7 +376,7 @@ Client                                          Broker
 
 
 <section title="UNSUBSCRIBE">
-<t>CoAP PubSub Clients UNSUBSCRIBE to topics on the Broker using the CoAP Cancel Observation operation. A CoAP PubSub Client wishing to UNSUBSCRIBE to a topic on a Broker MUST either use CoAP GET+Observe with an Observe parameter of 1 or send a CoAP Reset message in response to a PUBLISH <xref target="I-D.ietf-core-observe"/>. <xref target="unsubscribe-fig"/> shows an example of a client UNSUBSCRIBE using the Observe=1 cancellation method.
+<t>CoAP PubSub Clients UNSUBSCRIBE to topics on the Broker using the CoAP Cancel Observation operation. A CoAP PubSub Client wishing to UNSUBSCRIBE to a topic on a Broker MUST either use CoAP GET+Observe with an Observe parameter of 1 or send a CoAP Reset message in response to a PUBLISH <xref target="I-D.ietf-core-observe"/>.
 </t>
 
 <t>The UNSUBSCRIBE interface is specified as follows:
@@ -394,6 +405,9 @@ Client                                          Broker
 </list>
 </t>
 
+<t><xref target="unsubscribe-fig"/> shows an example of a client UNSUBSCRIBE using the Observe=1 cancellation method.
+</t>
+
 <t>
 <figure title="UNSUBSCRIBE" anchor="unsubscribe-fig">
 <artwork>
@@ -415,7 +429,7 @@ Client                                          Broker
 
 
 <section title="READ">
-<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.04 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd. <xref target="read-fig"/> shows an example of s successful READ from topic1.
+<t>A CoAP PubSub client wishing to obtain the most recent published value on a topic MAY Read the value from the broker. A client wishing to READ a topic from a broker MUST use the CoAP GET operation. The Broker MUST return a response code of 2.05 Content along with the most recently published value if the topic contains a valid value. If the topic was PUBLISHed with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last PUBLISH. The Broker MUST return a response code of 2.04 No Content if the max-age of the previously stored value has expired. The Broker MUST return a response code 4.04 Not Found if the topic does not exist or has been REMOVEd.
 </t>
 
 <t>The READ interface is specified as follows:
@@ -444,6 +458,9 @@ Client                                          Broker
 </list>
 </t>
 
+<t><xref target="read-fig"/> shows an example of s successful READ from topic1.
+</t>
+
 <t>
 <figure title="READ" anchor="read-fig">
 <artwork>
@@ -467,7 +484,7 @@ Client                                          Broker
 
 
 <section title="REMOVE">
-<t> A CoAP PubSub Client wishing to REMOVE a topic MUST use a CoAP Delete operation on the URI of the topic. The CoAP PubSub Broker MUST return 2.02 Deleted if the REMOVE operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be REMOVEd. <xref target="subscribe-fig"/> shows a successful REMOVE of topic1.
+<t> A CoAP PubSub Client wishing to REMOVE a topic MUST use a CoAP Delete operation on the URI of the topic. The CoAP PubSub Broker MUST return 2.02 Deleted if the REMOVE operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be REMOVEd.
 </t>
 
 <t>The REMOVE interface is specified as follows:
@@ -493,6 +510,9 @@ Client                                          Broker
 <t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
 <t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
 </list>
+</t>
+
+<t><xref target="subscribe-fig"/> shows a successful REMOVE of topic1.
 </t>
 
 <t>
