@@ -1911,16 +1911,17 @@ it should send its presence messages.</t>
 </section>
 <section anchor="lwm2m-ex" title="OMA LWM2M Example">
 
-<t>This example shows how the OMA LWM2M specification makes use of
-the Resource Directory (RD).</t>
+<t>This example shows how the OMA LWM2M specification makes use of Resource Directory (RD).</t>
 
 <t>OMA LWM2M is a profile for device services based on CoAP, CoRE RD, and other IETF RFCs and drafts. A simple object model and a number of abstract interfaces and operations are defined for device management and device service enablement.</t>
 
-<t>CoRE Resource Directory (RD) is used for the LWM2M registration interface</t>
-
 <t>An LWM2M server is an instance of an LWM2M middleware service layer, containing a Resource Directory along with other LWM2M interfaces defined by the LWM2M specification.</t>
 
-<t>LWM2M does not provide for registration domains or for the use of rd-group or rd-lookup interfaces.</t>
+<t>CoRE Resource Directory (RD) is used to provide the LWM2M Registration interface.</t>
+
+<t>LWM2M does not provide for registration domains, or for the use of rd-group or rd-lookup interfaces.</t>
+
+<t>The current LWM2M specification only describes a set of interfaces and resource model used between a LWM2M device and the LWM2M server. Other interfaces, proxies, applications, and function sets are currently out of scope for LWM2M.</t>
 
 <section anchor="lwm2m-obj" title="LWM2M Object Model">
 
@@ -1928,7 +1929,7 @@ the Resource Directory (RD).</t>
 
 <t>An LWM2M Resource is a REST endpoint, allowed to be a single value or an array of values of the same data type.</t>
 
-<t>An LWM2M Object is a resource template and container type that encapsulates a set of related resources. LWM2M Objects represent types of information; for example, there is a LWM2M Device Management object that represents a network connection, containing resources that represent individual properties like radio signal strength.</t>
+<t>An LWM2M Object is a resource template and container type that encapsulates a set of related resources. An LWM2M Object represents a specific type of information source; for example, there is a LWM2M Device Management object that represents a network connection, containing resources that represent individual properties like radio signal strength.</t>
 
 <t>Since there may potentially be more than one of a given type object, for example more than one network connection, LWM2M defines instances of objects that contain the resources that represent a specific physical thing.</t>
 
@@ -1945,21 +1946,24 @@ the Resource Directory (RD).</t>
 </section>
 <section anchor="lwm2m-reg" title="LWM2M Register Endpoint">
 
-<t>LWM2M defines a registration interface based on CoRE Resource Directory.</t>
+<t>LWM2M defines a registration interface based on the Resource Directory Function Set, described in <xref target="rd"/>. The URI of the LWM2M Resource Directory function set is specified to be “/rd” as recommended in <xref target="registration"/>.</t>
 
 <t>LWM2M endpoints register object IDs to indicate that a particular object type is supported, and register object instances to indicate that a particular instance of that object type exists.</t>
 
 <t>(NB Resources within the object instance are not registered with the RD but may be discovered by reading the resource links from the object instance using GET with a CoAP Content-Format of application/link-format. Resources may also be read as a structured object by performing a GET to the object instance with a Content-Format of senml+json)</t>
 
-<t>When an LWM2M object or instance is registered, this indicates to the LWM2M server
-LWM2M endpoints use the following RD registration parameters as defined in <xref target="tab-registry"/> :</t>
+<t>When an LWM2M object or instance is registered, this indicates to the LWM2M server that the object and it’s resources are available for management and service enablement (REST API) operations.</t>
+
+<t>LWM2M endpoints may use the following RD registration parameters as defined in this document, <xref target="tab-registry"/> :</t>
 
 <figure align="left"><artwork><![CDATA[
 ep - Endpoint Name
 lt - registration lifetime
 ]]></artwork></figure>
 
-<t>Additional registration parameters are defined:</t>
+<t>Only Endpoint Name is Mandatory.</t>
+
+<t>Additional optional LWM2M registration parameters are defined:</t>
 
 <texttable title="LWM2M Additional Registration Parameters" anchor="tab-lwm2m-registry">
       <ttcol align='left'>Name</ttcol>
@@ -1977,7 +1981,7 @@ lt - registration lifetime
       <c>LWM2M Version</c>
       <c>ver</c>
       <c>1.0</c>
-      <c>&#160;</c>
+      <c>Spec Version</c>
       <c>&#160;</c>
       <c>&#160;</c>
       <c>&#160;</c>
@@ -1995,20 +1999,22 @@ et - Endpoint Type
 con - Context
 ]]></artwork></figure>
 
-<t>The endpoint includes a registration payload containing links to all supported objects and object instances, including the appropriate link-format relations.</t>
+<t>The endpoint registration must include a payload containing links to all supported objects and existing object instances, optionally including the appropriate link-format relations.</t>
+
+<t>Here is an example LWM2M registration payload:</t>
 
 <t>&lt;/1&gt;, &lt;/1/0&gt;, &lt;/5&gt;</t>
 
-<t>This link format payload indicates that object ID 1 (LWM2M server object) is supported, with a single instance existing, and object 5 (LWM2M firmware update) is supported.</t>
+<t>This link format payload indicates that object ID 1 (LWM2M server object) is supported, with a single instance 0 existing, and object 5 (LWM2M firmware update) is supported.</t>
 
 </section>
 <section anchor="lwm2m-altbase" title="Alternate Base URI">
 
-<t>If the LWM2M endpoint exposes objects at a base URI other that “/”, the endpoint must register the base URI using rt=”oma.lwm2m”. An example link payload using alternate base path would be:</t>
+<t>If the LWM2M endpoint exposes objects at a base URI other that “/”, the endpoint must register the base URI using rt=”oma.lwm2m”. An example link payload using alternate base URI would be:</t>
 
 <t>&lt;/my_lwm2m&gt;;rt=”oma.lwm2m”,&lt;/my_lwm2m/1&gt;, &lt;my_lwm2m/1/0&gt;, &lt;my_lwm2m/5&gt;</t>
 
-<t>This link payload indicates that the lwm2m objects will be placed under the base URI “/my_lwm2m” and that object ID 1 (server) is supported, with a single instance existing, and object 5 (firmware update) is supported.</t>
+<t>This link payload indicates that the lwm2m objects will be placed under the base URI “/my_lwm2m” and that object ID 1 (server) is supported, with a single instance 0 existing, and object 5 (firmware update) is supported.</t>
 
 </section>
 <section anchor="lwm2m-regupdate" title="LWM2M Update Endpoint Registration">
