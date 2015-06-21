@@ -14,7 +14,7 @@
 <?rfc subcompact="no"?>
 <?rfc iprnotified="no"?>
 
-<rfc ipr="trust200902" docName="draft-ietf-core-resource-directory-03pre-a" category="std">
+<rfc ipr="trust200902" docName="draft-ietf-core-resource-directory-03pre-b" category="std">
 
   <front>
     <title>CoRE Resource Directory</title>
@@ -32,9 +32,16 @@
         <email>zach.shelby@arm.com</email>
       </address>
     </author>
-    <author initials="M.K." surname="Koster" fullname="Michael Koster">
-      <organization>ARM Limited</organization>
+    <author initials="M." surname="Koster" fullname="Michael Koster">
+      <organization>ARM</organization>
       <address>
+        <postal>
+          <street>150 Rose Orchard</street>
+          <city>San Jose</city>
+          <code>95134</code>
+          <country>USA</country>
+        </postal>
+        <phone>+1-408-576-1500 x11516</phone>
         <email>Michael.Koster@arm.com</email>
       </address>
     </author>
@@ -1902,6 +1909,15 @@ it should send its presence messages.</t>
 
 </section>
 </section>
+<section anchor="lwm2m-ex" title="OMA LWM2M">
+
+<t>This example shows now the OMA LWM2M specification makes use of
+the Resource Directory (RD).</t>
+
+<section anchor="lwm2m-intro" title="OMA LWM2M">
+
+</section>
+</section>
 </section>
 <section anchor="acknowledgments" title="Acknowledgments">
 
@@ -1914,6 +1930,15 @@ originally developed.</t>
 
 </section>
 <section anchor="changelog" title="Changelog">
+
+<t>Changes from -02 to -03:</t>
+
+<t><list style="symbols">
+  <t>Added an example for lighting and DNS integration</t>
+  <t>Added an example for RD use in OMA LWM2M</t>
+  <t>Expanded DNS-SD section</t>
+  <t>Added draft authors</t>
+</list></t>
 
 <t>Changes from -01 to -02:</t>
 

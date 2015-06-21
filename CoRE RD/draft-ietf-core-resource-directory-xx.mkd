@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-core-resource-directory-03pre-a
+docname: draft-ietf-core-resource-directory-03pre-b
 cat: std
 pi:
   strict: 'yes'
@@ -27,9 +27,14 @@ author:
   country: USA
   phone: "+1-408-203-9434"
   email: zach.shelby@arm.com
-- ins: M. K. Koster
+- ins: M. Koster
   name: Michael Koster
-  org: ARM Limited
+  org: ARM
+  street: 150 Rose Orchard
+  city: San Jose
+  code: '95134'
+  country: USA
+  phone: "+1-408-576-1500 x11516"
   email: Michael.Koster@arm.com
 - ins: C. Bormann
   name: Carsten Bormann
@@ -1924,7 +1929,20 @@ multicast address from DNS.
 In the same way the presence sensor can learn the multicast address to which
 it should send its presence messages.
 
+## OMA LWM2M Example{#lwm2m-ex}
 
+This example shows how the OMA LWM2M specification makes use of
+the Resource Directory (RD). 
+
+OMA LWM2M is a profile for device services based on CoAP, CoRE RD, and other IETF RFCs and drafts. A simple object model and a number of abstract interfaces and operations are defined for device services. 
+
+CoRE Resource Directory (RD) is used for the registration interface 
+
+### OMA LWM2M {#lwm2m-intro}
+
+### LWM2M Object Model{#lwm2m-obj}
+
+### LWM2M Registration Interface{#lwm2m-reg}
 
 
 # Acknowledgments
@@ -1938,6 +1956,16 @@ originally developed.
 
 
 # Changelog
+
+Changes from -02 to -03:
+
+* Added an example for lighting and DNS integration
+
+* Added an example for RD use in OMA LWM2M
+
+* Expanded DNS-SD section
+
+* Added draft authors 
 
 Changes from -01 to -02:
 
