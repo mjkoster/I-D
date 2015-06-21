@@ -1929,20 +1929,111 @@ multicast address from DNS.
 In the same way the presence sensor can learn the multicast address to which
 it should send its presence messages.
 
-## OMA LWM2M Example{#lwm2m-ex}
+
+## OMA LWM2M Example {#lwm2m-ex}
 
 This example shows how the OMA LWM2M specification makes use of
 the Resource Directory (RD). 
 
-OMA LWM2M is a profile for device services based on CoAP, CoRE RD, and other IETF RFCs and drafts. A simple object model and a number of abstract interfaces and operations are defined for device services. 
+OMA LWM2M is a profile for device services based on CoAP, CoRE RD, and other IETF RFCs and drafts. A simple object model and a number of abstract interfaces and operations are defined for device management and device service enablement. 
 
-CoRE Resource Directory (RD) is used for the registration interface 
+CoRE Resource Directory (RD) is used for the LWM2M registration interface 
 
-### OMA LWM2M {#lwm2m-intro}
+An LWM2M server is an instance of an LWM2M middleware service layer, containing a Resource Directory along with other LWM2M interfaces defined by the LWM2M specification.
 
-### LWM2M Object Model{#lwm2m-obj}
+LWM2M does not provide for registration domains or for the use of rd-group or rd-lookup interfaces.
 
-### LWM2M Registration Interface{#lwm2m-reg}
+### LWM2M Object Model {#lwm2m-obj}
+
+The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of Objects and Resources. 
+
+An LWM2M Resource is a REST endpoint, allowed to be a single value or an array of values of the same data type.
+
+An LWM2M Object is a resource template and container type that encapsulates a set of related resources. LWM2M Objects represent types of information; for example, there is a LWM2M Device Management object that represents a network connection, containing resources that represent individual properties like radio signal strength.
+
+Since there may potentially be more than one of a given type object, for example more than one network connection, LWM2M defines instances of objects that contain the resources that represent a specific physical thing.
+
+The URI template for LWM2M consists of a base URI followed by Object, Instance, and Resource IDs:
+
+  /{base-uri}/{object-id}/{instance-id}/{resource-id}
+  
+LWM2M IDs are 16 bit decimal values represented by URI format strings. For example, a LWM2M URI might be:
+
+  /3303/15/5700
+  
+The base uri is "/", the Object ID is 3303, the instance ID is 15, and the resource ID is 5700. This URI points to internal resource 5700 in instance #15 of the 3303 (IPSO Temperature) object which represents the current sensor value.
+
+### LWM2M Register Endpoint {#lwm2m-reg}
+
+LWM2M defines a registration interface based on CoRE Resource Directory.
+
+LWM2M endpoints register object IDs to indicate that a particular object type is supported, and register object instances to indicate that a particular instance of that object type exists. 
+
+(NB Resources within the object instance are not registered with the RD but may be discovered by reading the resource links from the object instance using GET with a CoAP Content-Format of application/link-format. Resources may also be read as a structured object by performing a GET to the object instance with a Content-Format of senml+json)
+
+When an LWM2M object or instance is registered, this indicates to the LWM2M server
+LWM2M endpoints use the following RD registration parameters as defined in {{tab-registry}} :
+
+
+~~~~
+ep - Endpoint Name
+lt - registration lifetime
+~~~~
+{: align="left"}
+
+Additional registration parameters are defined:
+
+
+|       Name       | Query |           Validity           | Description                                                    |
+| Protocol Binding | b     | {"U",UQ","S","SQ","US","UQS"}| Available Protocols                                            |
+|
+| LWM2M Version    | ver   | 1.0                          | Spec Version
+|
+| SMS Number       | sms   |                              | MSISDN
+{: #tab-lwm2m-registry title='LWM2M Additional Registration Parameters'}
+
+
+The following parameters are not currently specified for use in LWM2M:
+
+
+~~~~
+et - Endpoint Type 
+con - Context
+~~~~
+{: align="left"}
+
+The endpoint includes a registration payload containing links to all supported objects and object instances, including the appropriate link-format relations.
+
+</1>, </1/0>, </5>
+
+This link format payload indicates that object ID 1 (LWM2M server object) is supported, with a single instance existing, and object 5 (LWM2M firmware update) is supported.
+
+### Alternate Base URI {#lwm2m-altbase}
+
+If the LWM2M endpoint exposes objects at a base URI other that "/", the endpoint must register the base URI using rt="oma.lwm2m". An example link payload using alternate base path would be:
+
+</my_lwm2m>;rt="oma.lwm2m",</my_lwm2m/1>, <my_lwm2m/1/0>, <my_lwm2m/5>
+
+This link payload indicates that the lwm2m objects will be placed under the base URI "/my_lwm2m" and that object ID 1 (server) is supported, with a single instance existing, and object 5 (firmware update) is supported.
+
+### LWM2M Update Endpoint Registration {#lwm2m-regupdate}
+
+LWM2M Registration update proceeds as described in this document, {{update}}, and adds some optional parameter updates:
+
+
+~~~~
+lt - Registration Lifetime
+b - Protocol Binding
+sms - MSISDN
+link payload - new or modified links
+~~~~
+{: align="left"}
+
+Registration update is also specified to be used to update the LWM2M server whenever the endpoint's UDP port or IP address are changed.
+
+### LWM2M De-Register Endpoint {#lwm2m-dereg}
+
+LWM2M allows for de-registration using the delete method on the returned location from the initial registration operation. LWM2M de-registration proceeds as described in this document, {{removal}}.
 
 
 # Acknowledgments
