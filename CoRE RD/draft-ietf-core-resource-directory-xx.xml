@@ -14,7 +14,7 @@
 <?rfc subcompact="no"?>
 <?rfc iprnotified="no"?>
 
-<rfc ipr="trust200902" docName="draft-ietf-core-resource-directory-03pre-b" category="std">
+<rfc ipr="trust200902" docName="draft-ietf-core-resource-directory-03" category="std">
 
   <front>
     <title>CoRE Resource Directory</title>
@@ -1423,7 +1423,7 @@ be: Spot.light._sub._dali._udp.office.example.com.</t>
 Section 6 of <xref target="RFC6690"/> apply. The <spanx style="verb">/.well-known/core</spanx> resource may be
 protected e.g. using DTLS when hosted on a CoAP server as described in
 <xref target="RFC7252"/>. DTLS or TLS based security SHOULD be used on all resource
-directory interfaces defined in this document <!-- TODO: Improve the exact DTLS
+directory interfaces defined in this document<!-- TODO: Improve the exact DTLS
 or TLS security requirements and references  -->.</t>
 
 <section anchor="endpoint_identification" title="Endpoint Identification and Authentication">
@@ -1965,23 +1965,23 @@ it should send its presence messages.</t>
 
 </section>
 </section>
-<section anchor="lwm2m-ex" title="OMA LWM2M Example">
+<section anchor="lwm2m-ex" title="OMA Lightweight M2M (LWM2M) Example">
 
 <t>This example shows how the OMA LWM2M specification makes use of Resource Directory (RD).</t>
 
-<t>OMA LWM2M is a profile for device services based on CoAP, CoRE RD, and other IETF RFCs and drafts. A simple object model and a number of abstract interfaces and operations are defined for device management and device service enablement.</t>
+<t>OMA LWM2M is a profile for device services based on CoAP, CoRE RD, and other IETF RFCs and drafts. LWM2M defines simple object model and a number of abstract interfaces and operations for device management and device service enablement.</t>
 
 <t>An LWM2M server is an instance of an LWM2M middleware service layer, containing a Resource Directory along with other LWM2M interfaces defined by the LWM2M specification.</t>
 
 <t>CoRE Resource Directory (RD) is used to provide the LWM2M Registration interface.</t>
 
-<t>LWM2M does not provide for registration domains, or for the use of rd-group or rd-lookup interfaces.</t>
+<t>LWM2M does not provide for registration domains and does not currently use rd-group or rd-lookup interfaces.</t>
 
-<t>The current LWM2M specification only describes a set of interfaces and resource model used between a LWM2M device and the LWM2M server. Other interfaces, proxies, applications, and function sets are currently out of scope for LWM2M.</t>
+<t>The LWM2M specification describes a set of interfaces and resource model used between a LWM2M device and an LWM2M server. Other interfaces, proxies, applications, and function sets are currently out of scope for LWM2M.</t>
 
 <t>The location of the LWM2M Server and RD Function Set is provided by the LWM2M Bootstrap process, so no dynamic discovery of the RD function set is used. LWM2M Servers and endpoints are not required to implement the ./well-known/core resource.</t>
 
-<section anchor="lwm2m-obj" title="LWM2M Object Model">
+<section anchor="lwm2m-obj" title="The LWM2M Object Model">
 
 <t>The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of Objects and Resources.</t>
 
@@ -2000,30 +2000,30 @@ it should send its presence messages.</t>
 <t>LWM2M IDs are 16 bit decimal values represented by URI format strings. For example, a LWM2M URI might be:</t>
 
 <figure align="left"><artwork><![CDATA[
-/3303/15/5700
+/1/0/1
 ]]></artwork></figure>
 
-<t>The base uri is “/”, the Object ID is 3303, the instance ID is 15, and the resource ID is 5700. This URI points to internal resource 5700, which represents the current sensor value, in instance #15 of a type 3303 (IPSO Temperature) object.</t>
+<t>The base uri is “/”, the Object ID is 1, the instance ID is 0, and the resource ID is 1. This example URI points to internal resource 1, which represents the registration lifetime configured, in instance 0 of a type 1 object (LWM2M Server Object).</t>
 
 </section>
 <section anchor="lwm2m-reg" title="LWM2M Register Endpoint">
 
 <t>LWM2M defines a registration interface based on the Resource Directory Function Set, described in <xref target="rd"/>. The URI of the LWM2M Resource Directory function set is specified to be “/rd” as recommended in <xref target="registration"/>.</t>
 
-<t>LWM2M endpoints register object IDs to indicate that a particular object type is supported, and register object instances to indicate that a particular instance of that object type exists.</t>
+<t>LWM2M endpoints register object IDs, for example &lt;/1&gt;, to indicate that a particular object type is supported, and register object instances, for example &lt;/1/0&gt;, to indicate that a particular instance of that object type exists.</t>
 
-<t>(NB Resources within the object instance are not registered with the RD but may be discovered by reading the resource links from the object instance using GET with a CoAP Content-Format of application/link-format. Resources may also be read as a structured object by performing a GET to the object instance with a Content-Format of senml+json)</t>
+<t>Resources within the LWM2M object instance are not registered with the RD, but may be discovered by reading the resource links from the object instance using GET with a CoAP Content-Format of application/link-format. Resources may also be read as a structured object by performing a GET to the object instance with a Content-Format of senml+json.</t>
 
 <t>When an LWM2M object or instance is registered, this indicates to the LWM2M server that the object and it’s resources are available for management and service enablement (REST API) operations.</t>
 
-<t>LWM2M endpoints may use the following RD registration parameters as defined in this document, <xref target="tab-registry"/> :</t>
+<t>LWM2M endpoints may use the following RD registration parameters as defined in <xref target="tab-registry"/> :</t>
 
 <figure align="left"><artwork><![CDATA[
 ep - Endpoint Name
 lt - registration lifetime
 ]]></artwork></figure>
 
-<t>Only Endpoint Name is Mandatory.</t>
+<t>Endpoint Name is mandatory, all other registration parameters are optional.</t>
 
 <t>Additional optional LWM2M registration parameters are defined:</t>
 
@@ -2054,7 +2054,7 @@ lt - registration lifetime
       <c>MSISDN</c>
 </texttable>
 
-<t>The following parameters are not currently specified for use in LWM2M:</t>
+<t>The following RD registration parameters are not currently specified for use in LWM2M:</t>
 
 <figure align="left"><artwork><![CDATA[
 et - Endpoint Type 
@@ -2066,10 +2066,10 @@ con - Context
 <t>Here is an example LWM2M registration payload:</t>
 
 <figure align="left"><artwork><![CDATA[
-</1>, </1/0>, </5>
+</1>,</1/0>, </3/0>, </5>
 ]]></artwork></figure>
 
-<t>This link format payload indicates that object ID 1 (LWM2M server object) is supported, with a single instance 0 existing, and object 5 (LWM2M firmware update) is supported.</t>
+<t>This link format payload indicates that object ID 1 (LWM2M Server Object) is supported, with a single instance 0 existing, object ID 3 (LWM2M Device object) is supported, with a single instance 0 existing, and object 5 (LWM2M Firmware Object) is supported, with no existing instances.</t>
 
 </section>
 <section anchor="lwm2m-altbase" title="Alternate Base URI">

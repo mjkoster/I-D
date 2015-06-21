@@ -1492,7 +1492,7 @@ The security considerations as described in Section 7 of {{RFC5988}} and
 Section 6 of {{RFC6690}} apply. The `/.well-known/core` resource may be
 protected e.g. using DTLS when hosted on a CoAP server as described in
 {{RFC7252}}. DTLS or TLS based security SHOULD be used on all resource
-directory interfaces defined in this document <!-- TODO: Improve the exact DTLS
+directory interfaces defined in this document<!-- TODO: Improve the exact DTLS
 or TLS security requirements and references  -->.
 
 ## Endpoint Identification and Authentication {#endpoint_identification}
