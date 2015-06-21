@@ -1423,8 +1423,8 @@ be: Spot.light._sub._dali._udp.office.example.com.</t>
 Section 6 of <xref target="RFC6690"/> apply. The <spanx style="verb">/.well-known/core</spanx> resource may be
 protected e.g. using DTLS when hosted on a CoAP server as described in
 <xref target="RFC7252"/>. DTLS or TLS based security SHOULD be used on all resource
-directory interfaces defined in this document (TODO: Improve the exact DTLS
-or TLS security requirements and references).</t>
+directory interfaces defined in this document <!-- TODO: Improve the exact DTLS
+or TLS security requirements and references  -->.</t>
 
 <section anchor="endpoint_identification" title="Endpoint Identification and Authentication">
 
@@ -1464,9 +1464,8 @@ request, the situation becomes even worse as now the attack can be
 amplified. DNS servers have been widely used for DDoS amplification
 attacks. Recently, it has been observed that NTP Servers, that also
 run on unprotected UDP have been used for DDoS attacks
-(http://tools.cisco.com/security/center/content/CiscoSecurityNotice/CVE-2013-5211)
-[TODO: Ref, and cut down the verbiage, as this is already discussed in
-RFC 7252] since there is no return routability check and can have a large
+(http://tools.cisco.com/security/center/content/CiscoSecurityNotice/CVE-2013-5211) <!-- TODO: Ref, and cut down the verbiage, as this is already discussed in
+RFC 7252 --> since there is no return routability check and can have a large
 amplification factor. The responses from the NTP server were found to be
 19 times larger than the request. A Resource Directory (RD) which responds
 to wild-card lookups is potentially vulnerable if run with CoAP over UDP.
@@ -1994,11 +1993,15 @@ it should send its presence messages.</t>
 
 <t>The URI template for LWM2M consists of a base URI followed by Object, Instance, and Resource IDs:</t>
 
-<t>/{base-uri}/{object-id}/{instance-id}/{resource-id}</t>
+<figure align="left"><artwork><![CDATA[
+/{base-uri}/{object-id}/{instance-id}/{resource-id}
+]]></artwork></figure>
 
 <t>LWM2M IDs are 16 bit decimal values represented by URI format strings. For example, a LWM2M URI might be:</t>
 
-<t>/3303/15/5700</t>
+<figure align="left"><artwork><![CDATA[
+/3303/15/5700
+]]></artwork></figure>
 
 <t>The base uri is “/”, the Object ID is 3303, the instance ID is 15, and the resource ID is 5700. This URI points to internal resource 5700, which represents the current sensor value, in instance #15 of a type 3303 (IPSO Temperature) object.</t>
 
@@ -2062,7 +2065,9 @@ con - Context
 
 <t>Here is an example LWM2M registration payload:</t>
 
-<t>&lt;/1&gt;, &lt;/1/0&gt;, &lt;/5&gt;</t>
+<figure align="left"><artwork><![CDATA[
+</1>, </1/0>, </5>
+]]></artwork></figure>
 
 <t>This link format payload indicates that object ID 1 (LWM2M server object) is supported, with a single instance 0 existing, and object 5 (LWM2M firmware update) is supported.</t>
 
@@ -2071,14 +2076,16 @@ con - Context
 
 <t>If the LWM2M endpoint exposes objects at a base URI other that “/”, the endpoint must register the base URI using rt=”oma.lwm2m”. An example link payload using alternate base URI would be:</t>
 
-<t>&lt;/my_lwm2m&gt;;rt=”oma.lwm2m”,&lt;/my_lwm2m/1&gt;, &lt;my_lwm2m/1/0&gt;, &lt;my_lwm2m/5&gt;</t>
+<figure align="left"><artwork><![CDATA[
+</my_lwm2m>;rt="oma.lwm2m",</my_lwm2m/1>, <my_lwm2m/1/0>, <my_lwm2m/5>
+]]></artwork></figure>
 
 <t>This link payload indicates that the lwm2m objects will be placed under the base URI “/my_lwm2m” and that object ID 1 (server) is supported, with a single instance 0 existing, and object 5 (firmware update) is supported.</t>
 
 </section>
 <section anchor="lwm2m-regupdate" title="LWM2M Update Endpoint Registration">
 
-<t>LWM2M Registration update proceeds as described in this document, <xref target="update"/>, and adds some optional parameter updates:</t>
+<t>LWM2M Registration update proceeds as described in <xref target="update"/>, and adds some optional parameter updates:</t>
 
 <figure align="left"><artwork><![CDATA[
 lt - Registration Lifetime
@@ -2092,7 +2099,7 @@ link payload - new or modified links
 </section>
 <section anchor="lwm2m-dereg" title="LWM2M De-Register Endpoint">
 
-<t>LWM2M allows for de-registration using the delete method on the returned location from the initial registration operation. LWM2M de-registration proceeds as described in this document, <xref target="removal"/>.</t>
+<t>LWM2M allows for de-registration using the delete method on the returned location from the initial registration operation. LWM2M de-registration proceeds as described in <xref target="removal"/>.</t>
 
 </section>
 </section>

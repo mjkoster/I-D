@@ -1492,8 +1492,8 @@ The security considerations as described in Section 7 of {{RFC5988}} and
 Section 6 of {{RFC6690}} apply. The `/.well-known/core` resource may be
 protected e.g. using DTLS when hosted on a CoAP server as described in
 {{RFC7252}}. DTLS or TLS based security SHOULD be used on all resource
-directory interfaces defined in this document (TODO: Improve the exact DTLS
-or TLS security requirements and references).
+directory interfaces defined in this document <!-- TODO: Improve the exact DTLS
+or TLS security requirements and references  -->.
 
 ## Endpoint Identification and Authentication {#endpoint_identification}
 
@@ -1533,9 +1533,8 @@ request, the situation becomes even worse as now the attack can be
 amplified. DNS servers have been widely used for DDoS amplification
 attacks. Recently, it has been observed that NTP Servers, that also
 run on unprotected UDP have been used for DDoS attacks
-(http://tools.cisco.com/security/center/content/CiscoSecurityNotice/CVE-2013-5211)
-[TODO: Ref, and cut down the verbiage, as this is already discussed in
-RFC 7252] since there is no return routability check and can have a large
+(http://tools.cisco.com/security/center/content/CiscoSecurityNotice/CVE-2013-5211) <!-- TODO: Ref, and cut down the verbiage, as this is already discussed in
+RFC 7252 --> since there is no return routability check and can have a large
 amplification factor. The responses from the NTP server were found to be
 19 times larger than the request. A Resource Directory (RD) which responds
 to wild-card lookups is potentially vulnerable if run with CoAP over UDP.
@@ -2017,12 +2016,20 @@ Since there may potentially be more than one of a given type object, for example
 
 The URI template for LWM2M consists of a base URI followed by Object, Instance, and Resource IDs:
 
-  /{base-uri}/{object-id}/{instance-id}/{resource-id}
-  
+
+~~~~
+/{base-uri}/{object-id}/{instance-id}/{resource-id}
+~~~~
+{: align="left"}
+ 
 LWM2M IDs are 16 bit decimal values represented by URI format strings. For example, a LWM2M URI might be:
 
-  /3303/15/5700
-  
+
+~~~~
+/3303/15/5700
+~~~~
+{: align="left"}
+
 The base uri is "/", the Object ID is 3303, the instance ID is 15, and the resource ID is 5700. This URI points to internal resource 5700, which represents the current sensor value, in instance #15 of a type 3303 (IPSO Temperature) object.
 
 ### LWM2M Register Endpoint {#lwm2m-reg}
@@ -2071,7 +2078,11 @@ The endpoint registration must include a payload containing links to all support
 
 Here is an example LWM2M registration payload:
 
+
+~~~~
 </1>, </1/0>, </5>
+~~~~
+{: align="left"}
 
 This link format payload indicates that object ID 1 (LWM2M server object) is supported, with a single instance 0 existing, and object 5 (LWM2M firmware update) is supported.
 
@@ -2079,13 +2090,17 @@ This link format payload indicates that object ID 1 (LWM2M server object) is sup
 
 If the LWM2M endpoint exposes objects at a base URI other that "/", the endpoint must register the base URI using rt="oma.lwm2m". An example link payload using alternate base URI would be:
 
+
+~~~~
 </my_lwm2m>;rt="oma.lwm2m",</my_lwm2m/1>, <my_lwm2m/1/0>, <my_lwm2m/5>
+~~~~
+{: align="left"}
 
 This link payload indicates that the lwm2m objects will be placed under the base URI "/my_lwm2m" and that object ID 1 (server) is supported, with a single instance 0 existing, and object 5 (firmware update) is supported.
 
 ### LWM2M Update Endpoint Registration {#lwm2m-regupdate}
 
-LWM2M Registration update proceeds as described in this document, {{update}}, and adds some optional parameter updates:
+LWM2M Registration update proceeds as described in {{update}}, and adds some optional parameter updates:
 
 
 ~~~~
@@ -2100,7 +2115,7 @@ Registration update is also specified to be used to update the LWM2M server when
 
 ### LWM2M De-Register Endpoint {#lwm2m-dereg}
 
-LWM2M allows for de-registration using the delete method on the returned location from the initial registration operation. LWM2M de-registration proceeds as described in this document, {{removal}}.
+LWM2M allows for de-registration using the delete method on the returned location from the initial registration operation. LWM2M de-registration proceeds as described in {{removal}}.
 
 
 # Acknowledgments
