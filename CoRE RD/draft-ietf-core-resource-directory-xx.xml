@@ -693,7 +693,7 @@ third party such as an installation tool.</t>
   5.03 “Service Unavailable”. Service could not perform the operation.</t>
 </list></t>
 
-<t>The following example shows an endpoint updating a new set of resources to
+<t>The following example shows an endpoint updating it’s registration at
 an RD using this interface.</t>
 
 <figure align="left"><artwork><![CDATA[
@@ -768,6 +768,63 @@ earlier registration.</t>
 Req: DELETE /rd/4521
 
 Res: 2.02 Deleted
+]]></artwork></figure>
+
+</section>
+<section anchor="read" title="Read Endpoint Links">
+
+<t>Some endpoints may wish to manage their links as a collection, and may need to read the current set of links in order to determine link maintenance operations.</t>
+
+<t>The read request interface is specified as follows:</t>
+
+<t><list style="hanging">
+  <t hangText='Interaction:'>
+  EP -&gt; RD</t>
+  <t hangText='Method:'>
+  GET</t>
+  <t hangText='URI Template:'>
+  /{+location}{?rt,if,ct}</t>
+  <t hangText='URI Template Variables:'>
+        <list style="hanging">
+        <t hangText='location :='>
+        This is the Location path returned by the RD as a result of a successful
+earlier registration.</t>
+      </list>
+  </t>
+</list></t>
+
+<t>The following responses codes are defined for this interface:</t>
+
+<t><list style="hanging">
+  <t hangText='Success:'>
+  2.05 “Content” upon success</t>
+  <t hangText='Failure:'>
+  4.00 “Bad Request”. Malformed request.</t>
+  <t hangText='Failure:'>
+  4.04 “Not Found”. Registration does not exist (e.g. may have expired).</t>
+  <t hangText='Failure:'>
+  5.03 “Service Unavailable”. Service could not perform the operation.</t>
+</list></t>
+
+<t>The following examples show successful read of the endpoint links from the RD.</t>
+
+<figure align="left"><artwork><![CDATA[
+    EP                                                RD
+     |                                                 |
+     | --- GET /rd/4521  ------------------------>  |
+     |                                                 |
+     |                                                 |
+     | <-- 2.05 Content </sensors... ----------------  |
+     |                                                 |
+]]></artwork></figure>
+
+<figure align="left"><artwork><![CDATA[
+Req: GET /rd/4521
+
+Res: 2.01 Content
+Payload:
+</sensors/temp>;ct=41;rt="temperature-c";if="sensor",
+</sensors/light>;ct=41;rt="light-lux";if="sensor"
 ]]></artwork></figure>
 
 </section>
@@ -1923,6 +1980,8 @@ it should send its presence messages.</t>
 
 <t>The current LWM2M specification only describes a set of interfaces and resource model used between a LWM2M device and the LWM2M server. Other interfaces, proxies, applications, and function sets are currently out of scope for LWM2M.</t>
 
+<t>The location of the LWM2M Server and RD Function Set is provided by the LWM2M Bootstrap process, so no dynamic discovery of the RD function set is used. LWM2M Servers and endpoints are not required to implement the ./well-known/core resource.</t>
+
 <section anchor="lwm2m-obj" title="LWM2M Object Model">
 
 <t>The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of Objects and Resources.</t>
@@ -1941,7 +2000,7 @@ it should send its presence messages.</t>
 
 <t>/3303/15/5700</t>
 
-<t>The base uri is “/”, the Object ID is 3303, the instance ID is 15, and the resource ID is 5700. This URI points to internal resource 5700 in instance #15 of the 3303 (IPSO Temperature) object which represents the current sensor value.</t>
+<t>The base uri is “/”, the Object ID is 3303, the instance ID is 15, and the resource ID is 5700. This URI points to internal resource 5700, which represents the current sensor value, in instance #15 of a type 3303 (IPSO Temperature) object.</t>
 
 </section>
 <section anchor="lwm2m-reg" title="LWM2M Register Endpoint">
@@ -2055,8 +2114,9 @@ originally developed.</t>
 <t><list style="symbols">
   <t>Added an example for lighting and DNS integration</t>
   <t>Added an example for RD use in OMA LWM2M</t>
+  <t>Added Read Links operation for link inspection by endpoints</t>
   <t>Expanded DNS-SD section</t>
-  <t>Added draft authors</t>
+  <t>Added draft authors Peter van der Stok and Michael Koster</t>
 </list></t>
 
 <t>Changes from -01 to -02:</t>

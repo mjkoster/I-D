@@ -699,7 +699,7 @@ Failure:
 : 5.03 "Service Unavailable". Service could not perform the operation.
 
 
-The following example shows an endpoint updating a new set of resources to
+The following example shows an endpoint updating it's registration at
 an RD using this interface.
 
 
@@ -783,6 +783,65 @@ Res: 2.02 Deleted
 ~~~~
 {: align="left"}
 
+
+## Read Endpoint Links {#read}
+
+Some endpoints may wish to manage their links as a collection, and may need to read the current set of links in order to determine link maintenance operations.
+
+The read request interface is specified as follows:
+
+Interaction:
+: EP -> RD
+
+Method:
+: GET
+
+URI Template:
+: /{+location}{?rt,if,ct}
+
+URI Template Variables:
+: location :=
+  : This is the Location path returned by the RD as a result of a successful
+    earlier registration.
+
+The following responses codes are defined for this interface:
+
+Success:
+: 2.05 "Content" upon success
+
+Failure:
+: 4.00 "Bad Request". Malformed request.
+
+Failure:
+: 4.04 "Not Found". Registration does not exist (e.g. may have expired).
+
+Failure:
+: 5.03 "Service Unavailable". Service could not perform the operation.
+
+The following examples show successful read of the endpoint links from the RD.
+
+
+~~~~
+    EP                                                RD
+     |                                                 |
+     | --- GET /rd/4521  ------------------------>  |
+     |                                                 |
+     |                                                 |
+     | <-- 2.05 Content </sensors... ----------------  |
+     |                                                 |
+~~~~
+{: align="left"}
+
+
+~~~~
+Req: GET /rd/4521
+
+Res: 2.01 Content
+Payload:
+</sensors/temp>;ct=41;rt="temperature-c";if="sensor",
+</sensors/light>;ct=41;rt="light-lux";if="sensor"
+~~~~
+{: align="left"}
 
 
 # Group Function Set {#group}
@@ -1944,6 +2003,8 @@ LWM2M does not provide for registration domains, or for the use of rd-group or r
 
 The current LWM2M specification only describes a set of interfaces and resource model used between a LWM2M device and the LWM2M server. Other interfaces, proxies, applications, and function sets are currently out of scope for LWM2M.
 
+The location of the LWM2M Server and RD Function Set is provided by the LWM2M Bootstrap process, so no dynamic discovery of the RD function set is used. LWM2M Servers and endpoints are not required to implement the ./well-known/core resource.
+
 ### LWM2M Object Model {#lwm2m-obj}
 
 The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of Objects and Resources. 
@@ -2060,9 +2121,11 @@ Changes from -02 to -03:
 
 * Added an example for RD use in OMA LWM2M
 
+* Added Read Links operation for link inspection by endpoints
+
 * Expanded DNS-SD section
 
-* Added draft authors 
+* Added draft authors Peter van der Stok and Michael Koster
 
 Changes from -01 to -02:
 
