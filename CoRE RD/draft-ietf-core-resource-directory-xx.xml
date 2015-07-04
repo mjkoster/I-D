@@ -554,9 +554,9 @@ path (mandatory). This is the path of
 the RD Function Set, as obtained from discovery. An RD SHOULD use the value
 “rd” for this variable whenever possible.</t>
         <t hangText='ep :='>
-        Endpoint (mandatory). The endpoint identifier or name of the registering
-node, unique within that domain. The maximum length of this parameter is
-63 bytes.</t>
+        Endpoint name (mandatory). The endpoint name is an identifier
+that MUST be unique within a domain.  The maximum length of this
+parameter is 63 bytes.</t>
         <t hangText='d :='>
         Domain (optional). The domain to which this endpoint belongs. This parameter
 SHOULD be less than 63 bytes. Optional. When this parameter is elided, the
@@ -1027,7 +1027,7 @@ possible.</t>
         (“d”, “ep”, “res”, “gp”) (mandatory) This variable is used to select the
 kind of lookup to perform (domain, endpoint, resource, or group).</t>
         <t hangText='ep :='>
-        Endpoint (optional). Used for endpoint, group and resource lookups.</t>
+        Endpoint name (optional). Used for endpoint, group and resource lookups.</t>
         <t hangText='d :='>
         Domain (optional). Used for domain, group, endpoint and resource lookups.</t>
         <t hangText='page :='>
