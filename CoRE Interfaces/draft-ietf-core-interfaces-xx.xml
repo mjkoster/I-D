@@ -92,7 +92,7 @@
           </address>
         </author>
 
-  <date year="2014"/>
+  <date year="2015"/>
 
   <area>Internet</area>
 
@@ -260,6 +260,8 @@
         <c>Minimum Period (s)</c> <c>pmin</c> <c>xsd:integer (>0)</c>
         <c>Maximum Period (s)</c> <c>pmax</c> <c>xsd:integer (>0)</c>
         <c>Change Step</c> <c>st</c> <c>xsd:decimal (>0)</c>    
+        <c>Greater Than</c> <c>gt</c> <c>xsd:decimal</c>    
+        <c>Less Than</c> <c>lt</c> <c>xsd:decimal</c>    
       </texttable>  
     
       <t>
@@ -268,6 +270,8 @@
           <t hangText="Minimum Period:">When present, the minimum period indicates the minimum time to wait (in seconds) before sending a new synchronization message (even if it has changed). In the absence of this parameter, the minimum period is up to the notifier.</t>
           <t hangText="Maximum Period:">When present, the maximum period indicates the maximum time in seconds between two consecutive syncronization messages (regardless if it has changed). In the absence of this parameter, the maximum period is up to the notifier. The maximum period MUST be greater than the minimum period parameter (if present).</t>
           <t hangText="Change Step:">When present, the change step indicates how much the value of a resource SHOULD change before sending a new notification (compared to the value of the last notification). This parameter has lower priority than the period parameters, thus even if the change step has been fulfilled, the time since the last notification SHOULD be between pmin and pmax. </t>
+          <t hangText="Greater Than:">When present, Greater Than indicates the upper limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Greater Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
+          <t hangText="Less Than:">When present, Less Than indicates the lower limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Less Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
         </list>
       </t>
     </section>
@@ -291,11 +295,11 @@
       
       <t>
         <list style="hanging">
-          <t hangText="Polling:">The Polling method consists of sending periodic GET requests from the destination endpoint to the source resource and copying the content to the destination resource. The binding entry for this method MUST be stored on the destination endpoint. The destination endpoint MUST ensure that the polling frequency does not exceed the limits defined by the pmin and pmax attributes of the binding entry. The copying process MAY filter out content from the GET requests using value-based conditions (e.g Change Step).</t>
+          <t hangText="Polling:">The Polling method consists of sending periodic GET requests from the destination endpoint to the source resource and copying the content to the destination resource. The binding entry for this method MUST be stored on the destination endpoint. The destination endpoint MUST ensure that the polling frequency does not exceed the limits defined by the pmin and pmax attributes of the binding entry. The copying process MAY filter out content from the GET requests using value-based conditions (e.g Change Step, Less Than, Greater Than).</t>
           
           <t hangText="Observe:">The Observe method relies on the Publish/Subscribe pattern thus an observation relationship is created between the destination endpoint and the source resource. On each notification the content from the source resource is copied to the destination resource. The creation of the observation relationship requires the CoAP Observation mechanism <xref target="I-D.ietf-core-observe"/> hence this method is only permitted when the resources are made available over CoAP. The binding entry for this method MUST be stored on the destination endpoint. The binding conditions are mapped as query string parameters (see <xref target="observation"/>).</t>
 
-          <t hangText="Push:">When the Push method is assigned to a binding, the source endpoint sends PUT requests to the destination resource upon change of the source resource. The source endpoint MUST only send a notification request if the binding conditions are met. The binding entry for this method MUST be stored on the source endpoint.</t>
+          <t hangText="Push:">When the Push method is assigned to a binding, the source endpoint sends PUT requests to the destination resource when the binding condition attributes are satisfied for the source resource. The source endpoint MUST only send a notification request if the binding conditions are met. The binding entry for this method MUST be stored on the source endpoint.</t>
         </list>               
       </t>
     </section>
@@ -581,6 +585,8 @@ Res: 2.04 Changed
       <ttcol align="left">Parameter</ttcol>
       <ttcol align="left">Data Format</ttcol>
 
+      <c>Minimum Period</c> <c>/{resource}?pmin</c> <c>xsd:integer (>0)</c>
+      <c>Maximum Period</c> <c>/{resource}?pmax</c> <c>xsd:integer (>0)</c>
       <c>Change Step</c> <c>/{resource}?st</c> <c>xsd:decimal (>0)</c>
       <c>Less Than</c> <c>/{resource}?lt</c> <c>xsd:decimal</c>
       <c>Greater Than</c> <c>/{resource}?gt</c> <c>xsd:decimal</c>
@@ -589,11 +595,11 @@ Res: 2.04 Changed
     
   <t>
     <list style="hanging">
-
-      <t hangText="Change Step:">When set, the change step indicates how much the value of a resource SHOULD change before sending a new notification (compared to the value of the last notification). This parameter has lower priority than the period parameters, thus even if the change step has been fulfilled, the time since the last notification SHOULD be between pmin and pmax. </t>
-      <t hangText="Less Than:">When set, the value of the resource MUST be less  than this parameter in order to send a new notification. This parameter has lower priority than the period parameters. </t>
-      <t hangText="Greater Than:">When set, the value of the resource MUST be greater than this parameter in order to send a new notification. This parameter has lower priority than the period parameters. </t>
-      
+          <t hangText="Minimum Period:">When present, the minimum period indicates the minimum time to wait (in seconds) before sending a new synchronization message (even if it has changed). In the absence of this parameter, the minimum period is up to the notifier.</t>
+          <t hangText="Maximum Period:">When present, the maximum period indicates the maximum time in seconds between two consecutive syncronization messages (regardless if it has changed). In the absence of this parameter, the maximum period is up to the notifier. The maximum period MUST be greater than the minimum period parameter (if present).</t>
+          <t hangText="Change Step:">When present, the change step indicates how much the value of a resource SHOULD change before sending a new notification (compared to the value of the last notification). This parameter has lower priority than the period parameters, thus even if the change step has been fulfilled, the time since the last notification SHOULD be between pmin and pmax. </t>
+          <t hangText="Greater Than:">When present, Greater Than indicates the upper limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Greater Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
+          <t hangText="Less Than:">When present, Less Than indicates the lower limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Less Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
     </list>
   </t>    
     
@@ -634,12 +640,18 @@ Res: 2.04 Changed
     <doc title="Sensor resource type"/>
     <method href="#read"/>
     <method href="#observe"/>
+    <method href="#observe-cancel"/>
+    <method href="#getattr"/>
+    <method href="#setattr"/>
   </resource_type>
 
   <resource_type id="p">
     <doc title="Parameter resource type"/>
     <method href="#read"/>
     <method href="#observe"/>
+    <method href="#observe-cancel"/>
+    <method href="#getattr"/>
+    <method href="#setattr"/>
     <method href="#update"/>
   </resource_type>
 
@@ -647,12 +659,18 @@ Res: 2.04 Changed
     <doc title="Read-only Parameter resource type"/>
     <method href="#read"/>
     <method href="#observe"/>
+    <method href="#observe-cancel"/>
+    <method href="#getattr"/>
+    <method href="#setattr"/>
   </resource_type> 
 
   <resource_type id="a">
     <doc title="Actuator resource type"/>
     <method href="#read"/>
     <method href="#observe"/>
+    <method href="#observe-cancel"/>
+    <method href="#getattr"/>
+    <method href="#setattr"/>
     <method href="#update"/>
     <method href="#toggle"/>
   </resource_type>
@@ -669,6 +687,9 @@ Res: 2.04 Changed
      sub-resource types can be supported.</doc>
     <method href="#read"/>
     <method href="#observe"/>
+    <method href="#observe-cancel"/>
+    <method href="#getattr"/>
+    <method href="#setattr"/>
     <method href="#update"/>
     <method href="#toggle"/>
     <method href="#listLinks"/>
@@ -681,6 +702,9 @@ Res: 2.04 Changed
      linked resource types can be supported.</doc>
     <method href="#read"/>
     <method href="#observe"/>
+    <method href="#observe-cancel"/>
+    <method href="#getattr"/>
+    <method href="#setattr"/>
     <method href="#update"/>
     <method href="#listLinks"/>
     <method href="#appendLinks"/>
@@ -719,9 +743,26 @@ Res: 2.04 Changed
      Only CoAP supports this method since it requires the CoRE 
      Observe mechanism.</doc>
     <request>
-      <param name="pmin" style="query" type="xsd:integer"/>
-      <param name="pmax" style="query" type="xsd:integer"/>
-      <param name="st" style="query" type="xsd:decimal"/>
+      <param name="observe" style="header" type="xsd:integer">
+        <option value = 0/>
+      </param>
+    </request>
+    <response status="2.05">
+      <representation mediaType="text/plain"/>
+      <representation mediaType="application/senml+exi"/>
+      <representation mediaType="application/senml+xml"/>
+      <representation mediaType="application/senml+json"/>
+    </response>
+  </method>
+
+  <method id="observe-cancel" name="GET">
+    <doc>Cancel observation in progress. 
+     Only CoAP supports this method since it requires the CoRE 
+     Observe mechanism.</doc>
+    <request>
+      <param name="observe" style="header" type="xsd:integer">
+        <option value = 1/>
+      </param>
     </request>
     <response status="2.05">
       <representation mediaType="text/plain"/>
@@ -744,6 +785,40 @@ Res: 2.04 Changed
     <response status="2.04"/>
   </method>
   
+  <method id="getattr" name="GET">
+    <doc>Retrieve the observe attributes associated with a resource.
+        Both HTTP and CoAP support this method.</doc>
+    <request>
+      <doc>This request MUST contain an Accept option with
+      application/link-format when the resource supports
+      other GET methods.</doc>
+      <representation mediaType="application/link-format"/>
+    </request>
+    <response status="200">
+      <representation mediaType="application/link-format"/>
+    </response>
+    <response status="2.05">
+      <representation mediaType="application/link-format"/>
+    </response>
+  </method>
+
+  <method id="setattr" name="PUT">
+    <doc>Set the values of some or all of the observe attributes
+    associated with a resource.
+    Both HTTP and CoAP support this method.</doc>
+    <request>
+      <param name="pmin" style="query" type="xsd:integer"/>
+      <param name="pmax" style="query" type="xsd:integer"/>
+      <param name="lt" style="query" type="xsd:decimal"/>
+      <param name="gt" style="query" type="xsd:decimal"/>
+      <param name="st" style="query" type="xsd:decimal"/>
+    </request>
+    <response status="200">
+    </response>
+    <response status="2.04">
+    </response>
+  </method>
+
   <method id="toggle" name="POST">
     <doc>Toggle the values of actuator resources. Both HTTP and CoAP 
     support this method.</doc>
@@ -848,6 +923,18 @@ Res: 2.04 Changed
   <!-- **************************************************************** -->
 
   <section title="Changelog">
+
+  <t>Changes from -02 to -03
+  <list style="symbols">
+  	<t>Added lt and gt to binding format section.</t>
+  	<t>Added pmin and pmax observe parameters to Observation Attributes</t>
+  	<t>Changed the definition of lt and gt to limit crossing.</t>
+  	<t>Added definitions for getattr and setattr to WADL.</t>
+  	<t>Added getattr and setattr to observable interfaces.</t>
+  	<t>Removed query parameters from Observe definition.</t>
+  	<t>Added observe-cancel definition to WADL and to observable interfaces.</t>
+  </list>
+  </t>
 
   <t>Changes from -01 to -02
   <list style="symbols">
