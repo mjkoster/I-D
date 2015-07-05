@@ -279,6 +279,7 @@ Client                                          Broker
 <t hangText="Failure:"> 4.00 "Bad Request". Malformed request.</t>
 <t hangText="Failure:"> 4.01 "Unauthorized". Authorization failure.</t>
 <t hangText="Failure:"> 4.04 "Not Found". Topic does not exist.</t>
+<t hangText="Failure:"> 4.29 "Too Many Requests". The client should slow down the rate of publish messages for this topic (see <xref target="sec-flow-control"/>).</t>
 </list>
 </t>
 
@@ -537,7 +538,7 @@ Client                                         Broker
  
 <!-- ====================================================================== -->
 
-<section title="Simple Flow Control">
+<section anchor="sec-flow-control" title="Simple Flow Control">
 
 <t> Since the broker node has to potentially send a large amount of
 notification messages for each publish message and it may be serving a
@@ -550,7 +551,7 @@ publish messages too fast, the broker MUST respond with Response Code
 4.29, "Too Many Requests". This Response Code is like HTTP 429 "Too
 Many Requests" but uses the Max-Age Option in place of the
 "Retry-After" header field to indicate the number of seconds after
-which to retry. The broker MAY not create notifications from the
+which to retry. The broker MAY stop creating notifications from the
 publish messages from this client and to this topic for the indicated
 time. </t>
 
@@ -606,6 +607,18 @@ passed. </t>
 </list>
 </t>
 </section>
+
+<section title="Response Code value '4.29'">
+<t>
+<list style="symbols">
+<t>Response Code: 4.29</t>
+<t>Description: This error code is used by a server to indicate that a client is making too many requests on a resource.</t>
+<t>Reference: [[This document]]</t>
+<t>Notes: None</t>
+</list>
+</t>
+</section>
+
 
 </section>
 
