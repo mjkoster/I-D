@@ -83,13 +83,13 @@
 <t>This specification makes use of the following additional terminology:
 <list style="hanging">
 
-<t hangText="Publish-Subscribe (pub-sub):">A messaging paradigm where messages are published to a broker and potential receivers can subscribe to the broker to receive messages. The publishers do not (need to) know where the message will be eventually sent: the publications and subscriptions are matched by a broker and publications are delivered by the broker to subscribed receivers. </t>
+<t hangText="Publish-Subscribe (pub/sub):">A messaging paradigm where messages are published to a broker and potential receivers can subscribe to the broker to receive messages. The publishers do not (need to) know where the message will be eventually sent: the publications and subscriptions are matched by a broker and publications are delivered by the broker to subscribed receivers. </t>
 
-<t hangText="CoAP-PubSub function set:">A group of well-known REST resources that together provide the CoAP-PubSub service.</t>
+<t hangText="CoAP pub/sub function set:">A group of well-known REST resources that together provide the CoAP pub/sub service.</t>
 
-<t hangText="CoAP-PubSub Broker:">A server node capable of receiving messages (publications) from and sending messages to other nodes, and able to match subscriptions and publications in order to route messages to the right destinations. The broker can also temporarily store publications to satisfy future subscriptions. </t>
+<t hangText="CoAP pub/sub Broker:">A server node capable of receiving messages (publications) from and sending messages to other nodes, and able to match subscriptions and publications in order to route messages to the right destinations. The broker can also temporarily store publications to satisfy future subscriptions. </t>
 
-<t hangText="CoAP-PubSub Client:">A CoAP client that implements the CoAP-PubSub function set. </t>
+<t hangText="CoAP pub/sub Client:">A CoAP client that implements the CoAP pub/sub function set. </t>
 
 <t hangText="Topic:">A unique identifier for a particular item being published and/or subscribed to. A broker uses the topics to match subscriptions to publications. </t>
 
@@ -102,49 +102,47 @@
 
 <section anchor="architecture" title="Architecture"> 
 
-<section title="CoAP-PubSub Architecture">
+<section title="CoAP pub/sub Architecture">
 
-<t><xref target="arch-fig"/> shows the architecture of a CoAP PubSub service. CoAP PubSub Clients interact with a CoAP PubSub Broker through the CoAP PubSub interface which is hosted by the Broker. State information is updated between the Clients and the Broker. The CoAP PubSub Broker performs a store-and-forward function of state updates between certain CoAP PubSub Clients. Clients Subscribe to state updates which are Published by other Clients, and which are forwarded by the Broker to the subscribing clients. The CoAP PubSub Broker also acts as a REST proxy, retaining the last state update provided by clients to supply in response to Read requests from Clients.
+<t><xref target="arch-fig"/> shows the architecture of a CoAP pub/sub service. CoAP pub/sub Clients interact with a CoAP pub/sub Broker through the CoAP pub/sub interface which is hosted by the Broker. State information is updated between the Clients and the Broker. The CoAP pub/sub Broker performs a store-and-forward function of state updates between certain CoAP pub/sub Clients. Clients Subscribe to state updates which are Published by other Clients, and which are forwarded by the Broker to the subscribing clients. The CoAP pub/sub Broker also acts as a REST proxy, retaining the last state update provided by clients to supply in response to Read requests from Clients.
 
 </t>
 
         <t>
-        <figure title="CoAP-PubSub Architecture" anchor="arch-fig">
-          <artwork>
-            <![CDATA[
-
-      Clients        PubSub         Broker
-      +------+         |
-      | CoAP |         |
-      |PubSub|---------|------+
-      |Client|         |      |    +------+
-      +------+         |      +----| CoAP |
-                       |           |PubSub|
-      +------+         |      +----|Broker|
-      | CoAP |         |      |    +------+
-      |PubSub|---------|------+
-      |Client|         |
-      +------+         |
-
+        <figure title="CoAP pub/sub Architecture" anchor="arch-fig">
+          <artwork align="center">
+<![CDATA[
+Clients        pub/sub         Broker
++-------+         |
+| CoAP  |         |
+|pub/sub|---------|------+
+|Client |         |      |    +-------+
++-------+         |      +----| CoAP  |
+                  |           |pub/sub|
++-------+         |      +----|Broker |
+| CoAP  |         |      |    +-------+
+|pub/sub|---------|------+
+|Client |         |
++-------+         |
 ]]>
 </artwork>
 </figure>
 </t>
 </section>
 
-<section title="CoAP PubSub Broker">
-<t>A CoAP PubSub Broker is a CoAP Server that exposes an interface for clients to use to initiate publish-subscribe interactions. Unlike clients, the broker needs to be reachable by all clients. The broker also needs to have sufficient resources (storage, bandwidth, etc.) to host CoAP resources, and potentially buffer messages, on behalf of the clients.
+<section title="CoAP pub/sub Broker">
+<t>A CoAP pub/sub Broker is a CoAP Server that exposes an interface for clients to use to initiate publish-subscribe interactions. Unlike clients, the broker needs to be reachable by all clients. The broker also needs to have sufficient resources (storage, bandwidth, etc.) to host CoAP resources, and potentially buffer messages, on behalf of the clients.
 </t>
 
 </section>
 
-<section title="CoAP PubSub Client">
-<t>A CoAP PubSub Client interacts with a CoAP PubSub Broker using the CoAP PubSub interface. Clients initiate all interactions with the CoAP-PubSub broker. A data source (e.g., sensor clients) can publish state updates to the broker and data sinks (e.g., actuator clients) can read from or subscribe to state updates from the broker. Application clients can make use of both publish and subscribe in order to exchange state updates with data sources and sinks.</t>
+<section title="CoAP pub/sub Client">
+<t>A CoAP pub/sub Client interacts with a CoAP pub/sub Broker using the CoAP pub/sub interface. Clients initiate all interactions with the CoAP pub/sub broker. A data source (e.g., sensor clients) can publish state updates to the broker and data sinks (e.g., actuator clients) can read from or subscribe to state updates from the broker. Application clients can make use of both publish and subscribe in order to exchange state updates with data sources and sinks.</t>
 
 </section> 
 
 
-<section title="CoAP PubSub Topic">
+<section title="CoAP pub/sub Topic">
 <t>The clients and broker use topics to identify a particular resource or object in a publish-subscribe system. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure" or "EP-33543/sen/3303/0/5700". The topics are hosted at the broker and all the clients using the broker share the same namespace for topics.</t>
 
 </section>
@@ -153,13 +151,13 @@
 
 <!-- ====================================================================== -->
 
-<section anchor="function-set" title="CoAP PubSub Function Set">
+<section anchor="function-set" title="CoAP pub/sub Function Set">
 
-<t>This section defines the interfaces between a CoAP PubSub Broker and PubSub Clients, which is called the CoAP PubSub Function Set. The examples throughout this section assume the use of CoAP <xref target="RFC7252"/>. A CoAP PubSub Broker implementing this specification MUST support the DISCOVER, CREATE, PUBLISH, SUBSCRIBE, UNSUBSCRIBE, READ, and REMOVE operations defined in this section. With the exception of PUBLISH, all operations in the CoAP PubSub Function Set MUST use confirmable (CON) CoAP messages.
+<t>This section defines the interfaces between a CoAP pub/sub Broker and pub/sub Clients, which is called the CoAP pub/sub Function Set. The examples throughout this section assume the use of CoAP <xref target="RFC7252"/>. A CoAP pub/sub Broker implementing this specification MUST support the DISCOVER, CREATE, PUBLISH, SUBSCRIBE, UNSUBSCRIBE, READ, and REMOVE operations defined in this section. With the exception of PUBLISH, all operations in the CoAP pub/sub Function Set MUST use confirmable (CON) CoAP messages.
 </t>
 
 <section title="DISCOVER">
-<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through a Resource Directory (RD) <xref target="I-D.ietf-core-resource-directory"/>. A CoAP PubSub Broker SHOULD indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location <xref target="RFC6690"/>. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery. A broker wishing to advertise the CoAP PubSub Function Set for Simple Discovery or through a Resource Directory MUST use the link relation rt="core.ps".
+<t> CoAP pub/sub Clients discover CoAP pub/sub Brokers by using CoAP Simple Discovery or through a Resource Directory (RD) <xref target="I-D.ietf-core-resource-directory"/>. A CoAP pub/sub Broker SHOULD indicate its presence and availability on a network by exposing a link to its pub/sub function set at its .well-known/core location <xref target="RFC6690"/>. A CoAP pub/sub broker MAY register its pub/sub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local pub/sub Function Set using CoAP Simple Discovery. A broker wishing to advertise the CoAP pub/sub Function Set for Simple Discovery or through a Resource Directory MUST use the link relation rt="core.ps".
 </t>
 
 <t>The DISCOVER interface is specified as follows:
@@ -179,7 +177,7 @@
 <t>The following response codes are defined for this interface:
 <list style="hanging">
 <t hangText="Success:"> 2.05 "Content" with an
-application/link-format payload containing one or more matching entries for the broker resource. A PubSub broker SHOULD use the value "ps" for the link subject variable whenever possible.</t>
+application/link-format payload containing one or more matching entries for the broker resource. A pub/sub broker SHOULD use the value "ps" for the link subject variable whenever possible.</t>
 <t hangText="Failure:"> 4.04 "Not Found" is returned in case no matching entry is found for a unicast request.</t>
 <t hangText="Failure:"> 4.00 "Bad Request" is returned in case of a malformed request for a unicast request.</t>
 <t hangText="Failure:"> No error response to a multicast request.</t>
@@ -187,8 +185,8 @@ application/link-format payload containing one or more matching entries for the 
 </t>
 
         <t>
-        <figure title="Example of DISCOVER" anchor="discover-fig" align="center">
-          <artwork>
+        <figure title="Example of DISCOVER" anchor="discover-fig">
+          <artwork align="center">
             <![CDATA[
 Client                                          Broker
   |                                               |
@@ -204,7 +202,7 @@ Client                                          Broker
 
 
 <section title="CREATE">
-<t>Clients create topics on the broker using the CREATE interface. A client wishing to create a topic MUST use CoAP POST to the PubSub function set location with a payload indicating the desired topic. The topic MUST use the CoRE link format <xref target="RFC6690"/>. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of "2.01 Created" if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if a new topic can not be created. Broker SHOULD remove topics if the max-age of the topic is exceeded without any publishes to the topic.
+<t>Clients create topics on the broker using the CREATE interface. A client wishing to create a topic MUST use CoAP POST to the pub/sub function set location with a payload indicating the desired topic. The topic MUST use the CoRE link format <xref target="RFC6690"/>. The client MAY indicate the lifetime of the topic by including the max-age option in the CREATE request. Broker MUST return a response code of "2.01 Created" if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if a new topic can not be created. Broker SHOULD remove topics if the max-age of the topic is exceeded without any publishes to the topic.
 </t>
 
 <t>The CREATE interface is specified as follows:
@@ -214,7 +212,7 @@ Client                                          Broker
   <t hangText="URI Template:">/{+ps}</t>
   <t hangText="URI Template Variables:">
     <list style="hanging">
-      <t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery. A PubSub broker SHOULD use the value "ps" for this variable whenever possible.</t>
+      <t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery. A pub/sub broker SHOULD use the value "ps" for this variable whenever possible.</t>
     </list>
   </t>
   <t hangText="Content-Format:">application/link-format</t>
@@ -235,8 +233,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of CREATE" anchor="create-fig" align="center">
-<artwork>
+<figure title="Example of CREATE" anchor="create-fig">
+<artwork align="center">
 <![CDATA[
 Client                                          Broker
   |                                               |
@@ -253,7 +251,7 @@ Client                                          Broker
 
 
 <section title="PUBLISH">
-<t>A CoAP PubSub Client uses the PUBLISH interface for updating resources. The client MUST use the PUT method to publish state updates to the CoAP PubSub Broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the publish request. A client MAY use confirmable (CON) or non-confirmable (NON) messages to publish updates to a broker. The broker MUST return a response code of "2.04 Changed" if the publish is accepted or "4.04 Not Found" if the topic does not exist. 
+<t>A CoAP pub/sub Client uses the PUBLISH interface for updating resources. The client MUST use the PUT method to publish state updates to the CoAP pub/sub Broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the publish request. A client MAY use confirmable (CON) or non-confirmable (NON) messages to publish updates to a broker. The broker MUST return a response code of "2.04 Changed" if the publish is accepted or "4.04 Not Found" if the topic does not exist. 
 </t>
 
 <t>The Broker MUST publish updates to all clients subscribed on a particular topic each time it receives a publish on that topic. If a client publishes to a broker using non-confirmable messages, the broker MAY publish those messages to subscribed clients using non-confirmable messages. If a client publishes to a broker using confirmable messages, the broker MUST also publish those messages to subscribed clients using confirmable messages. If a client publishes to a broker with the max-age option, the broker MUST publish to subscribed clients including the same value for the max-age option. If a client publishes to a particular topic on a broker with a payload encoded in a particular CoAP Content-Format, the broker MUST publish to subscribed clients on that topic using the same CoAP Content-Format. A broker MUST use CoAP Notification as described in <xref target="I-D.ietf-core-observe"/> to publish to subscribed clients.
@@ -266,7 +264,7 @@ Client                                          Broker
 <t hangText="URI Template:">/{+ps}/{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
-<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery.</t>
 <t hangText="topic := ">The desired topic to publish on.</t>
 </list>
 </t>
@@ -288,8 +286,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of PUBLISH" anchor="publish-fig" align="center">
-<artwork>
+<figure title="Example of PUBLISH" anchor="publish-fig">
+<artwork align="center">
 <![CDATA[
 Client                                          Broker
   |                                               |
@@ -306,7 +304,7 @@ Client                                          Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP PubSub Clients subscribe to topics on the Broker using CoAP Observe as described in <xref target="I-D.ietf-core-observe"/>. A CoAP PubSub Client wishing to Subscribe to a topic on a broker MUST use a CoAP GET with Observe registration. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of "2.05 Content" along with the most recently published value if the topic contains a valid value. If the topic was published with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last publish. The Broker MUST return a response code of "2.04 No Content" if the max-age of the previously stored value has expired. The Broker MUST return a response code "4.04 Not Found" if the topic does not exist or has been removed.
+<t>CoAP pub/sub Clients subscribe to topics on the Broker using CoAP Observe as described in <xref target="I-D.ietf-core-observe"/>. A CoAP pub/sub Client wishing to Subscribe to a topic on a broker MUST use a CoAP GET with Observe registration. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of "2.05 Content" along with the most recently published value if the topic contains a valid value. If the topic was published with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last publish. The Broker MUST return a response code of "2.04 No Content" if the max-age of the previously stored value has expired. The Broker MUST return a response code "4.04 Not Found" if the topic does not exist or has been removed.
 </t>
 
 <t>The SUBSCRIBE interface is specified as follows:
@@ -317,7 +315,7 @@ Client                                          Broker
 <t hangText="URI Template:">/{+ps}/{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
-<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery.</t>
 <t hangText="topic := ">The desired topic to subscribe to.</t>
 </list>
 </t>
@@ -338,8 +336,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of SUBSCRIBE" anchor="subscribe-fig" align="center">
-<artwork>
+<figure title="Example of SUBSCRIBE" anchor="subscribe-fig">
+<artwork align="center">
 <![CDATA[
 Client1   Client2                                          Broker
   |          |                                               |
@@ -361,7 +359,7 @@ Client1   Client2                                          Broker
 
 
 <section title="UNSUBSCRIBE">
-<t>CoAP PubSub Clients unsubscribe from topics on the Broker using the CoAP Cancel Observation operation. A CoAP PubSub Client wishing to unsubscribe to a topic on a Broker MUST either use CoAP GET with Observe using an Observe parameter of 1 or send a CoAP Reset message in response to a publish <xref target="I-D.ietf-core-observe"/>.
+<t>CoAP pub/sub Clients unsubscribe from topics on the Broker using the CoAP Cancel Observation operation. A CoAP pub/sub Client wishing to unsubscribe to a topic on a Broker MUST either use CoAP GET with Observe using an Observe parameter of 1 or send a CoAP Reset message in response to a publish <xref target="I-D.ietf-core-observe"/>.
 </t>
 
 <t>The UNSUBSCRIBE interface is specified as follows:
@@ -372,7 +370,7 @@ Client1   Client2                                          Broker
 <t hangText="URI Template:">/{+ps}/{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
-<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery.</t>
 <t hangText="topic := ">The desired topic to unsubscribe from.</t>
 </list>
 </t>
@@ -394,8 +392,8 @@ Client1   Client2                                          Broker
 </t>
 
 <t>
-<figure title="Example of UNSUBSCRIBE" anchor="unsubscribe-fig" align="center">
-<artwork>
+<figure title="Example of UNSUBSCRIBE" anchor="unsubscribe-fig">
+<artwork align="center">
 <![CDATA[
 Client                                          Broker
   |                                               |
@@ -411,7 +409,7 @@ Client                                          Broker
 
 
 <section title="READ">
-<t>A CoAP PubSub client wishing to obtain only the most recent published value on a topic MAY use the READ interface. For reading, the client uses the CoAP GET method. The Broker MUST return a response code of "2.05 Content" along with the most recently published value if the topic contains a valid value. If the topic was published with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last publish. The Broker MUST return a response code of "2.04 No Content" if the max-age of the previously stored value has expired. The Broker MUST return a response code "4.04 Not Found" if the topic does not exist or has been removed.
+<t>A CoAP pub/sub client wishing to obtain only the most recent published value on a topic MAY use the READ interface. For reading, the client uses the CoAP GET method. The Broker MUST return a response code of "2.05 Content" along with the most recently published value if the topic contains a valid value. If the topic was published with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last publish. The Broker MUST return a response code of "2.04 No Content" if the max-age of the previously stored value has expired. The Broker MUST return a response code "4.04 Not Found" if the topic does not exist or has been removed.
 </t>
 
 <t>The READ interface is specified as follows:
@@ -421,7 +419,7 @@ Client                                          Broker
 <t hangText="URI Template:">/{+ps}/{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
-<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery.</t>
 <t hangText="topic := ">The desired topic to READ.</t>
 </list>
 </t>
@@ -442,8 +440,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of READ" anchor="read-fig" align="center">
-<artwork>
+<figure title="Example of READ" anchor="read-fig">
+<artwork align="center">
 <![CDATA[
 Client                                          Broker
   |                                               |
@@ -461,7 +459,7 @@ Client                                          Broker
 
 
 <section title="REMOVE">
-<t> A CoAP PubSub Client wishing to remove a topic can use the CoAP Delete operation on the URI of the topic. The CoAP PubSub Broker MUST return "2.02 Deleted" if the remove operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be removed.
+<t> A CoAP pub/sub Client wishing to remove a topic can use the CoAP Delete operation on the URI of the topic. The CoAP pub/sub Broker MUST return "2.02 Deleted" if the remove operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be removed.
 </t>
 
 <t>The REMOVE interface is specified as follows:
@@ -471,7 +469,7 @@ Client                                          Broker
 <t hangText="URI Template:">/{+ps}/{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
-<t hangText="ps := ">PubSub Function Set path (mandatory). The path of the PubSub Function Set, as obtained from discovery.</t>
+<t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery.</t>
 <t hangText="topic := ">The desired topic to REMOVE.</t>
 </list>
 </t>
@@ -493,8 +491,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of REMOVE" anchor="remove-fig" align="center">
-<artwork>
+<figure title="Example of REMOVE" anchor="remove-fig">
+<artwork align="center">
 <![CDATA[
 Client                                         Broker
  |                                               |
@@ -514,11 +512,11 @@ Client                                         Broker
 
 <!-- ====================================================================== -->
 
-<section title="CoAP PubSub Operation with Resource Directory">
-<t>A CoAP PubSub Broker may register a PubSub Function Set with a Resource Directory. A PubSub Client may use an RD to discover a PubSub Broker.
+<section title="CoAP pub/sub Operation with Resource Directory">
+<t>A CoAP pub/sub Broker may register a pub/sub Function Set with a Resource Directory. A pub/sub Client may use an RD to discover a pub/sub Broker.
 </t>
 
-<t>A CoAP PubSub Client may register CoRE Links <xref target="RFC6690"/> to created PubSub Topics with an RD. A PubSub Client may use an RD to discover PubSub Topics. A client which registers PubSub Topics with an RD MUST use the context relation (con) <xref target="I-D.ietf-core-resource-directory"/> to indicate that the context of the registered links is the PubSub Broker.
+<t>A CoAP pub/sub Client may register CoRE Links <xref target="RFC6690"/> to created pub/sub Topics with an RD. A pub/sub Client may use an RD to discover pub/sub Topics. A client which registers pub/sub Topics with an RD MUST use the context relation (con) <xref target="I-D.ietf-core-resource-directory"/> to indicate that the context of the registered links is the pub/sub Broker.
 </t>
 
 </section>
@@ -528,7 +526,7 @@ Client                                         Broker
 
 <section title="Sleep-Wake Operation">
 
-<t>CoAP PubSub provides a way for client nodes to sleep between operations, conserving energy during idle periods. This is made possible by shifting the server role to the broker, allowing the broker to be always-on and respond to requests from other clients while a particular client is sleeping.</t>
+<t>CoAP pub/sub provides a way for client nodes to sleep between operations, conserving energy during idle periods. This is made possible by shifting the server role to the broker, allowing the broker to be always-on and respond to requests from other clients while a particular client is sleeping.</t>
 
 <t>For example, the broker will retain the last state update received from a sleeping client, in order to supply the most recent state update to other clients in response to read and subscribe operations.</t>
 
@@ -568,11 +566,11 @@ passed. </t>
 
 
 <section anchor="SecurityConsiderations" title="Security Considerations">
-<t>CoAP-PubSub re-uses CoAP <xref target="RFC7252"/>, CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>, and Web Linking <xref target="RFC5988"/> and therefore the security considerations of those documents also apply to this specification. Additionally, a CoAP-PubSub broker and the clients SHOULD authenticate each other and enforce access control policies. A malicious client could subscribe to data it is not authorized to or mount a denial of service attack against the broker by publishing a large number of resources. The authentication can be performed using the already standardized DTLS offered mechanisms, such as certificates. DTLS also allows communication security to be established to ensure integrity and confidentiality protection of the data exchanged between these relevant parties. Provisioning the necessary credentials, trust anchors and authorization policies is non-trivial and subject of ongoing work.</t>
+<t>CoAP pub/sub re-uses CoAP <xref target="RFC7252"/>, CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>, and Web Linking <xref target="RFC5988"/> and therefore the security considerations of those documents also apply to this specification. Additionally, a CoAP pub/sub broker and the clients SHOULD authenticate each other and enforce access control policies. A malicious client could subscribe to data it is not authorized to or mount a denial of service attack against the broker by publishing a large number of resources. The authentication can be performed using the already standardized DTLS offered mechanisms, such as certificates. DTLS also allows communication security to be established to ensure integrity and confidentiality protection of the data exchanged between these relevant parties. Provisioning the necessary credentials, trust anchors and authorization policies is non-trivial and subject of ongoing work.</t>
 
-<t>The use of a CoAP-PubSub broker introduces challenges for the use of end-to-end security between for example a client device on a sensor network and a client application running in a cloud-based server infrastructure since brokers terminate the exchange. While running separate DTLS sessions from the client device to the broker and from broker to client application protects confidentially on those paths, the client device does not know whether the commands coming from the broker are actually coming from the client application. Similarly, a client application requesting data does not know whether the data originated on the client device. For scenarios where end-to-end security is desirable the use of application layer security is unavoidable. Application layer security would then provide a guarantee to the client device that any request originated at the client application. Similarly, integrity protected sensor data from a client device will also provide guarantee to the client application that the data originated on the client device itself. The protected data can also be verified by the intermediate broker ensuring that it stores/caches correct request/response and no malicious messages/requests are accepted. The broker would still be able to perform aggregation of data/requests collected.</t>
+<t>The use of a CoAP pub/sub broker introduces challenges for the use of end-to-end security between for example a client device on a sensor network and a client application running in a cloud-based server infrastructure since brokers terminate the exchange. While running separate DTLS sessions from the client device to the broker and from broker to client application protects confidentially on those paths, the client device does not know whether the commands coming from the broker are actually coming from the client application. Similarly, a client application requesting data does not know whether the data originated on the client device. For scenarios where end-to-end security is desirable the use of application layer security is unavoidable. Application layer security would then provide a guarantee to the client device that any request originated at the client application. Similarly, integrity protected sensor data from a client device will also provide guarantee to the client application that the data originated on the client device itself. The protected data can also be verified by the intermediate broker ensuring that it stores/caches correct request/response and no malicious messages/requests are accepted. The broker would still be able to perform aggregation of data/requests collected.</t>
 
-<t>Depending on the level of trust users and system designers place in the CoAP-PubSub broker, the use of end-to-end object security is RECOMMENDED <xref target="I-D.selander-ace-object-security"/>.</t>
+<t>Depending on the level of trust users and system designers place in the CoAP pub/sub broker, the use of end-to-end object security is RECOMMENDED <xref target="I-D.selander-ace-object-security"/>.</t>
 </section> 
 
 
