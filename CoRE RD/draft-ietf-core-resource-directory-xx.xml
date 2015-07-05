@@ -681,7 +681,7 @@ third party such as an installation tool.</t>
   <t hangText='Content-Type:'>
   application/link-format+json (optional)</t>
   <t hangText='Content-Type:'>
-  application/link-format+cbor</t>
+  application/link-format+cbor (optional)</t>
 </list></t>
 
 <t>The following response codes are defined for this interface:</t>
@@ -801,7 +801,7 @@ earlier registration.</t>
 
 <t><list style="hanging">
   <t hangText='Success:'>
-  2.05 “Content” or 200 “OK” upon success</t>
+  2.05 “Content” or 200 “OK” upon success with an <spanx style="verb">application/link-format</spanx>, <spanx style="verb">application/link-format+cbor</spanx>, or <spanx style="verb">application/link-format+json</spanx> payload.</t>
   <t hangText='Failure:'>
   4.00 “Bad Request” or 400 “Bad Request”. Malformed request.</t>
   <t hangText='Failure:'>
@@ -1994,9 +1994,16 @@ use the rd-group or rd-lookup interfaces.</t>
 
 <t>The URI template for LWM2M consists of a base URI followed by Object, Instance, and Resource IDs:</t>
 
-<figure align="left"><artwork><![CDATA[
-/{base-uri}/{object-id}/{instance-id}/{resource-id}
-]]></artwork></figure>
+<t>{/base-uri}{/object-id}{/object-instance}{/resource-id}{/resource-instance}</t>
+
+<t>base-uri := URI for LWM2M resources or undef for default (empty) base URI
+object-id := OMNA registered object ID (0-65535)</t>
+
+<t>object-instance := Object instance identifier (0-65535) or undef to refere to all instances of an object ID</t>
+
+<t>resource-id := OMNA registered resource ID (0-65535) or undef to refer to all resources within an instance</t>
+
+<t>resource-instance := Resource instance identifier or undef to refer to single instance of a resource</t>
 
 <t>LWM2M IDs are 16 bit numbers represented in decimal by URI format strings. For example, a LWM2M URI might be:</t>
 
@@ -2004,7 +2011,7 @@ use the rd-group or rd-lookup interfaces.</t>
 /1/0/1
 ]]></artwork></figure>
 
-<t>The base uri is “/”, the Object ID is 1, the instance ID is 0, and the resource ID is 1. This example URI points to internal resource 1, which represents the registration lifetime configured, in instance 0 of a type 1 object (LWM2M Server Object).</t>
+<t>The base uri is empty, the Object ID is 1, the instance ID is 0, and the resource ID is 1. This example URI points to internal resource 1, which represents the registration lifetime configured, in instance 0 of a type 1 object (LWM2M Server Object).</t>
 
 </section>
 <section anchor="lwm2m-reg" title="LWM2M Register Endpoint">
@@ -2075,7 +2082,7 @@ con - Context
 </section>
 <section anchor="lwm2m-altbase" title="Alternate Base URI">
 
-<t>If the LWM2M endpoint exposes objects at a base URI other that “/”, the endpoint must register the base URI using rt=”oma.lwm2m”. An example link payload using alternate base URI would be:</t>
+<t>If the LWM2M endpoint exposes objects at a base URI other than the default empty base path, the endpoint must register the base URI using rt=”oma.lwm2m”. An example link payload using alternate base URI would be:</t>
 
 <figure align="left"><artwork type="linkformat"><![CDATA[
 </my_lwm2m>;rt="oma.lwm2m",</my_lwm2m/1>,<my_lwm2m/1/0>,<my_lwm2m/5>

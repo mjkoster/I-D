@@ -2019,12 +2019,17 @@ Since there may potentially be more than one of a given type object, for example
 
 The URI template for LWM2M consists of a base URI followed by Object, Instance, and Resource IDs:
 
-
-~~~~
-/{base-uri}/{object-id}/{instance-id}/{resource-id}
-~~~~
-{: align="left"}
+{/base-uri}{/object-id}{/object-instance}{/resource-id}{/resource-instance}
  
+base-uri := URI for LWM2M resources or undef for default (empty) base URI
+object-id := OMNA registered object ID (0-65535) 
+
+object-instance := Object instance identifier (0-65535) or undef to refere to all instances of an object ID
+
+resource-id := OMNA registered resource ID (0-65535) or undef to refer to all resources within an instance
+
+resource-instance := Resource instance identifier or undef to refer to single instance of a resource
+
 LWM2M IDs are 16 bit numbers represented in decimal by URI format strings. For example, a LWM2M URI might be:
 
 
@@ -2033,7 +2038,7 @@ LWM2M IDs are 16 bit numbers represented in decimal by URI format strings. For e
 ~~~~
 {: align="left"}
 
-The base uri is "/", the Object ID is 1, the instance ID is 0, and the resource ID is 1. This example URI points to internal resource 1, which represents the registration lifetime configured, in instance 0 of a type 1 object (LWM2M Server Object).
+The base uri is empty, the Object ID is 1, the instance ID is 0, and the resource ID is 1. This example URI points to internal resource 1, which represents the registration lifetime configured, in instance 0 of a type 1 object (LWM2M Server Object).
 
 ### LWM2M Register Endpoint {#lwm2m-reg}
 
@@ -2091,7 +2096,7 @@ This link format payload indicates that object ID 1 (LWM2M Server Object) is sup
 
 ### Alternate Base URI {#lwm2m-altbase}
 
-If the LWM2M endpoint exposes objects at a base URI other that "/", the endpoint must register the base URI using rt="oma.lwm2m". An example link payload using alternate base URI would be:
+If the LWM2M endpoint exposes objects at a base URI other than the default empty base path, the endpoint must register the base URI using rt="oma.lwm2m". An example link payload using alternate base URI would be:
 
 
 ~~~~ linkformat
