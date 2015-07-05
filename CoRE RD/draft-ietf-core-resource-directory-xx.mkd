@@ -2022,9 +2022,10 @@ The URI template for LWM2M consists of a base URI followed by Object, Instance, 
 {/base-uri}{/object-id}{/object-instance}{/resource-id}{/resource-instance}
  
 base-uri := URI for LWM2M resources or undef for default (empty) base URI
-object-id := OMNA registered object ID (0-65535) 
 
-object-instance := Object instance identifier (0-65535) or undef to refere to all instances of an object ID
+object-id := OMNA registered object ID (0-65535) or undef to refer to all objects
+
+object-instance := Object instance identifier (0-65535) or undef to refer to all instances of an object ID
 
 resource-id := OMNA registered resource ID (0-65535) or undef to refer to all resources within an instance
 
