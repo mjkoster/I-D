@@ -109,9 +109,9 @@
 </t>
 
         <t>
-        <figure title="CoAP pub/sub Architecture" anchor="arch-fig" align="center">
-          <artwork>
-            <![CDATA[
+        <figure title="CoAP pub/sub Architecture" anchor="arch-fig">
+          <artwork align="center">
+<![CDATA[
 Clients        pub/sub         Broker
 +-------+         |
 | CoAP  |         |
@@ -124,7 +124,6 @@ Clients        pub/sub         Broker
 |pub/sub|---------|------+
 |Client |         |
 +-------+         |
-
 ]]>
 </artwork>
 </figure>
@@ -186,8 +185,8 @@ application/link-format payload containing one or more matching entries for the 
 </t>
 
         <t>
-        <figure title="Example of DISCOVER" anchor="discover-fig" align="center">
-          <artwork>
+        <figure title="Example of DISCOVER" anchor="discover-fig">
+          <artwork align="center">
             <![CDATA[
 Client                                          Broker
   |                                               |
@@ -234,8 +233,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of CREATE" anchor="create-fig" align="center">
-<artwork>
+<figure title="Example of CREATE" anchor="create-fig">
+<artwork align="center">
 <![CDATA[
 Client                                          Broker
   |                                               |
@@ -287,8 +286,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of PUBLISH" anchor="publish-fig" align="center">
-<artwork>
+<figure title="Example of PUBLISH" anchor="publish-fig">
+<artwork align="center">
 <![CDATA[
 Client                                          Broker
   |                                               |
@@ -337,8 +336,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of SUBSCRIBE" anchor="subscribe-fig" align="center">
-<artwork>
+<figure title="Example of SUBSCRIBE" anchor="subscribe-fig">
+<artwork align="center">
 <![CDATA[
 Client1   Client2                                          Broker
   |          |                                               |
@@ -393,8 +392,8 @@ Client1   Client2                                          Broker
 </t>
 
 <t>
-<figure title="Example of UNSUBSCRIBE" anchor="unsubscribe-fig" align="center">
-<artwork>
+<figure title="Example of UNSUBSCRIBE" anchor="unsubscribe-fig">
+<artwork align="center">
 <![CDATA[
 Client                                          Broker
   |                                               |
@@ -441,8 +440,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of READ" anchor="read-fig" align="center">
-<artwork>
+<figure title="Example of READ" anchor="read-fig">
+<artwork align="center">
 <![CDATA[
 Client                                          Broker
   |                                               |
@@ -492,8 +491,8 @@ Client                                          Broker
 </t>
 
 <t>
-<figure title="Example of REMOVE" anchor="remove-fig" align="center">
-<artwork>
+<figure title="Example of REMOVE" anchor="remove-fig">
+<artwork align="center">
 <![CDATA[
 Client                                         Broker
  |                                               |
