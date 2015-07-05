@@ -67,7 +67,7 @@
       </address>
     </author>
 
-    <date year="2015" month="June" day="23"/>
+    <date year="2015" month="July" day="04"/>
 
     <area>Internet</area>
     <workgroup>CoRE</workgroup>
@@ -201,6 +201,7 @@ provided using the CoRE Link Format.</t>
 
 <figure title="The resource directory architecture." align="left" anchor="fig-arch"><artwork><![CDATA[
              Registration     Lookup, Group
+              Interface        Interfaces
   +----+          |                 |
   | EP |----      |                 |
   +----+    ----  |                 |
@@ -256,7 +257,7 @@ EPs installed on vehicles enabling tracking of their position for fleet manageme
 purposes and monitoring environment parameters) hosted by the mobile operator
 or somewhere else in the network, periodically a description of its own capabilities.
 Due to the usual network configuration of mobile networks, the EPs attached
-to the mobile network do not have routable addresses. Therefore, a remote
+to the mobile network may not always be efficiently reachable. Therefore, a remote
 server is usually used to provide proxy access to the EPs. The address of
 each (proxy) endpoint on this server is included in the resource description
 stored in the RD. The users, for example mobile applications for environment
@@ -303,12 +304,9 @@ to the desired resources and endpoints. The Resource Directory service need
 not be coupled with the data intermediary service. Mapping of Resource Directories
 to data intermediaries may be many-to-many.</t>
 
-<t>Metadata in link-format or link-format+json representations are supplied
-by Resource Directories, which may be internally stored as  triples, or relation/attribute
+<t>Metadata in link-format, link-format+cbor, or link-format+json representations are supplied by Resource Directories, which may be internally stored as  triples, or relation/attribute
 pairs providing metadata about resource links. External catalogs that are
-represented in other formats may be converted to link-format or link-format+json
-for storage and access by Resource Directories. Since it is common practice
-for these to be URN encoded, simple and lossless structural transforms will
+represented in other formats may be converted to link-format, link-format+json, or link-format+cbor for storage and access by Resource Directories. Since it is common practice for these to be URN encoded, simple and lossless structural transforms will
 generally be sufficient to store external metadata in Resource Directories.</t>
 
 <t>The additional features of Resource Directory allow domains to be defined
@@ -387,8 +385,8 @@ addresses for such servers in a number of ways.</t>
 
 <t>In networks with more inexpensive use of multicast, the candidate IP
 address may be a well-known multicast address, i.e. directory servers are
-found by simply sending POST requests to that well-known multicast address
-(details TBD).</t>
+found by simply sending GET requests to that well-known multicast address
+(see <xref target="discovery"/>).</t>
 
 <t>As some of these sources are just (more or less educated) guesses, endpoints
 MUST make use of any error messages to very strictly rate-limit requests to
@@ -471,6 +469,10 @@ the rt parameter as defined in <xref target="RFC6690"/>.</t>
   </t>
   <t hangText='Content-Type:'>
   application/link-format (if any)</t>
+  <t hangText='Content-Type:'>
+  application/link-format+json (if any)</t>
+  <t hangText='Content-Type:'>
+  application/link-format+cbor (if any)</t>
 </list></t>
 
 <t>The following response codes are defined for this interface:</t>
@@ -478,8 +480,7 @@ the rt parameter as defined in <xref target="RFC6690"/>.</t>
 <t><list style="hanging">
   <t hangText='Success:'>
   2.05 “Content” or 200 “OK” with an
-application/link-format payload containing one or more matching entries for
-the RD resource.</t>
+application/link-format, application/link-format+json, or application/link-format+cbor payload containing one or more matching entries for the RD resource.</t>
   <t hangText='Failure:'>
   4.04 “Not Found” or 404 “Not Found” is returned in case no matching entry is found for a unicast
 request.</t>
@@ -523,8 +524,7 @@ Res: 2.05 Content
 <t>After discovering the location of an RD Function Set, an endpoint MAY
 register its resources using the registration interface. This interface
 accepts a POST from an endpoint containing the list of resources to be added
-to the directory as the message payload in the CoRE Link Format <xref target="RFC6690"/>
-or JSON Link Format <xref target="I-D.ietf-core-links-json"/> along with query string
+to the directory as the message payload in the CoRE Link Format <xref target="RFC6690"/>, JSON CoRE Link Format <xref target="I-D.ietf-core-links-json"/>, or CBOR CoRE Link Format (application/link-format+cbor) along with query string
 parameters indicating the name of the endpoint, its domain and the lifetime
 of the registration. All parameters except the endpoint name are optional. It
 is expected that other specifications will define further parameters (see
@@ -582,6 +582,8 @@ installation tool.</t>
   application/link-format</t>
   <t hangText='Content-Type:'>
   application/link-format+json</t>
+  <t hangText='Content-Type:'>
+  application/link-format+cbor</t>
 </list></t>
 
 <t>The following response codes are defined for this interface:</t>
@@ -678,6 +680,8 @@ third party such as an installation tool.</t>
   application/link-format (optional)</t>
   <t hangText='Content-Type:'>
   application/link-format+json (optional)</t>
+  <t hangText='Content-Type:'>
+  application/link-format+cbor</t>
 </list></t>
 
 <t>The following response codes are defined for this interface:</t>
@@ -889,6 +893,8 @@ directory is filled by an installation tool.</t>
   application/link-format</t>
   <t hangText='Content-Type:'>
   application/link-format+json</t>
+  <t hangText='Content-Type:'>
+  application/link-format+cbor</t>
 </list></t>
 
 <t>The following response codes are defined for this interface:</t>
@@ -904,8 +910,7 @@ is used for delete operations on this registration.</t>
   5.03 “Service Unavailable” or 503 “Service Unavailable”. Service could not perform the operation.</t>
 </list></t>
 
-<t>The following example shows a group with the name “lights” registering two
-endpoints to an RD using this interface. The resulting location /rd-group/12
+<t>The following example shows an EP registering a group with the name “lights” which has two endpoints to an RD using this interface. The resulting location /rd-group/12
 is just an example of an RD generated group location.</t>
 
 <figure align="left"><artwork><![CDATA[
@@ -1000,8 +1005,9 @@ using attributes defined in the RD Function Set and for use with the CoRE
 Link Format. The result of a lookup request is the list of links (if any)
 corresponding to the type of lookup.  Using the Accept Option, the requester
 can control whether this list is returned in CoRE Link Format
-(<spanx style="verb">application/link-format</spanx>, default) or its JSON form
-(<spanx style="verb">application/link-format+json</spanx>).  The target of these links SHOULD be the
+(<spanx style="verb">application/link-format</spanx>, default) or its alternate content-formats
+(<spanx style="verb">application/link-format+json</spanx> or <spanx style="verb">application/link-format+cbor</spanx>).<vspace />
+The target of these links SHOULD be the
 actual location of the domain, endpoint or resource, but MAY be an
 intermediate proxy e.g. in the case of an HTTP lookup interface for CoAP
 endpoints. Multiple query parameters MAY be included in a lookup, all
@@ -1053,9 +1059,7 @@ value SHOULD be used.</t>
 
 <t><list style="hanging">
   <t hangText='Success:'>
-  2.05 “Content” or 200 “OK” with an <spanx style="verb">application/link-format</spanx> or
-<spanx style="verb">application/link-format+json</spanx> payload containing a matching entries for
-the lookup.</t>
+  2.05 “Content” or 200 “OK” with an <spanx style="verb">application/link-format</spanx>, <spanx style="verb">application/link-format+cbor</spanx>, or <spanx style="verb">application/link-format+json</spanx> payload containing matching entries for the lookup.</t>
   <t hangText='Failure:'>
   4.04 “Not Found” or 404 “Not Found” in case no matching entry is found for a unicast request.</t>
   <t hangText='Failure:'>
@@ -2112,6 +2116,13 @@ originally developed.</t>
 
 </section>
 <section anchor="changelog" title="Changelog">
+<t>Changes from -03 to -04:</t>
+
+<t><list style="symbols">
+  <t>Added http response codes</t>
+  <t>Clarified endpoint name usage</t>
+  <t>Add application/link-format+cbor content-format</t>
+</list></t>
 
 <t>Changes from -02 to -03:</t>
 
