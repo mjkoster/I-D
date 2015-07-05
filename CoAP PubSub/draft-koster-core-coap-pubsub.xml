@@ -13,7 +13,7 @@
 <?rfc compact="no"?>
 <?rfc subcompact="no"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-01">
+<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-02">
 
   <front>
   <title abbrev="Publish-Subscribe Broker for CoAP">Publish-Subscribe Broker for the Constrained Application Protocol (CoAP)</title>
@@ -532,7 +532,7 @@ Client                                         Broker
 
 <t>For example, the broker will retain the last state update received from a sleeping client, in order to supply the most recent state update to other clients in response to read and subscribe operations.</t>
 
-<t>Likewise, the broker will retain the last state update recieved on the topic such that a sleeping client, upon waking, can perform a read operation to the broker to update its own state from the most recent system state update.</t>
+<t>Likewise, the broker will retain the last state update received on the topic such that a sleeping client, upon waking, can perform a read operation to the broker to update its own state from the most recent system state update.</t>
 
 </section>
 
