@@ -159,7 +159,7 @@
 </t>
 
 <section title="DISCOVER">
-<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through a Resource Directory (RD) <xref target="I-D.ietf-core-resource-directory"/>. A CoAP PubSub Broker SHOULD indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery. A broker wishing to advertise the CoAP PubSub Function Set for Simple Discovery or through a Resource Directory MUST use the link relation rt="core.ps".
+<t> CoAP PubSub Clients discover CoAP PubSub Brokers by using CoAP Simple Discovery or through a Resource Directory (RD) <xref target="I-D.ietf-core-resource-directory"/>. A CoAP PubSub Broker SHOULD indicate its presence and availability on a network by exposing a link to its PubSub function set at its .well-known/core location <xref target="RFC6690"/>. A CoAP PubSub broker MAY register its PubSub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local PubSub Function Set using CoAP Simple Discovery. A broker wishing to advertise the CoAP PubSub Function Set for Simple Discovery or through a Resource Directory MUST use the link relation rt="core.ps".
 </t>
 
 <t>The DISCOVER interface is specified as follows:
@@ -538,6 +538,34 @@ Client                                         Broker
 
  
 <!-- ====================================================================== -->
+
+<section title="Simple Flow Control">
+
+<t> Since the broker node has to potentially send a large amount of
+notification messages for each publish message and it may be serving a
+large amount of subscribers and publishers simultaneously, the broker
+may become overwhelmed if it receives many publish messages to popular
+topics in a short period of time. </t>
+
+<t> If the broker is unable to serve a certain client that is sending
+publish messages too fast, the broker MUST respond with Response Code
+4.29, "Too Many Requests". This Response Code is like HTTP 429 "Too
+Many Requests" but uses the Max-Age Option in place of the
+"Retry-After" header field to indicate the number of seconds after
+which to retry. The broker MAY not create notifications from the
+publish messages from this client and to this topic for the indicated
+time. </t>
+
+<t> If a client receives the 4.29 Response Code from the broker for a
+publish message to a topic, it MUST NOT send new publish messages to
+the broker on the same topic before the time indicated in Max-Age has
+passed. </t>
+
+</section>
+
+ 
+<!-- ====================================================================== -->
+
 
 <section anchor="SecurityConsiderations" title="Security Considerations">
 <t>CoAP-PubSub re-uses CoAP <xref target="RFC7252"/>, CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>, and Web Linking <xref target="RFC5988"/> and therefore the security considerations of those documents also apply to this specification. Additionally, a CoAP-PubSub broker and the clients SHOULD authenticate each other and enforce access control policies. A malicious client could subscribe to data it is not authorized to or mount a denial of service attack against the broker by publishing a large number of resources. The authentication can be performed using the already standardized DTLS offered mechanisms, such as certificates. DTLS also allows communication security to be established to ensure integrity and confidentiality protection of the data exchanged between these relevant parties. Provisioning the necessary credentials, trust anchors and authorization policies is non-trivial and subject of ongoing work.</t>
