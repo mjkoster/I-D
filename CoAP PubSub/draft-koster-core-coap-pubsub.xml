@@ -251,10 +251,10 @@ Client                                          Broker
 
 
 <section title="PUBLISH">
-<t>A CoAP pub/sub Client uses the PUBLISH interface for updating resources. The client MUST use the PUT method to publish state updates to the CoAP pub/sub Broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the publish request. A client MAY use confirmable (CON) or non-confirmable (NON) messages to publish updates to a broker. The broker MUST return a response code of "2.04 Changed" if the publish is accepted or "4.04 Not Found" if the topic does not exist. 
+<t>A CoAP pub/sub Client uses the PUBLISH interface for updating topics on the broker. The client MUST use the PUT method to publish state updates to the CoAP pub/sub Broker. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the max-age option in the publish request. A client MAY use confirmable (CON) or non-confirmable (NON) messages to publish updates to a broker. The broker MUST return a response code of "2.04 Changed" if the publish is accepted or "4.04 Not Found" if the topic does not exist. A broker MAY return "4.29 Too Many Requests" if simple flow control as described in <xref target="sec-flow-control"/> is implemented.
 </t>
 
-<t>The Broker MUST publish updates to all clients subscribed on a particular topic each time it receives a publish on that topic. If a client publishes to a broker using non-confirmable messages, the broker MAY publish those messages to subscribed clients using non-confirmable messages. If a client publishes to a broker using confirmable messages, the broker MUST also publish those messages to subscribed clients using confirmable messages. If a client publishes to a broker with the max-age option, the broker MUST publish to subscribed clients including the same value for the max-age option. If a client publishes to a particular topic on a broker with a payload encoded in a particular CoAP Content-Format, the broker MUST publish to subscribed clients on that topic using the same CoAP Content-Format. A broker MUST use CoAP Notification as described in <xref target="I-D.ietf-core-observe"/> to publish to subscribed clients.
+<t>The Broker MUST notify all clients subscribed on a particular topic each time it receives a publish on that topic. An example is shown in <xref target="subscribe-fig"/>. If a client publishes to a broker using non-confirmable messages, the broker MAY notify subscribed clients using non-confirmable messages. If a client publishes to a broker using confirmable messages, the broker MUST also notify all subscribed clients using confirmable messages. If a client publishes to a broker with the max-age option, the broker MUST include the same value for the max-age option in all notifications. A CoAP pub/sub broker MUST notify a client subscribed on a topic using the CoAP Content-Format that client used to subscribe to that topic, regardless of the CoAP content-format used to publish updates to the topic. A broker MUST use CoAP Notification as described in <xref target="I-D.ietf-core-observe"/> to notify subscribed clients.
 </t>
 
 <t>The PUBLISH interface is specified as follows:
@@ -305,7 +305,7 @@ Client                                          Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP pub/sub Clients subscribe to topics on the Broker using CoAP Observe as described in <xref target="I-D.ietf-core-observe"/>. A CoAP pub/sub Client wishing to Subscribe to a topic on a broker MUST use a CoAP GET with Observe registration. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of "2.05 Content" along with the most recently published value if the topic contains a valid value. If the topic was published with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the topic to be valid since the last publish. The Broker MUST return a response code of "2.04 No Content" if the max-age of the previously stored value has expired. The Broker MUST return a response code "4.04 Not Found" if the topic does not exist or has been removed.
+<t>CoAP pub/sub Clients subscribe to topics on the Broker using CoAP Observe as described in <xref target="I-D.ietf-core-observe"/>. A CoAP pub/sub Client wishing to Subscribe to a topic on a broker MUST use a CoAP GET with Observe registration. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of "2.05 Content" along with the most recently published value if the topic contains a valid value. If the topic was published with the max-age option, the broker MUST set the max-age option in the valid response to the amount of time remaining for the value to be valid since the last publish operation on that topic. The Broker MUST return a response code of "2.04 No Content" if the max-age of the previously stored value has expired. The Broker MUST return a response code "4.04 Not Found" if the topic does not exist or has been removed.
 </t>
 
 <t>The SUBSCRIBE interface is specified as follows:
@@ -333,7 +333,7 @@ Client                                          Broker
 </list>
 </t>
 
-<t><xref target="subscribe-fig"/> shows an example of Client2 subscribing to "topic1" and receiving two publish responses from the broker. The first publish from the broker uses the last stored value associated with the topic1. The second publish from the broker is in response to the publish received from  Client1.
+<t><xref target="subscribe-fig"/> shows an example of Client2 subscribing to "topic1" and receiving two notifications from the broker. The first notification from the broker uses the last stored value associated with the topic1. The second notification from the broker is in response to the publish received from  Client1.
 </t>
 
 <t>
@@ -488,7 +488,7 @@ Client                                          Broker
 </list>
 </t>
 
-<t><xref target="subscribe-fig"/> shows a successful remove of topic1.
+<t><xref target="remove-fig"/> shows a successful remove of topic1.
 </t>
 
 <t>
