@@ -333,7 +333,7 @@ Client                                          Broker
 </list>
 </t>
 
-<t><xref target="subscribe-fig"/> shows an example of Client2 subscribing to "topic1" and receiving a response from the broker, with a subsequent notification. The subscribe responsefrom the broker uses the last stored value associated with the topic1. The notification from the broker is sent in response to the publish received from  Client1.
+<t><xref target="subscribe-fig"/> shows an example of Client2 subscribing to "topic1" and receiving a response from the broker, with a subsequent notification. The subscribe response from the broker uses the last stored value associated with the topic1. The notification from the broker is sent in response to the publish received from  Client1.
 </t>
 
 <t>
@@ -437,20 +437,29 @@ Client                                          Broker
 </list>
 </t>
 
-<t><xref target="read-fig"/> shows an example of s successful READ from topic1.
+<t><xref target="read-fig"/> shows an example of a successful READ from topic1, followed by a Publish on the topic, followed at some time later by a read of the updated value from the recent Publish.
 </t>
 
 <t>
 <figure title="Example of READ" anchor="read-fig">
 <artwork align="center">
 <![CDATA[
-Client                                          Broker
-  |                                               |
-  | -------------- GET /ps/topic1  -------------> |
-  |                                               |
-  |                                               |
-  | <--------------- 2.05 Content --------------- |
-  |                                               |
+Client1   Client2                                          Broker
+  |          |                     Read                      |
+  |          | --------------- GET /ps/topic1 -------------> | 
+  |          |                                               |
+  |          | <---------- 2.05 Content "1007.1"------------ |
+  |          |                                               |
+  |          |                                               |
+  |          |                    Publish                    |
+  | ---------|----------- PUT /ps/topic1 "1033.3"  --------> |
+  |          |                                               |
+  |          |                                               |
+  |          |                     Read                      |
+  |          | --------------- GET /ps/topic1 -------------> | 
+  |          |                                               |
+  |          | <----------- 2.05 Content "1033.3"----------- |
+  |          |                                               |
 ]]>
 </artwork>
 </figure>
