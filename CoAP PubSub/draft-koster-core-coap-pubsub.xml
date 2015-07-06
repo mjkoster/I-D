@@ -202,7 +202,7 @@ Client                                          Broker
 
 
 <section title="CREATE">
-<t>Clients create topics on the broker using the CREATE interface. A client wishing to create a topic MUST use CoAP POST to the pub/sub function set location with a payload indicating the desired topic. The topic MUST use the CoRE link format <xref target="RFC6690"/>. The client MUST indicate the desired content format for publishes to the topic by using the ct= relation in the link-format payload. The client MAY indicate the lifetime of the topic by including the Max-Age option in the CREATE request. Broker MUST return a response code of "2.01 Created" if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if a new topic can not be created. Broker SHOULD remove topics if the Max-Age of the topic is exceeded without any publishes to the topic.
+<t>Clients create topics on the broker using the CREATE interface. A client wishing to create a topic MUST use CoAP POST to the pub/sub function set location with a payload indicating the desired topic. The topic MUST use the CoRE link format <xref target="RFC6690"/>. The client MUST indicate the desired content format for publishes to the topic by using the ct (Content Type) relation in the link-format payload. The client MAY indicate the lifetime of the topic by including the Max-Age option in the CREATE request. Broker MUST return a response code of "2.01 Created" if the topic is created. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if a new topic can not be created. Broker SHOULD remove topics if the Max-Age of the topic is exceeded without any publishes to the topic.
 </t>
 
 <t>The CREATE interface is specified as follows:
@@ -239,7 +239,7 @@ Client                                          Broker
 <![CDATA[
 Client                                          Broker
   |                                               |
-  | -------------- POST /ps "<topic1>" ---------->|
+  | ---------- POST /ps "<topic1>;ct=50" -------->|
   |                                               |
   | <---------------- 2.01 Created ---------------|
   |                                               |
