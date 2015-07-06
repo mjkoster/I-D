@@ -333,7 +333,7 @@ Client                                          Broker
 </list>
 </t>
 
-<t><xref target="subscribe-fig"/> shows an example of Client2 subscribing to "topic1" and receiving two notifications from the broker. The first notification from the broker uses the last stored value associated with the topic1. The second notification from the broker is in response to the publish received from  Client1.
+<t><xref target="subscribe-fig"/> shows an example of Client2 subscribing to "topic1" and receiving a response from the broker, with a subsequent notification. The subscribe responsefrom the broker uses the last stored value associated with the topic1. The notification from the broker is sent in response to the publish received from  Client1.
 </t>
 
 <t>
@@ -341,15 +341,15 @@ Client                                          Broker
 <artwork align="center">
 <![CDATA[
 Client1   Client2                                          Broker
-  |          |                                               |
-  |          | ----- GET /ps/topic1 Observe:0 Token:XX ----> |
+  |          |                   Subscribe                   |
+  |          | ----- GET /ps/topic1 Observe:0 Token:XX ----> | 
   |          |                                               |
   |          | <---------- 2.05 Content Observe:10---------- |
   |          |                                               |
   |          |                                               |
-  |          |                                               |
+  |          |                    Publish                    |
   | ---------|----------- PUT /ps/topic1 "1033.3"  --------> |
-  |          |                                               |
+  |          |                    Notify                     |
   |          | <---------- 2.05 Content Observe:11---------- |
   |          |                                               |
 ]]>
