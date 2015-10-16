@@ -2325,7 +2325,9 @@ originally developed.
 
 changes from -04 to -05
 
-* http access made explicit in  interface specification
+* added Update Endpoint Links using PATCH
+
+* http access made explicit in interface specification
 
 * Added http examples
 
