@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-core-resource-directory-05
+docname: draft-ietf-core-resource-directory-04
 cat: std
 pi:
   strict: 'yes'
@@ -62,6 +62,7 @@ normative:
   RFC6335:
   RFC6570:
   RFC6763:
+  RFC7396;
   I-D.ietf-core-links-json:
 informative:
   RFC7252:
@@ -431,8 +432,6 @@ resource of the RD. When performing multicast discovery, the multicast IP
 address used will depend on the scope required and the multicast capabilities
 of the network.
 
-HTTP does not support multicast and consequently discovery has no HTTP interface.
-
 An RD implementation of this specification MUST support query filtering for
 the rt parameter as defined in {{RFC6690}}.
 
@@ -464,22 +463,19 @@ Content-Type:
 The following response codes are defined for this interface:
 
 Success:
-: 2.05 "Content" with an
+: 2.05 "Content" or 200 "OK" with an
   application/link-format, application/link-format+json, or application/link-format+cbor payload containing one or more matching entries for the RD resource.
 
 Failure:
-: 4.04 "Not Found" is returned in case no matching entry is found for a unicast
+: 4.04 "Not Found" or 404 "Not Found" is returned in case no matching entry is found for a unicast
   request.
 
 Failure:
-: 4.00 "Bad Request" is returned in case of a malformed request for a unicast
+: 4.00 "Bad Request" or 400 "Bad Request" is returned in case of a malformed request for a unicast
   request.
 
 Failure:
 : No error response to a multicast request.
-
-HTTP support :
-: NO
 
 The following example shows an endpoint discovering an RD using this interface,
 thus learning that the base RD resource is, in this example, at /rd.  Note
@@ -607,9 +603,6 @@ Failure:
 Failure:
 : 5.03 "Service Unavailable" or 503 "Service Unavailable". Service could not perform the operation.
 
-HTTP support:
-: YES
-
 The following example shows an endpoint with the name "node1" registering
 two resources to an RD using this interface. The resulting location /rd/4521
 is just an example of an RD generated location.
@@ -627,7 +620,6 @@ is just an example of an RD generated location.
 
 ~~~~
 Req: POST coap://rd.example.com/rd?ep=node1
-Content-Format: 40
 Payload:
 </sensors/temp>;ct=41;rt="temperature-c";if="sensor",
 </sensors/light>;ct=41;rt="light-lux";if="sensor"
@@ -637,41 +629,17 @@ Location: /rd/4521
 ~~~~
 {: align="left"}
 
-~~~~
-Req: POST /rd?ep=node1 HTTP/1.1
-Host : example.com
-Content-Type: application/link-format
-Payload:
-</sensors/temp>;ct=41;rt="temperature-c";if="sensor",
-</sensors/light>;ct=41;rt="light-lux";if="sensor"
-
-Res: 201 Created
-Location: /rd/4521
-~~~~
-{: align="left"}
-
-
-
 
 ## Update {#update}
 
 The update interface is used by an endpoint to refresh or update its
-registration with an RD. To use the interface, the endpoint sends a POST
+registration with an RD. To use the interface, the endpoint sends a POST or PATCH
 request to the resource returned in the Location option in the response to
-the first registration.  An update MAY update the lifetime or context
+the first registration.  A POST update MAY update the lifetime or context
 parameters if they have changed since the last registration or
-update. Parameters that have not changed SHOULD NOT be included in an
-update. Upon receiving an update request, the RD resets the timeout for that
+update.  Upon receiving an update request, the RD resets the timeout for that
 endpoint and updates the scheme, IP address and port of the endpoint (using
 the source address of the update, or the context parameter if present).
-
-An update MAY optionally add or replace links for the endpoint by including
-those links in the payload of the update as a CoRE Link Format
-document. Including links in an update message greatly increases the load on
-an RD and SHOULD be done infrequently. A link is replaced only if both the
-target URI and relation type match (see {{endpoint_identification}}).<!--
-TODO: explain how a patch format, probably not RFC7386, could be used to
-delete, replace, and add entries.)  -->
 
 The update request interface is specified as follows:
 
@@ -716,7 +684,7 @@ Content-Type:
 The following response codes are defined for this interface:
 
 Success:
-: 2.04 "Changed" or 204 "No Content" in the update was successfully processed.
+: 2.04 "Changed" 0r 204 "No Content" in the update was successfully processed.
 
 Failure:
 : 4.00 "Bad Request" or 400 "Bad Request". Malformed request.
@@ -726,9 +694,6 @@ Failure:
 
 Failure:
 : 5.03 "Service Unavailable" or 503 "Service Unavailable". Service could not perform the operation.
-
-HTTP support:
-: YES
 
 
 The following example shows an endpoint updating its registration at
@@ -754,6 +719,90 @@ Res: 2.04 Changed
 ~~~~
 {: align="left"}
 
+## Update link {#link-up}
+
+A PATCH update adds, removes or changes links for the endpoint by including
+those links in the payload of the update as a merge-patch+json format {{RFC7396}}
+document. Including links in an update message greatly increases the load on
+an RD and SHOULD be done infrequently. A link is replaced only if both the
+target URI and relation type match (see {{endpoint_identification}}).
+
+The update request interface is specified as follows:
+
+Interaction:
+: EP -> RD
+
+Method:
+: PATCH
+
+URI Template:
+: /{+location}{?ep,con}
+
+
+URI Template Variables:
+: location :=
+  : This is the Location path returned by the RD as a result of a successful
+    earlier registration.
+
+  ep :=
+  : Endpoint name (mandatory). The endpoint name is an identifier
+    that MUST be unique within a domain.  The maximum length of this
+    parameter is 63 bytes.
+
+
+  con :=
+  : Context (optional). This parameter sets the scheme, address and port at
+    which this server is available in the form
+    scheme://host:port. Optional. In the absence of this parameter the scheme
+    of the protocol, source IP address and source port used to register are
+    assumed. This parameter is compulsory when the directory is filled by a
+    third party such as an installation tool.
+
+Content-Type:
+: application/merge-patch+json (optional)
+
+The following response codes are defined for this interface:
+
+Success:
+: 2.04 "Changed" 0r 204 "No Content" in the update was successfully processed.
+
+Failure:
+: 4.00 "Bad Request" or 400 "Bad Request". Malformed request.
+
+Failure:
+: 4.04 "Not Found" or 404 "Not Found". Registration does not exist (e.g. may have expired).
+
+Failure:
+: 5.03 "Service Unavailable" or 503 "Service Unavailable". Service could not perform the operation.
+
+
+The following example shows an endpoint inserting </sensors/humid>, changing </sensors/temp>, and removing </sensors/light> links in RD using this interface.
+
+
+~~~~
+     EP                                                RD
+     |                                                 |
+     | --- PATCH /rd/4521  { ----------------------->  |
+     |                                                 |
+     |                                                 |
+     | <-- 2.04 Changed  ----------------------------  |
+     |                                                 |
+~~~~
+{: align="left"}
+
+
+~~~~
+Req: PATCH /rd/4521
+Payload:
+{
+"</sensors/temp>": {"ct": 41, "rt": "temperature-c", "if": "sensor"},
+"</sensors/light>": null,
+"</sensors/humid>": {"ct": 41, "rt": "humidity-s", "if": "sensor"}
+}
+
+Res: 2.04 Changed
+~~~~
+{: align="left"}
 
 ## Removal {#removal}
 
@@ -792,9 +841,6 @@ Failure:
 
 Failure:
 : 5.03 "Service Unavailable" or 503 "Service Unavailable". Service could not perform the operation.
-
-HTTP support:
-: YES
 
 The following examples shows successful removal of the endpoint from the RD.
 
@@ -960,9 +1006,6 @@ Failure:
 Failure:
 : 5.03 "Service Unavailable" or 503 "Service Unavailable". Service could not perform the operation.
 
-HTTP support:
-: YES
-
 The following example shows an EP registering a group with the name “lights” which has two endpoints to an RD using this interface. The resulting location /rd-group/12
 is just an example of an RD generated group location.
 
@@ -990,18 +1033,6 @@ Location: /rd-group/12
 ~~~~
 {: align="left"}
 
-~~~~
-Req: POST /rd-group?gp=lights HTTP/1.1
-Host: example.com
-Accept: application/link-format
-Payload:
-<>;ep="node1",
-<>;ep="node2"
-
-Res: 201 Created
-Location: /rd-group/12
-~~~~
-{: align="left"}
 
 ## Group Removal {#group-removal}
 
@@ -1039,9 +1070,6 @@ Failure:
 
 Failure:
 : 5.03 "Service Unavailable" or 503 "Service Unavailable". Service could not perform the operation.
-
-HTTP support:
-: YES
 
 
 The following examples shows successful removal of the group from the RD.
@@ -1158,11 +1186,7 @@ Failure:
 Failure:
 : 5.03 "Service Unavailable" or 503 "Service Unavailable". Service could not perform the operation.
 
-HTTP support:
-: YES
-
-The examples in this section assume a CoAP host with IP address FDFD::123 and a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.
-The following example shows a client performing a resource lookup:
+The examples in this section assume a host with IP address FDFD::123 and a default CoAP port 61616. The following example shows a client performing a resource lookup:
 
 
 ~~~~
@@ -1655,7 +1679,7 @@ Examples are added here.
 ## Lighting Installation {#lt-ex}
 
 This example shows a simplified lighting installation which makes use of
-the Resource Directory (RD) with a CoAP interface to facilitate the installation and start up of
+the Resource Directory (RD) to facilitate the installation and start up of
 the application code in the lights and sensors. In particular, the example
 leads to the definition of a group and the enabling of the corresponding
 multicast address. No conclusions must be drawn on the realization of actual
@@ -2206,16 +2230,6 @@ originally developed.
 
 
 # Changelog
-
-changes from -04 to -05
-
-* http access made explicit in  interface specification
-
-* Added http examples
-
-
-
-
 Changes from -03 to -04:
 
 * Added http response codes
