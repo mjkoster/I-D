@@ -17,7 +17,7 @@ title: CoRE Resource Directory
 area: Internet
 wg: CoRE
 kw: CoRE, Web Linking, Resource Discovery, Resource Directory
-date: 2015-07-06
+date: 2015-10-16
 author:
 - ins: Z. Shelby
   name: Zach Shelby
@@ -669,9 +669,7 @@ An update MAY optionally add or replace links for the endpoint by including
 those links in the payload of the update as a CoRE Link Format
 document. Including links in an update message greatly increases the load on
 an RD and SHOULD be done infrequently. A link is replaced only if both the
-target URI and relation type match (see {{endpoint_identification}}).<!--
-TODO: explain how a patch format, probably not RFC7386, could be used to
-delete, replace, and add entries.)  -->
+target URI and relation type match (see {{endpoint_identification}})
 
 The update request interface is specified as follows:
 
@@ -832,12 +830,14 @@ Method:
 : GET
 
 URI Template:
-: /{+location}{?rt,if,ct}
+: /{+location}{?href,rel,rt,if,ct}
 
 URI Template Variables:
 : location :=
   : This is the Location path returned by the RD as a result of a successful
     earlier registration.
+
+: href,rel,rt,if,ct := link relations and attributes specified in the query in order to select particular links based on their relations and attributes. "href" denotes the URI target of the link.
 
 The following responses codes are defined for this interface:
 
@@ -875,6 +875,122 @@ Res: 2.01 Content
 Payload:
 </sensors/temp>;ct=41;rt="temperature-c";if="sensor",
 </sensors/light>;ct=41;rt="light-lux";if="sensor"
+~~~~
+{: align="left"}
+
+
+## Update Endpoint Links {#link-up}
+
+A PATCH update adds, removes or changes links for the endpoint by including link update information in the payload of the update as a merge-patch+json format {{RFC7396}}
+document. 
+
+One or more links are selected for update by supplying query parameters as in the Read Endpoint Links interface.
+
+The update request interface is specified as follows:
+
+Interaction:
+: EP -> RD
+
+Method:
+: PATCH
+
+URI Template:
+: /{+location}{?href,rel,rt,if,ct}
+
+URI Template Variables:
+: location :=
+  : This is the Location path returned by the RD as a result of a successful
+    earlier registration.
+
+: href,rel,rt,if,ct := link relations and attributes specified in the query in order to select particular links based on their relations and attributes. "href" denotes the URI target of the link.
+
+Content-Format:
+: application/merge-patch+json (mandatory)
+
+The following response codes are defined for this interface:
+
+Success:
+: 2.04 "Changed" 0r 204 "No Content" in the update was successfully processed.
+
+Failure:
+: 4.00 "Bad Request" or 400 "Bad Request". Malformed request.
+
+Failure:
+: 4.04 "Not Found" or 404 "Not Found". Registration resource does not exist (e.g. may have expired).
+
+Failure:
+: 5.03 "Service Unavailable" or 503 "Service Unavailable". Service could not perform the operation.
+
+
+The following example shows an endpoint adding </sensors/humid>, modifying </sensors/temp>, and removing </sensors/light> links in RD using this interface.
+
+
+Add </sensors/humid>;ct=41;rt="humidity-s";if="sensor"
+
+~~~~
+     EP                                                RD
+     |                                                 |
+     | --- PATCH /rd/4521--------------------------->  |
+     |                                                 |
+     |                                                 |
+     | <-- 2.04 Changed  ----------------------------  |
+     |                                                 |
+~~~~
+{: align="left"}
+
+~~~~
+Req: PATCH /rd/4521
+
+Payload: [{"href":"/sensors/humid","ct": 41, "rt": "humidity-s", "if": "sensor"}]
+
+Res: 2.04 Changed
+~~~~
+{: align="left"}
+
+
+Modify </sensors/temp>;rt="temperature"
+to: </sensors/temp>;rt="temperature-c";if="sensor"
+
+~~~~
+     EP                                                RD
+     |                                                 |
+     | --- PATCH /rd/4521?href="/sensors/temp"  ---->  |
+     |                                                 |
+     |                                                 |
+     | <-- 2.04 Changed  ----------------------------  |
+     |                                                 |
+~~~~
+{: align="left"}
+
+~~~~
+Req: PATCH /rd/4521?href="/sensors/temp"
+
+Payload: {"rt": "temperature-c", "if": "sensor"},
+
+Res: 2.04 Changed
+~~~~
+{: align="left"}
+
+
+Remove </sensors/light>
+
+~~~~
+     EP                                                RD
+     |                                                 |
+     | --- PATCH /rd/4521?href="/sensors/light"  ---->  |
+     |                                                 |
+     |                                                 |
+     | <-- 2.04 Changed  ----------------------------  |
+     |                                                 |
+~~~~
+{: align="left"}
+
+~~~~
+Req: PATCH /rd/4521?href="/sensors/light"
+
+Payload: {null}
+
+Res: 2.04 Changed
 ~~~~
 {: align="left"}
 
