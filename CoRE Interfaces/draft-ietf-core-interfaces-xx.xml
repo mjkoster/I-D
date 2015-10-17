@@ -47,7 +47,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="info" ipr="trust200902" docName="draft-ietf-core-interfaces-02">
+<rfc category="info" ipr="trust200902" docName="draft-ietf-core-interfaces-03">
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 
@@ -89,6 +89,22 @@
             </postal>
             <phone>+33 (0)47657 6522</phone>
             <email>matthieu.vial@schneider-electric.com</email>
+          </address>
+        </author>
+
+        <author initials="M" surname="Koster" fullname="Michael Koster">
+          <organization>
+             ARM
+          </organization>
+          <address>
+            <postal>
+             <street>150 Rose Orchard</street>
+             <city>San Jose</city>
+             <code>95134</code>
+             <country>FINLAND</country>
+            </postal>
+            <phone>	</phone>
+            <email>michael.koster@arm.com</email>
           </address>
         </author>
 
@@ -203,7 +219,7 @@
 
       <section anchor="data-type" title="Data type">
       
-        <t>The Data Type field defines the type of value (and possible range) that is returned in response to a GET for that resource or accepted with a PUT. The interfaces defined in <xref target="interfaces"/> make use of plain text and SenML Media types for the actual format of this data. A profile may restrict the list of supported content types for the CoRE interfaces or define new interfaces with new content types.
+        <t>The Data Type field defines the type of value (and possible range) that is returned in response to a GET for that resource or accepted with a PUT. The interfaces defined in <xref target="interfaces"/> make use of plain text and SenML Media types for the actual format of this data. A profile may restrict the list of supported content formats for the CoRE interfaces or define new interfaces with new content types.
         </t>
         
       </section>
@@ -342,21 +358,21 @@
 
 Req: GET /.well-known/core
 Res: 2.05 Content (application/link-format)
-</s>;rt="simple.sen";if="core.b",
+</s/>;rt="simple.sen";if="core.b",
 </s/lt>;rt="simple.sen.lt";if="core.s",
 </s/tmp>;rt="simple.sen.tmp";if="core.s";obs,
 </s/hum>;rt="simple.sen.hum";if="core.s",
-</a>;rt="simple.act";if="core.b",
+</a/>;rt="simple.act";if="core.b",
 </a/1/led>;rt="simple.act.led";if="core.a",
 </a/2/led>;rt="simple.act.led";if="core.a",
-</d>;rt="simple.dev";if="core.ll",
-</l>;if="core.lb",
+</d/>;rt="simple.dev";if="core.ll",
+</l/>;if="core.lb",
     ]]></artwork>
     </figure>
  
     <section anchor="link-list" title="Link List">
       
-      <t>The Link List interface is used to retrieve (GET) a list of resources on a web server. The GET request SHOULD contain an Accept option with the application/link-format content type, however if the resource does not support any other form of GET methods the Accept option MAY be elided. The Accept option SHOULD only include the application/link-format content type.
+      <t>The Link List interface is used to retrieve (GET) a list of resources on a web server. The GET request SHOULD contain an Accept option with the application/link-format content format; however if the resource does not support any other form of GET methods the Accept option MAY be elided. The Accept option SHOULD only include the application/link-format content format.
 
 <!-- This use of Accept is not very clear, should probably explain this is due to this interface type being extended by Batch and Linked Batch later -->
 
@@ -371,7 +387,7 @@ Res: 2.05 Content (application/link-format)
   <figure>
     <artwork align="left"><![CDATA[
 
-Req: GET /d (Accept:application/link-format)
+Req: GET /d/ (Accept:application/link-format)
 Res: 2.05 Content (application/link-format)
 </d/name>;rt="simple.dev.n";if="core.p",
 </d/model>;rt="simple.dev.mdl";if="core.rp"
@@ -383,19 +399,19 @@ Res: 2.05 Content (application/link-format)
  
     <section anchor="batch" title="Batch">
     
-    <t>The Batch interface is used to manipulate a collection of sub-resources at the same time. The Batch interface type supports the same methods as its sub-resources, and can be used to read (GET), set (PUT) or toggle (POST) the values of those sub-resource with a single resource representation. The sub-resources of a Batch MAY be heterogeneous, a method used on the Batch only applies to sub-resources that support it. For example Sensor interfaces do not support PUT, and thus a PUT request to a Sensor member of that Batch would be ignored. A batch requires the use of SenML Media types in order to support multiple sub-resources. </t>
+    <t>The Batch interface is used to manipulate a collection of sub-resources at the same time. The Batch interface type supports the same methods as its sub-resources, and can be used to read (GET), update (PUT) or apply (POST) the values of those sub-resource with a single resource representation. The sub-resources of a Batch MAY be heterogeneous, a method used on the Batch only applies to sub-resources that support it. For example Sensor interfaces do not support PUT, and thus a PUT request to a Sensor member of that Batch would be ignored. A batch requires the use of SenML Media types in order to support multiple sub-resources. </t>
     
     <t>In addition, The Batch interface is an extension of the Link List interface and in consequence MUST support the same methods.
     </t>
 
 <!-- Should probably explain that this means doing a GET with an Accept:application/link-format will return the sub-resource links -->    
     
-    <t>The following example interacts with a Batch /s with Sensor sub-resources /s/light, /s/temp and /s/humidity. </t>
+    <t>The following example interacts with a Batch /s/ with Sensor sub-resources /s/light, /s/temp and /s/humidity. </t>
     
   <figure>
     <artwork align="left"><![CDATA[
 
-Req: GET /s
+Req: GET /s/
 Res: 2.05 Content (application/senml+json)
 {"e":[
     { "n": "light", "v": 123, "u": "lx" },
@@ -410,33 +426,33 @@ Res: 2.05 Content (application/senml+json)
 
     <section anchor="linked-batch" title="Linked Batch">
     
-    <t>The Linked Batch interface is an extension of the Batch interface. Contrary to the basic Batch which is a collection statically defined by the web server, a Linked Batch is dynamically controlled by a web client. A Linked Batch resource has no sub-resources. Instead the resources forming the batch are referenced using Web Linking <xref target="RFC5988"/> and the CoRE Link Format <xref target="RFC6690"/>. A request with a POST method and a content type of application/link-format simply appends new resources to the collection. The links in the payload MUST reference a resource on the web server with an absolute path. A DELETE request empties the current collection of links. All other requests available for a basic Batch are still valid for a Linked Batch.</t>
+    <t>The Linked Batch interface is an extension of the Batch interface. Contrary to the basic Batch which is a collection statically defined by the web server, a Linked Batch is dynamically controlled by a web client. A Linked Batch resource has no sub-resources. Instead the resources forming the batch are referenced using Web Linking <xref target="RFC5988"/> and the CoRE Link Format <xref target="RFC6690"/>. A request with a POST method and a content format of application/link-format simply appends new resource links to the collection. The links in the payload MUST reference a resource on the web server with an absolute path. A DELETE request empties the current collection of links. All other requests available for a basic Batch are still valid for a Linked Batch.</t>
     
-    <t>The following example interacts with a Linked Batch /l and creates a collection containing /s/light, /s/temp and /s/humidity in 2 steps. </t>
+    <t>The following example interacts with a Linked Batch /l/ and creates a collection containing /s/light, /s/temp and /s/humidity in 2 steps. </t>
     
   <figure>
     <artwork align="left"><![CDATA[
 
-Req: POST /l (Content-type: application/link-format)
+Req: POST /l/ (Content-Format: application/link-format)
 </s/light>,</s/temp>
 Res: 2.04 Changed 
 
-Req: GET /l
+Req: GET /l/
 Res: 2.05 Content (application/senml+json)
 {"e":[
    { "n": "/s/light", "v": 123, "u": "lx" },
    { "n": "/s/temp", "v": 27.2, "u": "degC" },
 }
 
-Req: POST /l (Content-type: application/link-format)
+Req: POST /l/ (Content-Format: application/link-format)
 </s/humidity>
 Res: 2.04 Changed 
 
-Req: GET /l (Accept: application/link-format)
+Req: GET /l/ (Accept: application/link-format)
 Res: 2.05 Content (application/link-format)
 </s/light>,</s/temp>,</s/humidity>
 
-Req: GET /l
+Req: GET /l/
 Res: 2.05 Content (application/senml+json)
 {"e":[
    { "n": "/s/light", "v": 123, "u": "lx" },
@@ -444,7 +460,7 @@ Res: 2.05 Content (application/senml+json)
    { "n": "/s/humidity", "v": 80, "u": "%RH" }],
 }
 
-Req: DELETE /l
+Req: DELETE /l/
 Res: 2.04 Changed
 
     ]]></artwork>
@@ -478,9 +494,9 @@ Res: 2.05 Content (application/senml+json)
 
     <section anchor="parameter" title="Parameter">
     
-    <t>The Parameter interface allows configurable parameters and other information to be modeled as a resource. The value of the parameter can be read (GET) or set (PUT). Plain text or SenML Media types MAY be returned from this type of interface.</t>
+    <t>The Parameter interface allows configurable parameters and other information to be modeled as a resource. The value of the parameter can be read (GET) or update (PUT). Plain text or SenML Media types MAY be returned from this type of interface.</t>
 
-    <t>The following example shows request for reading and setting a parameter.</t>
+    <t>The following example shows request for reading and updating a parameter.</t>
 
   <figure>
     <artwork align="left"><![CDATA[
@@ -500,7 +516,7 @@ Res: 2.04 Changed
 
     <section anchor="readonly-parameter" title="Read-only Parameter">
     
-    <t>The Read-only Parameter interface allows configuration parameters to be read (GET) but not set. Plain text or SenML Media types MAY be returned from this type of interface.</t>
+    <t>The Read-only Parameter interface allows configuration parameters to be read (GET) but not updated. Plain text or SenML Media types MAY be returned from this type of interface.</t>
 
     <t>The following example shows request for reading such a parameter.</t>
 
@@ -519,7 +535,7 @@ SuperNode200
 
     <section anchor="actuator" title="Actuator">
     
-    <t>The Actuator interface is used by resources that model different kinds of actuators (changing its value has an effect on its environment). Examples of actuators include for example LEDs, relays, motor controllers and light dimmers. The current value of the actuator can be read (GET) or a new actuator value set (PUT). In addition, this interface defines the use of POST (with no body) to toggle an actuator between its possible values. Plain text or SenML Media types MAY be returned from this type of interface. A resource with this interface MAY use SenML to include multiple measurements in the same representation, for example a list of recent actuator values or a list of values to set.</t>
+    <t>The Actuator interface is used by resources that model different kinds of actuators (changing its value has an effect on its environment). Examples of actuators include for example LEDs, relays, motor controllers and light dimmers. The current value of the actuator can be read (GET) or the actuator value can be updated (PUT). In addition, this interface allows the use of POST to change the state of an actuator, for example to toggle between its possible values. Plain text or SenML Media types MAY be returned from this type of interface. A resource with this interface MAY use SenML to include multiple measurements in the same representation, for example a list of recent actuator values or a list of values to updated.</t>
  
     <t>The following example shows requests for reading, setting and toggling an actuator (turning on a led).</t>
 
@@ -548,24 +564,24 @@ Res: 2.05 Content (text/plain)
 
     <section anchor="binding_interface" title="Binding">
     
-    <t>The Binding interface is used to manipulate a binding table. A request with a POST method and a content type of application/link-format simply appends new bindings to the table. All links in the payload MUST have a relation type &quot;boundTo&quot;. A GET request simply returns the current state of a binding table whereas a DELETE request empties the table.</t>
+    <t>The Binding interface is used to manipulate a binding table. A request with a POST method and a content format of application/link-format simply appends new bindings to the table. All links in the payload MUST have a relation type &quot;boundTo&quot;. A GET request simply returns the current state of a binding table whereas a DELETE request empties the table.</t>
  
     <t>The following example shows requests for adding, retrieving and deleting bindings in a binding table.</t>
 
   <figure>
     <artwork align="left"><![CDATA[
 
-Req: POST /bnd (Content-type: application/link-format)
+Req: POST /bnd/ (Content-Format: application/link-format)
 <coap://sensor.example.com/s/light>;
   rel="boundto";anchor="/a/light";bind="obs";pmin="10";pmax="60"
 Res: 2.04 Changed 
 
-Req: GET /bnd
+Req: GET /bnd/
 Res: 2.05 Content (application/link-format)
 <coap://sensor.example.com/s/light>;
   rel="boundto";anchor="/a/light";bind="obs";pmin="10";pmax="60"
 
-Req: DELETE /bnd
+Req: DELETE /bnd/
 Res: 2.04 Changed
 
     ]]></artwork>
@@ -577,7 +593,7 @@ Res: 2.04 Changed
     
       <t>When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism <xref target="I-D.ietf-core-observe"/> MAY be used to observe any changes in a resource, and receive asynchronous notifications as a result. In addition, a set of query string parameters are defined here to allow a client to control how often a client is interested in receiving notifications and how much a resource value should change for the new representation to be interesting. These query parameters are described in the following table. A resource using an interface description defined in this specification and marked as Observable in its link description SHOULD support these observation parameters. The Change Step parameter can only be supported on resources with an atomic numeric value.
       </t>
-      <t>These query parameters MUST be treated as resources that are read using GET and set using PUT, and MUST NOT be included in the Observe request. Multiple parameters MAY be set at the same time by including the values in the query string of a PUT. Before being set, these parameters have no default value.
+      <t>These query parameters MUST be treated as resources that are read using GET and updated using PUT, and MUST NOT be included in the Observe request. Multiple parameters MAY be updated at the same time by including the values in the query string of a PUT. Before being updated, these parameters have no default value.
       </t>
       
     <texttable>
@@ -672,7 +688,7 @@ Res: 2.04 Changed
     <method href="#getattr"/>
     <method href="#setattr"/>
     <method href="#update"/>
-    <method href="#toggle"/>
+    <method href="#apply"/>
   </resource_type>
 
   <resource_type id="ll">
@@ -682,7 +698,7 @@ Res: 2.04 Changed
 
   <resource_type id="b">
     <doc title="Batch of sub-resources type">The methods read, 
-     observe, update and toggle are applied to each sub-
+     observe, update and apply are applied to each sub-
      resource of the requested resource that supports it. Mixed 
      sub-resource types can be supported.</doc>
     <method href="#read"/>
@@ -691,13 +707,13 @@ Res: 2.04 Changed
     <method href="#getattr"/>
     <method href="#setattr"/>
     <method href="#update"/>
-    <method href="#toggle"/>
+    <method href="#apply"/>
     <method href="#listLinks"/>
   </resource_type>
 
   <resource_type id="lb">
     <doc title="Linked Batch resource type">. The methods read, 
-     obervableRead, update and toggle are applied to each linked 
+     obervableRead, update and apply are applied to each linked 
      resource of the requested resource that supports it. Mixed 
      linked resource types can be supported.</doc>
     <method href="#read"/>
@@ -732,7 +748,8 @@ Res: 2.04 Changed
     </response>
     <response status="2.05">
       <representation mediaType="text/plain"/>
-      <representation mediaType="application/senml+exi"/>
+    
+  <representation mediaType="application/senml+exi"/>
       <representation mediaType="application/senml+xml"/>
       <representation mediaType="application/senml+json"/>
     </response>
@@ -819,12 +836,11 @@ Res: 2.04 Changed
     </response>
   </method>
 
-  <method id="toggle" name="POST">
-    <doc>Toggle the values of actuator resources. Both HTTP and CoAP 
+  <method id="apply" name="POST">
+    <doc>Apply the value, if supplied, to resources. Both HTTP and CoAP 
     support this method.</doc>
     <request>
-      <doc>The toggle function is only applicable if the request 
-      is empty.</doc>
+      <doc>The apply function may contain a payload to be applied.</doc>
     </request>
     <response status="200"/>
     <response status="2.04"/>
