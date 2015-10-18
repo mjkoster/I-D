@@ -62,6 +62,7 @@ normative:
   RFC6335:
   RFC6570:
   RFC6763:
+  RFC7396:
   I-D.ietf-core-links-json:
 informative:
   RFC7252:

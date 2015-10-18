@@ -15,7 +15,7 @@
 <?rfc subcompact="no"?>
 <?rfc iprnotified="no"?>
 
-<rfc ipr="trust200902" docName="draft-ietf-core-resource-directory-04" category="std">
+<rfc ipr="trust200902" docName="draft-ietf-core-resource-directory-05" category="std">
 
   <front>
     <title>CoRE Resource Directory</title>
@@ -68,7 +68,7 @@
       </address>
     </author>
 
-    <date year="2015" month="July" day="06"/>
+    <date year="2015" month="October" day="16"/>
 
     <area>Internet</area>
     <workgroup>CoRE</workgroup>
@@ -440,6 +440,8 @@ resource of the RD. When performing multicast discovery, the multicast IP
 address used will depend on the scope required and the multicast capabilities
 of the network.</t>
 
+<t>HTTP does not support multicast and consequently discovery has no HTTP interface.</t>
+
 <t>An RD implementation of this specification MUST support query filtering for
 the rt parameter as defined in <xref target="RFC6690"/>.</t>
 
@@ -471,16 +473,18 @@ the rt parameter as defined in <xref target="RFC6690"/>.</t>
 
 <t><list style="hanging">
   <t hangText='Success:'>
-  2.05 “Content” or 200 “OK” with an
+  2.05 “Content” with an
 application/link-format, application/link-format+json, or application/link-format+cbor payload containing one or more matching entries for the RD resource.</t>
   <t hangText='Failure:'>
-  4.04 “Not Found” or 404 “Not Found” is returned in case no matching entry is found for a unicast
+  4.04 “Not Found” is returned in case no matching entry is found for a unicast
 request.</t>
   <t hangText='Failure:'>
-  4.00 “Bad Request” or 400 “Bad Request” is returned in case of a malformed request for a unicast
+  4.00 “Bad Request” is returned in case of a malformed request for a unicast
 request.</t>
   <t hangText='Failure:'>
   No error response to a multicast request.</t>
+  <t hangText='HTTP support :'>
+  NO</t>
 </list></t>
 
 <t>The following example shows an endpoint discovering an RD using this interface,
@@ -594,6 +598,8 @@ methods.</t>
   4.00 “Bad Request” or 400 “Bad Request”. Malformed request.</t>
   <t hangText='Failure:'>
   5.03 “Service Unavailable” or 503 “Service Unavailable”. Service could not perform the operation.</t>
+  <t hangText='HTTP support:'>
+  YES</t>
 </list></t>
 
 <t>The following example shows an endpoint with the name “node1” registering
@@ -612,11 +618,24 @@ is just an example of an RD generated location.</t>
 
 <figure align="left"><artwork><![CDATA[
 Req: POST coap://rd.example.com/rd?ep=node1
+Content-Format: 40
 Payload:
 </sensors/temp>;ct=41;rt="temperature-c";if="sensor",
 </sensors/light>;ct=41;rt="light-lux";if="sensor"
 
 Res: 2.01 Created
+Location: /rd/4521
+]]></artwork></figure>
+
+<figure align="left"><artwork><![CDATA[
+Req: POST /rd?ep=node1 HTTP/1.1
+Host : example.com
+Content-Type: application/link-format
+Payload:
+</sensors/temp>;ct=41;rt="temperature-c";if="sensor",
+</sensors/light>;ct=41;rt="light-lux";if="sensor"
+
+Res: 201 Created
 Location: /rd/4521
 ]]></artwork></figure>
 
@@ -637,9 +656,7 @@ the source address of the update, or the context parameter if present).</t>
 those links in the payload of the update as a CoRE Link Format
 document. Including links in an update message greatly increases the load on
 an RD and SHOULD be done infrequently. A link is replaced only if both the
-target URI and relation type match (see <xref target="endpoint_identification"/>).<!--
-TODO: explain how a patch format, probably not RFC7386, could be used to
-delete, replace, and add entries.)  --></t>
+target URI and relation type match (see <xref target="endpoint_identification"/>)</t>
 
 <t>The update request interface is specified as follows:</t>
 
@@ -680,13 +697,15 @@ third party such as an installation tool.</t>
 
 <t><list style="hanging">
   <t hangText='Success:'>
-  2.04 “Changed” 0r 204 “No Content” in the update was successfully processed.</t>
+  2.04 “Changed” or 204 “No Content” in the update was successfully processed.</t>
   <t hangText='Failure:'>
   4.00 “Bad Request” or 400 “Bad Request”. Malformed request.</t>
   <t hangText='Failure:'>
   4.04 “Not Found” or 404 “Not Found”. Registration does not exist (e.g. may have expired).</t>
   <t hangText='Failure:'>
   5.03 “Service Unavailable” or 503 “Service Unavailable”. Service could not perform the operation.</t>
+  <t hangText='HTTP support:'>
+  YES</t>
 </list></t>
 
 <t>The following example shows an endpoint updating its registration at
@@ -746,6 +765,8 @@ earlier registration.</t>
   4.04 “Not Found” or 404 “Not Found”. Registration does not exist (e.g. may have expired).</t>
   <t hangText='Failure:'>
   5.03 “Service Unavailable” or 503 “Service Unavailable”. Service could not perform the operation.</t>
+  <t hangText='HTTP support:'>
+  YES</t>
 </list></t>
 
 <t>The following examples shows successful removal of the endpoint from the RD.</t>
@@ -771,6 +792,8 @@ Res: 2.02 Deleted
 
 <t>Some endpoints may wish to manage their links as a collection, and may need to read the current set of links in order to determine link maintenance operations.</t>
 
+<t>One or more links MAY be selected by using query filtering as specified in <xref target="RFC6690"/> Section 4.1</t>
+
 <t>The read request interface is specified as follows:</t>
 
 <t><list style="hanging">
@@ -779,7 +802,7 @@ Res: 2.02 Deleted
   <t hangText='Method:'>
   GET</t>
   <t hangText='URI Template:'>
-  /{+location}{?rt,if,ct}</t>
+  /{+location}{?href,rel,rt,if,ct}</t>
   <t hangText='URI Template Variables:'>
         <list style="hanging">
         <t hangText='location :='>
@@ -787,6 +810,7 @@ Res: 2.02 Deleted
 earlier registration.</t>
       </list>
   </t>
+  <t>href,rel,rt,if,ct := link relations and attributes specified in the query in order to select particular links based on their relations and attributes. “href” denotes the URI target of the link. See <xref target="RFC6690"/> Sec. 4.1</t>
 </list></t>
 
 <t>The following responses codes are defined for this interface:</t>
@@ -821,6 +845,111 @@ Res: 2.01 Content
 Payload:
 </sensors/temp>;ct=41;rt="temperature-c";if="sensor",
 </sensors/light>;ct=41;rt="light-lux";if="sensor"
+]]></artwork></figure>
+
+</section>
+<section anchor="link-up" title="Update Endpoint Links">
+
+<t>A PATCH update adds, removes or changes links for the endpoint by including link update information in the payload of the update as a merge-patch+json format <xref target="RFC7396"/>
+document.</t>
+
+<t>One or more links are selected for update by using query filtering as specified in <xref target="RFC6690"/> Section 4.1</t>
+
+<t>The update request interface is specified as follows:</t>
+
+<t><list style="hanging">
+  <t hangText='Interaction:'>
+  EP -&gt; RD</t>
+  <t hangText='Method:'>
+  PATCH</t>
+  <t hangText='URI Template:'>
+  /{+location}{?href,rel,rt,if,ct}</t>
+  <t hangText='URI Template Variables:'>
+        <list style="hanging">
+        <t hangText='location :='>
+        This is the Location path returned by the RD as a result of a successful
+earlier registration.</t>
+      </list>
+  </t>
+  <t>href,rel,rt,if,ct := link relations and attributes specified in the query in order to select particular links based on their relations and attributes. “href” denotes the URI target of the link. See <xref target="RFC6690"/> Sec. 4.1</t>
+  <t hangText='Content-Format:'>
+  application/merge-patch+json (mandatory)</t>
+</list></t>
+
+<t>The following response codes are defined for this interface:</t>
+
+<t><list style="hanging">
+  <t hangText='Success:'>
+  2.04 “Changed” 0r 204 “No Content” in the update was successfully processed.</t>
+  <t hangText='Failure:'>
+  4.00 “Bad Request” or 400 “Bad Request”. Malformed request.</t>
+  <t hangText='Failure:'>
+  4.04 “Not Found” or 404 “Not Found”. Registration resource does not exist (e.g. may have expired).</t>
+  <t hangText='Failure:'>
+  5.03 “Service Unavailable” or 503 “Service Unavailable”. Service could not perform the operation.</t>
+</list></t>
+
+<t>The following example shows an endpoint adding &lt;/sensors/humid&gt;, modifying &lt;/sensors/temp&gt;, and removing &lt;/sensors/light&gt; links in RD using this interface.</t>
+
+<t>Add &lt;/sensors/humid&gt;;ct=41;rt=”humidity-s”;if=”sensor”</t>
+
+<figure align="left"><artwork><![CDATA[
+     EP                                                RD
+     |                                                 |
+     | --- PATCH /rd/4521--------------------------->  |
+     |                                                 |
+     |                                                 |
+     | <-- 2.04 Changed  ----------------------------  |
+     |                                                 |
+]]></artwork></figure>
+
+<figure align="left"><artwork><![CDATA[
+Req: PATCH /rd/4521
+
+Payload: [{"href":"/sensors/humid","ct": 41, "rt": "humidity-s", "if": "sensor"}]
+
+Res: 2.04 Changed
+]]></artwork></figure>
+
+<t>Modify &lt;/sensors/temp&gt;;rt=”temperature”
+to: &lt;/sensors/temp&gt;;rt=”temperature-c”;if=”sensor”</t>
+
+<figure align="left"><artwork><![CDATA[
+     EP                                                RD
+     |                                                 |
+     | --- PATCH /rd/4521?href="/sensors/temp"  ---->  |
+     |                                                 |
+     |                                                 |
+     | <-- 2.04 Changed  ----------------------------  |
+     |                                                 |
+]]></artwork></figure>
+
+<figure align="left"><artwork><![CDATA[
+Req: PATCH /rd/4521?href="/sensors/temp"
+
+Payload: {"rt": "temperature-c", "if": "sensor"},
+
+Res: 2.04 Changed
+]]></artwork></figure>
+
+<t>Remove &lt;/sensors/light&gt;</t>
+
+<figure align="left"><artwork><![CDATA[
+     EP                                                RD
+     |                                                 |
+     | --- PATCH /rd/4521?href="/sensors/light"  ---->  |
+     |                                                 |
+     |                                                 |
+     | <-- 2.04 Changed  ----------------------------  |
+     |                                                 |
+]]></artwork></figure>
+
+<figure align="left"><artwork><![CDATA[
+Req: PATCH /rd/4521?href="/sensors/light"
+
+Payload: {null}
+
+Res: 2.04 Changed
 ]]></artwork></figure>
 
 </section>
@@ -900,6 +1029,8 @@ is used for delete operations on this registration.</t>
   4.00 “Bad Request” or 400 “Bad Request”. Malformed request.</t>
   <t hangText='Failure:'>
   5.03 “Service Unavailable” or 503 “Service Unavailable”. Service could not perform the operation.</t>
+  <t hangText='HTTP support:'>
+  YES</t>
 </list></t>
 
 <t>The following example shows an EP registering a group with the name “lights” which has two endpoints to an RD using this interface. The resulting location /rd-group/12
@@ -922,6 +1053,18 @@ Payload:
 <>;ep="node2"
 
 Res: 2.01 Created
+Location: /rd-group/12
+]]></artwork></figure>
+
+<figure align="left"><artwork><![CDATA[
+Req: POST /rd-group?gp=lights HTTP/1.1
+Host: example.com
+Accept: application/link-format
+Payload:
+<>;ep="node1",
+<>;ep="node2"
+
+Res: 201 Created
 Location: /rd-group/12
 ]]></artwork></figure>
 
@@ -961,6 +1104,8 @@ group registration.</t>
   4.04 “Not Found” or 404 “Not Found”. Group does not exist.</t>
   <t hangText='Failure:'>
   5.03 “Service Unavailable” or 503 “Service Unavailable”. Service could not perform the operation.</t>
+  <t hangText='HTTP support:'>
+  YES</t>
 </list></t>
 
 <t>The following examples shows successful removal of the group from the RD.</t>
@@ -1060,9 +1205,12 @@ value SHOULD be used.</t>
   4.00 “Bad Request” or 400 “Bad Request”. Malformed request.</t>
   <t hangText='Failure:'>
   5.03 “Service Unavailable” or 503 “Service Unavailable”. Service could not perform the operation.</t>
+  <t hangText='HTTP support:'>
+  YES</t>
 </list></t>
 
-<t>The examples in this section assume a host with IP address FDFD::123 and a default CoAP port 61616. The following example shows a client performing a resource lookup:</t>
+<t>The examples in this section assume a CoAP host with IP address FDFD::123 and a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.
+The following example shows a client performing a resource lookup:</t>
 
 <figure align="left"><artwork><![CDATA[
    Client                                                          RD
@@ -1557,7 +1705,7 @@ as described in <xref target="RFC5226"/>.</t>
 <section anchor="lt-ex" title="Lighting Installation">
 
 <t>This example shows a simplified lighting installation which makes use of
-the Resource Directory (RD) to facilitate the installation and start up of
+the Resource Directory (RD) with a CoAP interface to facilitate the installation and start up of
 the application code in the lights and sensors. In particular, the example
 leads to the definition of a group and the enabling of the corresponding
 multicast address. No conclusions must be drawn on the realization of actual
@@ -2134,6 +2282,15 @@ originally developed.</t>
 
 </section>
 <section anchor="changelog" title="Changelog">
+
+<t>changes from -04 to -05</t>
+
+<t><list style="symbols">
+  <t>added Update Endpoint Links using PATCH</t>
+  <t>http access made explicit in interface specification</t>
+  <t>Added http examples</t>
+</list></t>
+
 <t>Changes from -03 to -04:</t>
 
 <t><list style="symbols">
@@ -2234,261 +2391,165 @@ originally developed.</t>
 
 
 
-<reference anchor='RFC6690'>
-
+<reference  anchor='RFC6690' target='http://www.rfc-editor.org/info/rfc6690'>
 <front>
 <title>Constrained RESTful Environments (CoRE) Link Format</title>
-<author initials='Z.' surname='Shelby' fullname='Z. Shelby'>
-<organization /></author>
+<author initials='Z.' surname='Shelby' fullname='Z. Shelby'><organization /></author>
 <date year='2012' month='August' />
-<abstract>
-<t>This specification defines Web Linking using a link format for use by constrained web servers to describe hosted resources, their attributes, and other relationships between links.  Based on the HTTP Link Header field defined in RFC 5988, the Constrained RESTful Environments (CoRE) Link Format is carried as a payload and is assigned an Internet media type. "RESTful" refers to the Representational State Transfer (REST) architecture.  A well-known URI is defined as a default entry point for requesting the links hosted by a server. [STANDARDS-TRACK]</t></abstract></front>
-
-<seriesInfo name='RFC' value='6690' />
-<format type='TXT' octets='47720' target='http://www.rfc-editor.org/rfc/rfc6690.txt' />
+<abstract><t>This specification defines Web Linking using a link format for use by constrained web servers to describe hosted resources, their attributes, and other relationships between links.  Based on the HTTP Link Header field defined in RFC 5988, the Constrained RESTful Environments (CoRE) Link Format is carried as a payload and is assigned an Internet media type.  &quot;RESTful&quot; refers to the Representational State Transfer (REST) architecture.  A well-known URI is defined as a default entry point for requesting the links hosted by a server.  [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='RFC' value='6690'/>
+<seriesInfo name='DOI' value='10.17487/RFC6690'/>
 </reference>
 
 
 
-<reference anchor='RFC2119'>
-
+<reference  anchor='RFC2119' target='http://www.rfc-editor.org/info/rfc2119'>
 <front>
-<title abbrev='RFC Key Words'>Key words for use in RFCs to Indicate Requirement Levels</title>
-<author initials='S.' surname='Bradner' fullname='Scott Bradner'>
-<organization>Harvard University</organization>
-<address>
-<postal>
-<street>1350 Mass. Ave.</street>
-<street>Cambridge</street>
-<street>MA 02138</street></postal>
-<phone>- +1 617 495 3864</phone>
-<email>sob@harvard.edu</email></address></author>
+<title>Key words for use in RFCs to Indicate Requirement Levels</title>
+<author initials='S.' surname='Bradner' fullname='S. Bradner'><organization /></author>
 <date year='1997' month='March' />
-<area>General</area>
-<keyword>keyword</keyword>
-<abstract>
-<t>
-   In many standards track documents several words are used to signify
-   the requirements in the specification.  These words are often
-   capitalized.  This document defines these words as they should be
-   interpreted in IETF documents.  Authors who follow these guidelines
-   should incorporate this phrase near the beginning of their document:
-
-<list>
-<t>
-      The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
-      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
-      "OPTIONAL" in this document are to be interpreted as described in
-      RFC 2119.
-</t></list></t>
-<t>
-   Note that the force of these words is modified by the requirement
-   level of the document in which they are used.
-</t></abstract></front>
-
-<seriesInfo name='BCP' value='14' />
-<seriesInfo name='RFC' value='2119' />
-<format type='TXT' octets='4723' target='http://www.rfc-editor.org/rfc/rfc2119.txt' />
-<format type='HTML' octets='17970' target='http://xml.resource.org/public/rfc/html/rfc2119.html' />
-<format type='XML' octets='5777' target='http://xml.resource.org/public/rfc/xml/rfc2119.xml' />
+<abstract><t>In many standards track documents several words are used to signify the requirements in the specification.  These words are often capitalized. This document defines these words as they should be interpreted in IETF documents.  This document specifies an Internet Best Current Practices for the Internet Community, and requests discussion and suggestions for improvements.</t></abstract>
+</front>
+<seriesInfo name='BCP' value='14'/>
+<seriesInfo name='RFC' value='2119'/>
+<seriesInfo name='DOI' value='10.17487/RFC2119'/>
 </reference>
 
 
 
-<reference anchor='RFC3986'>
-
+<reference  anchor='RFC3986' target='http://www.rfc-editor.org/info/rfc3986'>
 <front>
-<title abbrev='URI Generic Syntax'>Uniform Resource Identifier (URI): Generic Syntax</title>
-<author initials='T.' surname='Berners-Lee' fullname='Tim Berners-Lee'>
-<organization abbrev='W3C/MIT'>World Wide Web Consortium</organization>
-<address>
-<postal>
-<street>Massachusetts Institute of Technology</street>
-<street>77 Massachusetts Avenue</street>
-<city>Cambridge</city>
-<region>MA</region>
-<code>02139</code>
-<country>USA</country></postal>
-<phone>+1-617-253-5702</phone>
-<facsimile>+1-617-258-5999</facsimile>
-<email>timbl@w3.org</email>
-<uri>http://www.w3.org/People/Berners-Lee/</uri></address></author>
-<author initials='R.' surname='Fielding' fullname='Roy T. Fielding'>
-<organization abbrev='Day Software'>Day Software</organization>
-<address>
-<postal>
-<street>5251 California Ave., Suite 110</street>
-<city>Irvine</city>
-<region>CA</region>
-<code>92617</code>
-<country>USA</country></postal>
-<phone>+1-949-679-2960</phone>
-<facsimile>+1-949-679-2972</facsimile>
-<email>fielding@gbiv.com</email>
-<uri>http://roy.gbiv.com/</uri></address></author>
-<author initials='L.' surname='Masinter' fullname='Larry Masinter'>
-<organization abbrev='Adobe Systems'>Adobe Systems Incorporated</organization>
-<address>
-<postal>
-<street>345 Park Ave</street>
-<city>San Jose</city>
-<region>CA</region>
-<code>95110</code>
-<country>USA</country></postal>
-<phone>+1-408-536-3024</phone>
-<email>LMM@acm.org</email>
-<uri>http://larry.masinter.net/</uri></address></author>
+<title>Uniform Resource Identifier (URI): Generic Syntax</title>
+<author initials='T.' surname='Berners-Lee' fullname='T. Berners-Lee'><organization /></author>
+<author initials='R.' surname='Fielding' fullname='R. Fielding'><organization /></author>
+<author initials='L.' surname='Masinter' fullname='L. Masinter'><organization /></author>
 <date year='2005' month='January' />
-<area>Applications</area>
-<keyword>uniform resource identifier</keyword>
-<keyword>URI</keyword>
-<keyword>URL</keyword>
-<keyword>URN</keyword>
-<keyword>WWW</keyword>
-<keyword>resource</keyword>
-<abstract>
-<t>
-A Uniform Resource Identifier (URI) is a compact sequence of characters
-that identifies an abstract or physical resource.  This specification
-defines the generic URI syntax and a process for resolving URI references
-that might be in relative form, along with guidelines and security
-considerations for the use of URIs on the Internet.
-The URI syntax defines a grammar that is a superset of all valid URIs,
-allowing an implementation to parse the common components of a URI
-reference without knowing the scheme-specific requirements of every
-possible identifier.  This specification does not define a generative
-grammar for URIs; that task is performed by the individual
-specifications of each URI scheme.
-</t></abstract></front>
-
-<seriesInfo name='STD' value='66' />
-<seriesInfo name='RFC' value='3986' />
-<format type='TXT' octets='141811' target='http://www.rfc-editor.org/rfc/rfc3986.txt' />
-<format type='HTML' octets='214067' target='http://xml.resource.org/public/rfc/html/rfc3986.html' />
-<format type='XML' octets='163534' target='http://xml.resource.org/public/rfc/xml/rfc3986.xml' />
+<abstract><t>A Uniform Resource Identifier (URI) is a compact sequence of characters that identifies an abstract or physical resource.  This specification defines the generic URI syntax and a process for resolving URI references that might be in relative form, along with guidelines and security considerations for the use of URIs on the Internet.  The URI syntax defines a grammar that is a superset of all valid URIs, allowing an implementation to parse the common components of a URI reference without knowing the scheme-specific requirements of every possible identifier.  This specification does not define a generative grammar for URIs; that task is performed by the individual specifications of each URI scheme.  [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='STD' value='66'/>
+<seriesInfo name='RFC' value='3986'/>
+<seriesInfo name='DOI' value='10.17487/RFC3986'/>
 </reference>
 
 
 
-<reference anchor='RFC5226'>
-
+<reference  anchor='RFC5226' target='http://www.rfc-editor.org/info/rfc5226'>
 <front>
 <title>Guidelines for Writing an IANA Considerations Section in RFCs</title>
-<author initials='T.' surname='Narten' fullname='T. Narten'>
-<organization /></author>
-<author initials='H.' surname='Alvestrand' fullname='H. Alvestrand'>
-<organization /></author>
+<author initials='T.' surname='Narten' fullname='T. Narten'><organization /></author>
+<author initials='H.' surname='Alvestrand' fullname='H. Alvestrand'><organization /></author>
 <date year='2008' month='May' />
-<abstract>
-<t>Many protocols make use of identifiers consisting of constants and other well-known values. Even after a protocol has been defined and deployment has begun, new values may need to be assigned (e.g., for a new option type in DHCP, or a new encryption or authentication transform for IPsec). To ensure that such quantities have consistent values and interpretations across all implementations, their assignment must be administered by a central authority. For IETF protocols, that role is provided by the Internet Assigned Numbers Authority (IANA).&lt;/t>&lt;t> In order for IANA to manage a given namespace prudently, it needs guidelines describing the conditions under which new values can be assigned or when modifications to existing values can be made. If IANA is expected to play a role in the management of a namespace, IANA must be given clear and concise instructions describing that role. This document discusses issues that should be considered in formulating a policy for assigning values to a namespace and provides guidelines for authors on the specific text that must be included in documents that place demands on IANA.&lt;/t>&lt;t> This document obsoletes RFC 2434. This document specifies an Internet Best Current Practices for the Internet Community, and requests discussion and suggestions for improvements.</t></abstract></front>
-
-<seriesInfo name='BCP' value='26' />
-<seriesInfo name='RFC' value='5226' />
-<format type='TXT' octets='66160' target='http://www.rfc-editor.org/rfc/rfc5226.txt' />
+<abstract><t>Many protocols make use of identifiers consisting of constants and other well-known values.  Even after a protocol has been defined and deployment has begun, new values may need to be assigned (e.g., for a new option type in DHCP, or a new encryption or authentication transform for IPsec).  To ensure that such quantities have consistent values and interpretations across all implementations, their assignment must be administered by a central authority.  For IETF protocols, that role is provided by the Internet Assigned Numbers Authority (IANA).</t><t>In order for IANA to manage a given namespace prudently, it needs guidelines describing the conditions under which new values can be assigned or when modifications to existing values can be made.  If IANA is expected to play a role in the management of a namespace, IANA must be given clear and concise instructions describing that role.  This document discusses issues that should be considered in formulating a policy for assigning values to a namespace and provides guidelines for authors on the specific text that must be included in documents that place demands on IANA.</t><t>This document obsoletes RFC 2434.  This document specifies an Internet Best  Current Practices for the Internet Community, and requests discussion and  suggestions for improvements.</t></abstract>
+</front>
+<seriesInfo name='BCP' value='26'/>
+<seriesInfo name='RFC' value='5226'/>
+<seriesInfo name='DOI' value='10.17487/RFC5226'/>
 </reference>
 
 
 
-<reference anchor='RFC5988'>
-
+<reference  anchor='RFC5988' target='http://www.rfc-editor.org/info/rfc5988'>
 <front>
 <title>Web Linking</title>
-<author initials='M.' surname='Nottingham' fullname='M. Nottingham'>
-<organization /></author>
+<author initials='M.' surname='Nottingham' fullname='M. Nottingham'><organization /></author>
 <date year='2010' month='October' />
-<abstract>
-<t>This document specifies relation types for Web links, and defines a registry for them.  It also defines the use of such links in HTTP headers with the Link header field. [STANDARDS-TRACK]</t></abstract></front>
-
-<seriesInfo name='RFC' value='5988' />
-<format type='TXT' octets='46834' target='http://www.rfc-editor.org/rfc/rfc5988.txt' />
+<abstract><t>This document specifies relation types for Web links, and defines a registry for them.  It also defines the use of such links in HTTP headers with the Link header field.  [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='RFC' value='5988'/>
+<seriesInfo name='DOI' value='10.17487/RFC5988'/>
 </reference>
 
 
 
-<reference anchor='RFC6335'>
-
+<reference  anchor='RFC6335' target='http://www.rfc-editor.org/info/rfc6335'>
 <front>
 <title>Internet Assigned Numbers Authority (IANA) Procedures for the Management of the Service Name and Transport Protocol Port Number Registry</title>
-<author initials='M.' surname='Cotton' fullname='M. Cotton'>
-<organization /></author>
-<author initials='L.' surname='Eggert' fullname='L. Eggert'>
-<organization /></author>
-<author initials='J.' surname='Touch' fullname='J. Touch'>
-<organization /></author>
-<author initials='M.' surname='Westerlund' fullname='M. Westerlund'>
-<organization /></author>
-<author initials='S.' surname='Cheshire' fullname='S. Cheshire'>
-<organization /></author>
+<author initials='M.' surname='Cotton' fullname='M. Cotton'><organization /></author>
+<author initials='L.' surname='Eggert' fullname='L. Eggert'><organization /></author>
+<author initials='J.' surname='Touch' fullname='J. Touch'><organization /></author>
+<author initials='M.' surname='Westerlund' fullname='M. Westerlund'><organization /></author>
+<author initials='S.' surname='Cheshire' fullname='S. Cheshire'><organization /></author>
 <date year='2011' month='August' />
-<abstract>
-<t>This document defines the procedures that the Internet Assigned Numbers Authority (IANA) uses when handling assignment and other requests related to the Service Name and Transport Protocol Port Number registry. It also discusses the rationale and principles behind these procedures and how they facilitate the long-term sustainability of the registry.&lt;/t>&lt;t> This document updates IANA's procedures by obsoleting the previous UDP and TCP port assignment procedures defined in Sections 8 and 9.1 of the IANA Allocation Guidelines, and it updates the IANA service name and port assignment procedures for UDP-Lite, the Datagram Congestion Control Protocol (DCCP), and the Stream Control Transmission Protocol (SCTP). It also updates the DNS SRV specification to clarify what a service name is and how it is registered. This memo documents an Internet Best Current Practice.</t></abstract></front>
-
-<seriesInfo name='BCP' value='165' />
-<seriesInfo name='RFC' value='6335' />
-<format type='TXT' octets='79088' target='http://www.rfc-editor.org/rfc/rfc6335.txt' />
+<abstract><t>This document defines the procedures that the Internet Assigned Numbers Authority (IANA) uses when handling assignment and other requests related to the Service Name and Transport Protocol Port Number registry.  It also discusses the rationale and principles behind these procedures and how they facilitate the long-term sustainability of the registry.</t><t>This document updates IANA's procedures by obsoleting the previous UDP and TCP port assignment procedures defined in Sections 8 and 9.1 of the IANA Allocation Guidelines, and it updates the IANA service name and port assignment procedures for UDP-Lite, the Datagram Congestion Control Protocol (DCCP), and the Stream Control Transmission Protocol (SCTP).  It also updates the DNS SRV specification to clarify what a service name is and how it is registered.  This memo documents an Internet Best Current Practice.</t></abstract>
+</front>
+<seriesInfo name='BCP' value='165'/>
+<seriesInfo name='RFC' value='6335'/>
+<seriesInfo name='DOI' value='10.17487/RFC6335'/>
 </reference>
 
 
 
-<reference anchor='RFC6570'>
-
+<reference  anchor='RFC6570' target='http://www.rfc-editor.org/info/rfc6570'>
 <front>
 <title>URI Template</title>
-<author initials='J.' surname='Gregorio' fullname='J. Gregorio'>
-<organization /></author>
-<author initials='R.' surname='Fielding' fullname='R. Fielding'>
-<organization /></author>
-<author initials='M.' surname='Hadley' fullname='M. Hadley'>
-<organization /></author>
-<author initials='M.' surname='Nottingham' fullname='M. Nottingham'>
-<organization /></author>
-<author initials='D.' surname='Orchard' fullname='D. Orchard'>
-<organization /></author>
+<author initials='J.' surname='Gregorio' fullname='J. Gregorio'><organization /></author>
+<author initials='R.' surname='Fielding' fullname='R. Fielding'><organization /></author>
+<author initials='M.' surname='Hadley' fullname='M. Hadley'><organization /></author>
+<author initials='M.' surname='Nottingham' fullname='M. Nottingham'><organization /></author>
+<author initials='D.' surname='Orchard' fullname='D. Orchard'><organization /></author>
 <date year='2012' month='March' />
-<abstract>
-<t>A URI Template is a compact sequence of characters for describing a range of Uniform Resource Identifiers through variable expansion.  This specification defines the URI Template syntax and the process for expanding a URI Template into a URI reference, along with guidelines for the use of URI Templates on the Internet. [STANDARDS-TRACK]</t></abstract></front>
-
-<seriesInfo name='RFC' value='6570' />
-<format type='TXT' octets='79813' target='http://www.rfc-editor.org/rfc/rfc6570.txt' />
+<abstract><t>A URI Template is a compact sequence of characters for describing a range of Uniform Resource Identifiers through variable expansion. This specification defines the URI Template syntax and the process for expanding a URI Template into a URI reference, along with guidelines for the use of URI Templates on the Internet.   [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='RFC' value='6570'/>
+<seriesInfo name='DOI' value='10.17487/RFC6570'/>
 </reference>
 
 
 
-<reference anchor='RFC6763'>
-
+<reference  anchor='RFC6763' target='http://www.rfc-editor.org/info/rfc6763'>
 <front>
 <title>DNS-Based Service Discovery</title>
-<author initials='S.' surname='Cheshire' fullname='S. Cheshire'>
-<organization /></author>
-<author initials='M.' surname='Krochmal' fullname='M. Krochmal'>
-<organization /></author>
+<author initials='S.' surname='Cheshire' fullname='S. Cheshire'><organization /></author>
+<author initials='M.' surname='Krochmal' fullname='M. Krochmal'><organization /></author>
 <date year='2013' month='February' />
-<abstract>
-<t>This document specifies how DNS resource records are named and structured to facilitate service discovery.  Given a type of service that a client is looking for, and a domain in which the client is looking for that service, this mechanism allows clients to discover a list of named instances of that desired service, using standard DNS queries.  This mechanism is referred to as DNS-based Service Discovery, or DNS-SD.</t></abstract></front>
+<abstract><t>This document specifies how DNS resource records are named and structured to facilitate service discovery.  Given a type of service that a client is looking for, and a domain in which the client is looking for that service, this mechanism allows clients to discover a list of named instances of that desired service, using standard DNS queries. This mechanism is referred to as DNS-based Service Discovery, or DNS-SD.</t></abstract>
+</front>
+<seriesInfo name='RFC' value='6763'/>
+<seriesInfo name='DOI' value='10.17487/RFC6763'/>
+</reference>
 
-<seriesInfo name='RFC' value='6763' />
-<format type='TXT' octets='125192' target='http://www.rfc-editor.org/rfc/rfc6763.txt' />
+
+
+<reference  anchor='RFC7396' target='http://www.rfc-editor.org/info/rfc7396'>
+<front>
+<title>JSON Merge Patch</title>
+<author initials='P.' surname='Hoffman' fullname='P. Hoffman'><organization /></author>
+<author initials='J.' surname='Snell' fullname='J. Snell'><organization /></author>
+<date year='2014' month='October' />
+<abstract><t>This specification defines the JSON merge patch format and processing rules.  The merge patch format is primarily intended for use with the HTTP PATCH method as a means of describing a set of modifications to a target resource's content.</t></abstract>
+</front>
+<seriesInfo name='RFC' value='7396'/>
+<seriesInfo name='DOI' value='10.17487/RFC7396'/>
 </reference>
 
 
 
 <reference anchor='I-D.ietf-core-links-json'>
 <front>
-<title>Representing CoRE Link Collections in JSON</title>
+<title>Representing CoRE Formats in JSON and CBOR</title>
+
+<author initials='K' surname='Li' fullname='Kepeng Li'>
+    <organization />
+</author>
+
+<author initials='A' surname='Rahman' fullname='Akbar Rahman'>
+    <organization />
+</author>
 
 <author initials='C' surname='Bormann' fullname='Carsten Bormann'>
     <organization />
 </author>
 
-<date month='July' day='4' year='2014' />
+<date month='July' day='6' year='2015' />
 
-<abstract><t>Web Linking (RFC5988) provides a way to represent links between Web resources as well as the relations expressed by them and attributes of such a link.  In constrained networks, a collection of Web links can be exchanged in the CoRE link format (RFC6690).  Outside of constrained environments, it may be useful to represent these collections of Web links in JSON format (RFC7159).  This specification defines a common format for representing Web links in JSON format.</t></abstract>
+<abstract><t>JavaScript Object Notation, JSON (RFC7159) is a text-based data format which is popular for Web based data exchange.  Concise Binary Object Representation, CBOR (RFC7049) is a binary data format which has been optimized for data exchange for the Internet of Things (IoT).  For many IoT scenarios, CBOR formats will be preferred since it can help decrease transmission payload sizes as well as implementation code sizes compared to other data formats.  Web Linking (RFC5988) provides a way to represent links between Web resources as well as the relations expressed by them and attributes of such a link.  In constrained networks, a collection of Web links can be exchanged in the CoRE link format (RFC6690).  Outside of constrained environments, it may be useful to represent these collections of Web links in JSON, and similarly, inside constrained environments, in CBOR.  This specification defines a common format for this.  Group Communication for the Constrained Application Protocol (RFC7390) defines a number of JSON formats for controlling communication between groups of nodes employing the Constrained Application Protocol (CoAP).  In a similar vein, this specification defines CBOR variants of these formats.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-links-json-02' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-links-json-03' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-links-json-02.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-links-json-03.txt' />
 </reference>
 
 
@@ -2502,154 +2563,117 @@ specifications of each URI scheme.
 
 
 
-<reference anchor='RFC7252'>
-
+<reference  anchor='RFC7252' target='http://www.rfc-editor.org/info/rfc7252'>
 <front>
 <title>The Constrained Application Protocol (CoAP)</title>
-<author initials='Z.' surname='Shelby' fullname='Z. Shelby'>
-<organization /></author>
-<author initials='K.' surname='Hartke' fullname='K. Hartke'>
-<organization /></author>
-<author initials='C.' surname='Bormann' fullname='C. Bormann'>
-<organization /></author>
+<author initials='Z.' surname='Shelby' fullname='Z. Shelby'><organization /></author>
+<author initials='K.' surname='Hartke' fullname='K. Hartke'><organization /></author>
+<author initials='C.' surname='Bormann' fullname='C. Bormann'><organization /></author>
 <date year='2014' month='June' />
-<abstract>
-<t>The Constrained Application Protocol (CoAP) is a specialized web transfer protocol for use with constrained nodes and constrained (e.g., low-power, lossy) networks. The nodes often have 8-bit microcontrollers with small amounts of ROM and RAM, while constrained networks such as IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs) often have high packet error rates and a typical throughput of 10s of kbit/s. The protocol is designed for machine- to-machine (M2M) applications such as smart energy and building automation.&lt;/t>&lt;t> CoAP provides a request/response interaction model between application endpoints, supports built-in discovery of services and resources, and includes key concepts of the Web such as URIs and Internet media types. CoAP is designed to easily interface with HTTP for integration with the Web while meeting specialized requirements such as multicast support, very low overhead, and simplicity for constrained environments.</t></abstract></front>
-
-<seriesInfo name='RFC' value='7252' />
-<format type='TXT' octets='258789' target='http://www.rfc-editor.org/rfc/rfc7252.txt' />
+<abstract><t>The Constrained Application Protocol (CoAP) is a specialized web transfer protocol for use with constrained nodes and constrained (e.g., low-power, lossy) networks.  The nodes often have 8-bit microcontrollers with small amounts of ROM and RAM, while constrained networks such as IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs) often have high packet error rates and a typical throughput of 10s of kbit/s.  The protocol is designed for machine- to-machine (M2M) applications such as smart energy and building automation.</t><t>CoAP provides a request/response interaction model between application endpoints, supports built-in discovery of services and resources, and includes key concepts of the Web such as URIs and Internet media types.  CoAP is designed to easily interface with HTTP for integration with the Web while meeting specialized requirements such as multicast support, very low overhead, and simplicity for constrained environments.</t></abstract>
+</front>
+<seriesInfo name='RFC' value='7252'/>
+<seriesInfo name='DOI' value='10.17487/RFC7252'/>
 </reference>
 
 
 
-<reference anchor='RFC7390'>
-
+<reference  anchor='RFC7390' target='http://www.rfc-editor.org/info/rfc7390'>
 <front>
 <title>Group Communication for the Constrained Application Protocol (CoAP)</title>
-<author initials='A.' surname='Rahman' fullname='A. Rahman'>
-<organization /></author>
-<author initials='E.' surname='Dijk' fullname='E. Dijk'>
-<organization /></author>
+<author initials='A.' surname='Rahman' fullname='A. Rahman' role='editor'><organization /></author>
+<author initials='E.' surname='Dijk' fullname='E. Dijk' role='editor'><organization /></author>
 <date year='2014' month='October' />
-<abstract>
-<t>The Constrained Application Protocol (CoAP) is a specialized web transfer protocol for constrained devices and constrained networks.  It is anticipated that constrained devices will often naturally operate in groups (e.g., in a building automation scenario, all lights in a given room may need to be switched on/off as a group).  This specification defines how CoAP should be used in a group communication context.  An approach for using CoAP on top of IP multicast is detailed based on existing CoAP functionality as well as new features introduced in this specification.  Also, various use cases and corresponding protocol flows are provided to illustrate important concepts.  Finally, guidance is provided for deployment in various network topologies.</t></abstract></front>
-
-<seriesInfo name='RFC' value='7390' />
-<format type='TXT' octets='106675' target='http://www.rfc-editor.org/rfc/rfc7390.txt' />
+<abstract><t>The Constrained Application Protocol (CoAP) is a specialized web transfer protocol for constrained devices and constrained networks. It is anticipated that constrained devices will often naturally operate in groups (e.g., in a building automation scenario, all lights in a given room may need to be switched on/off as a group). This specification defines how CoAP should be used in a group communication context.  An approach for using CoAP on top of IP multicast is detailed based on existing CoAP functionality as well as new features introduced in this specification.  Also, various use cases and corresponding protocol flows are provided to illustrate important concepts.  Finally, guidance is provided for deployment in various network topologies.</t></abstract>
+</front>
+<seriesInfo name='RFC' value='7390'/>
+<seriesInfo name='DOI' value='10.17487/RFC7390'/>
 </reference>
 
 
 
-<reference anchor='RFC6775'>
-
+<reference  anchor='RFC6775' target='http://www.rfc-editor.org/info/rfc6775'>
 <front>
 <title>Neighbor Discovery Optimization for IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs)</title>
-<author initials='Z.' surname='Shelby' fullname='Z. Shelby'>
-<organization /></author>
-<author initials='S.' surname='Chakrabarti' fullname='S. Chakrabarti'>
-<organization /></author>
-<author initials='E.' surname='Nordmark' fullname='E. Nordmark'>
-<organization /></author>
-<author initials='C.' surname='Bormann' fullname='C. Bormann'>
-<organization /></author>
+<author initials='Z.' surname='Shelby' fullname='Z. Shelby' role='editor'><organization /></author>
+<author initials='S.' surname='Chakrabarti' fullname='S. Chakrabarti'><organization /></author>
+<author initials='E.' surname='Nordmark' fullname='E. Nordmark'><organization /></author>
+<author initials='C.' surname='Bormann' fullname='C. Bormann'><organization /></author>
 <date year='2012' month='November' />
-<abstract>
-<t>The IETF work in IPv6 over Low-power Wireless Personal Area Network (6LoWPAN) defines 6LoWPANs such as IEEE 802.15.4.  This and other similar link technologies have limited or no usage of multicast signaling due to energy conservation.  In addition, the wireless network may not strictly follow the traditional concept of IP subnets and IP links.  IPv6 Neighbor Discovery was not designed for non- transitive wireless links, as its reliance on the traditional IPv6 link concept and its heavy use of multicast make it inefficient and sometimes impractical in a low-power and lossy network.  This document describes simple optimizations to IPv6 Neighbor Discovery, its addressing mechanisms, and duplicate address detection for Low- power Wireless Personal Area Networks and similar networks.  The document thus updates RFC 4944 to specify the use of the optimizations defined here. [STANDARDS-TRACK]</t></abstract></front>
-
-<seriesInfo name='RFC' value='6775' />
-<format type='TXT' octets='130616' target='http://www.rfc-editor.org/rfc/rfc6775.txt' />
+<abstract><t>The IETF work in IPv6 over Low-power Wireless Personal Area Network (6LoWPAN) defines 6LoWPANs such as IEEE 802.15.4.  This and other similar link technologies have limited or no usage of multicast signaling due to energy conservation.  In addition, the wireless network may not strictly follow the traditional concept of IP subnets and IP links.  IPv6 Neighbor Discovery was not designed for non- transitive wireless links, as its reliance on the traditional IPv6 link concept and its heavy use of multicast make it inefficient and sometimes impractical in a low-power and lossy network.  This document describes simple optimizations to IPv6 Neighbor Discovery, its addressing mechanisms, and duplicate address detection for Low- power Wireless Personal Area Networks and similar networks.  The document thus updates RFC 4944 to specify the use of the optimizations defined here.  [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='RFC' value='6775'/>
+<seriesInfo name='DOI' value='10.17487/RFC6775'/>
 </reference>
 
 
 
-<reference anchor='RFC7230'>
-
+<reference  anchor='RFC7230' target='http://www.rfc-editor.org/info/rfc7230'>
 <front>
 <title>Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing</title>
-<author initials='R.' surname='Fielding' fullname='R. Fielding'>
-<organization /></author>
-<author initials='J.' surname='Reschke' fullname='J. Reschke'>
-<organization /></author>
+<author initials='R.' surname='Fielding' fullname='R. Fielding' role='editor'><organization /></author>
+<author initials='J.' surname='Reschke' fullname='J. Reschke' role='editor'><organization /></author>
 <date year='2014' month='June' />
-<abstract>
-<t>The Hypertext Transfer Protocol (HTTP) is a stateless application-level protocol for distributed, collaborative, hypertext information systems.  This document provides an overview of HTTP architecture and its associated terminology, defines the "http" and "https" Uniform Resource Identifier (URI) schemes, defines the HTTP/1.1 message syntax and parsing requirements, and describes related security concerns for implementations.</t></abstract></front>
-
-<seriesInfo name='RFC' value='7230' />
-<format type='TXT' octets='205947' target='http://www.rfc-editor.org/rfc/rfc7230.txt' />
+<abstract><t>The Hypertext Transfer Protocol (HTTP) is a stateless application-level protocol for distributed, collaborative, hypertext information systems.  This document provides an overview of HTTP architecture and its associated terminology, defines the &quot;http&quot; and &quot;https&quot; Uniform Resource Identifier (URI) schemes, defines the HTTP/1.1 message syntax and parsing requirements, and describes related security concerns for implementations.</t></abstract>
+</front>
+<seriesInfo name='RFC' value='7230'/>
+<seriesInfo name='DOI' value='10.17487/RFC7230'/>
 </reference>
 
 
 
-<reference anchor='RFC3629'>
-
+<reference  anchor='RFC3629' target='http://www.rfc-editor.org/info/rfc3629'>
 <front>
 <title>UTF-8, a transformation format of ISO 10646</title>
-<author initials='F.' surname='Yergeau' fullname='F. Yergeau'>
-<organization /></author>
+<author initials='F.' surname='Yergeau' fullname='F. Yergeau'><organization /></author>
 <date year='2003' month='November' />
-<abstract>
-<t>ISO/IEC 10646-1 defines a large character set called the Universal Character Set (UCS) which encompasses most of the world's writing systems.  The originally proposed encodings of the UCS, however, were not compatible with many current applications and protocols, and this has led to the development of UTF-8, the object of this memo.  UTF-8 has the characteristic of preserving the full US-ASCII range, providing compatibility with file systems, parsers and other software that rely on US-ASCII values but are transparent to other values.  This memo obsoletes and replaces RFC 2279.</t></abstract></front>
-
-<seriesInfo name='STD' value='63' />
-<seriesInfo name='RFC' value='3629' />
-<format type='TXT' octets='33856' target='http://www.rfc-editor.org/rfc/rfc3629.txt' />
+<abstract><t>ISO/IEC 10646-1 defines a large character set called the Universal Character Set (UCS) which encompasses most of the world's writing systems.  The originally proposed encodings of the UCS, however, were not compatible with many current applications and protocols, and this has led to the development of UTF-8, the object of this memo.  UTF-8 has the characteristic of preserving the full US-ASCII range, providing compatibility with file systems, parsers and other software that rely on US-ASCII values but are transparent to other values.  This memo obsoletes and replaces RFC 2279.</t></abstract>
+</front>
+<seriesInfo name='STD' value='63'/>
+<seriesInfo name='RFC' value='3629'/>
+<seriesInfo name='DOI' value='10.17487/RFC3629'/>
 </reference>
 
 
 
-<reference anchor='RFC5198'>
-
+<reference  anchor='RFC5198' target='http://www.rfc-editor.org/info/rfc5198'>
 <front>
 <title>Unicode Format for Network Interchange</title>
-<author initials='J.' surname='Klensin' fullname='J. Klensin'>
-<organization /></author>
-<author initials='M.' surname='Padlipsky' fullname='M. Padlipsky'>
-<organization /></author>
+<author initials='J.' surname='Klensin' fullname='J. Klensin'><organization /></author>
+<author initials='M.' surname='Padlipsky' fullname='M. Padlipsky'><organization /></author>
 <date year='2008' month='March' />
-<abstract>
-<t>The Internet today is in need of a standardized form for the transmission of internationalized "text" information, paralleling the specifications for the use of ASCII that date from the early days of the ARPANET.  This document specifies that format, using UTF-8 with normalization and specific line-ending sequences. [STANDARDS-TRACK]</t></abstract></front>
-
-<seriesInfo name='RFC' value='5198' />
-<format type='TXT' octets='45708' target='http://www.rfc-editor.org/rfc/rfc5198.txt' />
+<abstract><t>The Internet today is in need of a standardized form for the transmission of internationalized &quot;text&quot; information, paralleling the specifications for the use of ASCII that date from the early days of the ARPANET.  This document specifies that format, using UTF-8 with normalization and specific line-ending sequences.  [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='RFC' value='5198'/>
+<seriesInfo name='DOI' value='10.17487/RFC5198'/>
 </reference>
 
 
 
-<reference anchor='RFC1123'>
-
+<reference  anchor='RFC1123' target='http://www.rfc-editor.org/info/rfc1123'>
 <front>
 <title>Requirements for Internet Hosts - Application and Support</title>
-<author initials='R.' surname='Braden' fullname='Robert Braden'>
-<organization>University of Southern California (USC), Information Sciences Institute</organization>
-<address>
-<postal>
-<street>4676 Admiralty Way</street>
-<city>Marina del Rey</city>
-<region>CA</region>
-<code>90292-6695</code>
-<country>US</country></postal>
-<phone>+1 213 822 1511</phone>
-<email>Braden@ISI.EDU</email></address></author>
-<date year='1989' month='October' /></front>
-
-<seriesInfo name='STD' value='3' />
-<seriesInfo name='RFC' value='1123' />
-<format type='TXT' octets='245503' target='http://www.rfc-editor.org/rfc/rfc1123.txt' />
+<author initials='R.' surname='Braden' fullname='R. Braden' role='editor'><organization /></author>
+<date year='1989' month='October' />
+<abstract><t>This RFC is an official specification for the Internet community.  It incorporates by reference, amends, corrects, and supplements the primary protocol standards documents relating to hosts.  [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='STD' value='3'/>
+<seriesInfo name='RFC' value='1123'/>
+<seriesInfo name='DOI' value='10.17487/RFC1123'/>
 </reference>
 
 
 
-<reference anchor='RFC1034'>
-
+<reference  anchor='RFC1034' target='http://www.rfc-editor.org/info/rfc1034'>
 <front>
-<title abbrev='Domain Concepts and Facilities'>Domain names - concepts and facilities</title>
-<author initials='P.' surname='Mockapetris' fullname='P. Mockapetris'>
-<organization>Information Sciences Institute (ISI)</organization></author>
-<date year='1987' day='1' month='November' /></front>
-
-<seriesInfo name='STD' value='13' />
-<seriesInfo name='RFC' value='1034' />
-<format type='TXT' octets='129180' target='http://www.rfc-editor.org/rfc/rfc1034.txt' />
+<title>Domain names - concepts and facilities</title>
+<author initials='P.V.' surname='Mockapetris' fullname='P.V. Mockapetris'><organization /></author>
+<date year='1987' month='November' />
+<abstract><t>This RFC is the revised basic definition of The Domain Name System.  It obsoletes RFC-882.  This memo describes the domain style names and their used for host address look up and electronic mail forwarding.  It discusses the clients and servers in the domain name system and the protocol used between them.</t></abstract>
+</front>
+<seriesInfo name='STD' value='13'/>
+<seriesInfo name='RFC' value='1034'/>
+<seriesInfo name='DOI' value='10.17487/RFC1034'/>
 </reference>
 
 
@@ -2666,15 +2690,19 @@ specifications of each URI scheme.
     <organization />
 </author>
 
-<date month='November' day='10' year='2014' />
+<author initials='M' surname='Koster' fullname='Michael Koster'>
+    <organization />
+</author>
+
+<date month='July' day='6' year='2015' />
 
 <abstract><t>This document defines well-known REST interface descriptions for Batch, Sensor, Parameter and Actuator types for use in contrained web servers using the CoRE Link Format.  A short reference is provided for each type that can be efficiently included in the interface description attribute of the CoRE Link Format.  These descriptions are intended to be for general use in resource designs or for inclusion in more specific interface profiles.  In addition, this document defines the concepts of Function Set and Binding.  The former is the basis element to create RESTful profiles and the latter helps the configuration of links between resources located on one or more endpoints.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-interfaces-02' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-interfaces-03' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-02.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-03.txt' />
 </reference>
 
 
