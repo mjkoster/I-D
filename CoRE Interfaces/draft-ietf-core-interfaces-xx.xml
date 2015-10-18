@@ -18,8 +18,9 @@
 <!ENTITY RFC6690 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6690.xml">
 <!ENTITY RFC6763 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6763.xml">
 <!ENTITY RFC7252 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7252.xml">
-<!ENTITY I-D.ietf-core-observe SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-core-observe.xml">
+<!ENTITY RFC7641 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7641.xml">
 <!ENTITY I-D.ietf-core-resource-directory SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-core-resource-directory.xml">
+<!ENTITY I-D.draft-jennings-core-senml SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-jennings-core-senml-01.xml">
 
 ]>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -47,7 +48,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="info" ipr="trust200902" docName="draft-ietf-core-interfaces-03">
+<rfc category="info" ipr="trust200902" docName="draft-ietf-core-interfaces-04">
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 
@@ -117,9 +118,14 @@
 
     <abstract>
     <t>
-  This document defines well-known REST interface descriptions for Batch, Sensor, Parameter and Actuator types for use in contrained web servers using the CoRE Link Format. A short reference is provided for each type that can be efficiently included in the interface description attribute of the CoRE Link Format. These descriptions are intended to be for general use in resource designs or for inclusion in more specific interface profiles. In addition, this document defines the concepts of Function Set and Binding. The former is the basis element to create RESTful profiles and the latter helps the configuration of links between resources located on one or more endpoints.
-  </t> 
-    
+  This document defines a set of reusable REST resource design patterns suitable for use in constrained environments, based on IETF CoRE standards for information representation and information exchange. 
+    </t>
+    <t>
+  Interface types for Sensors, Actuators, Parameters, and resource Collections are defined using the "if" link attribute defined by CoRE Link Format <xref target="RFC6690"/>. Clients may use the "if" attribute to determine how to consume resources.
+    </t>
+    <t>
+  Dynamic linking of state updates between resources, either on an endpoint or between endpoints, is defined with the concept of Link Bindings. We also define conditional observation attributes that work with Link Bindings or with simple CoAP Observe <xref target="RFC7641"/>.
+    </t> 
     </abstract>
     </front>
 
@@ -133,12 +139,20 @@
   <section anchor="introduction" title="Introduction">
 
   <t>
-  The Constrained RESTful Environments (CoRE) working group aims at realizing the REST architecture in a suitable form for the most constrained nodes (e.g. 8-bit microcontrollers with limited RAM and ROM) and networks (e.g. 6LoWPAN). CoRE is aimed at machine-to-machine (M2M) applications such as smart energy and building automation.
+  IETF Standards for machine to machine communication in constrained environments describe a REST protocol and a set of related information standards that may be used to represent machine data and machine metadata in REST interfaces.. CoRE Link-format is a standard for doing Web Linking <xref target="RFC5988"/> in constrained environments. SenML is a simple data model and representation format for composite and complex structured resources. CoRE Link-Format and SenML can be used by CoAP <xref target="RFC7252"/> or HTTP servers.
   </t>
   <t>
-  The discovery of resources offered by a constrained server is very important in machine-to-machine applications where there are no humans in the loop and static interfaces result in fragility. The discovery of resources provided by an HTTP Web Server is typically called Web Linking <xref target="RFC5988"/>. The use of Web Linking for the description and discovery of resources hosted by constrained web servers is specified by the CoRE Link Format <xref target="RFC6690"/> and can be used by CoAP <xref target="RFC7252"/> or HTTP servers. The CoRE Link Format defines an attribute that can be used to describe the REST interface of a resource, and may include a link to a description document. This memo describes how other specifications can combine resources with a well-known interface to create new CoRE RESTful profiles. A CoRE profile is based on the concept of Function Set, which is a group of REST resources providing a service in a distributed system. In addition, the notion of Binding is introduced in order to create a synchronization link between two resources. This document also defines well-known interface descriptions for Batch, Sensor, Parameter and Actuator types to compose new Function Sets or for standalone use in a constrained web server. A short reference is provided for each type that can be efficiently included in the interface description (if=) attribute of the CoRE Link Format.
+  The discovery of resources offered by a constrained server is very important in machine-to-machine applications where there are no humans in the loop. Machine application clients must be able to adapt to different resource organizations without advance knowledge of the specific data structures hosted by each connected thing. The use of Web Linking for the description and discovery of resources hosted by constrained web servers is specified by CoRE Link Format <xref target="RFC6690"/>. CoRE Link Format additionally defines a link attribute for Interface Type ("if") that can be used to describe the REST interface of a resource, and may include a link to a description document. 
   </t>
-
+  <t>
+  This document defines a set of Link Format compatible Interface Types for some common design patterns that enable the server side composition and organization, and client side discovery and consumption, of machine resources using Web Linking. An Interface Type may describe a resource in terms of it's associated content formats, data types, URI templates, REST methods, parameters, and responses. Basic interface types are defined for sensors, actuators, and properties. A set of collection types is defined for organizing resources for discovery, and for various forms of bulk interaction with resource sets using typed embedding links. 
+  </t>
+  <t>
+  This document introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which to exchange state updates. Specifically, a Link Binding is a link for binding the state of 2 resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This document additionally defines a set of conditional Observe Attributes for use with Link Bindings and with the standalone CoRE Observe <xref target="RFC7641"/> method.
+  </t>
+  <t>
+ Interface Types may be used in the composition of Function Sets and Profiles. Function Sets and Profiles are described and an example is given of a sensor and actuator device profile using Function Sets composed from the Interface Types described in this document.
+  </t>
   </section>
   
   <!-- **************************************************************** -->
@@ -156,13 +170,15 @@
   
   <t>
     <list style="hanging">
+      <t hangText="Interface Type:">A resource attribute which describes the interface exposed by the resource in terms of content formats, REST methods, parameters, and other related characteristics. </t>
+      <t hangText="Collection:">A resource which contains set of related resources, referenced by a list of links and optionally consisting of subresources. </t>
+      <t hangText="Link Binding:">A unidirectional logical link between a source resource and a destination resource, over which state information is synchronized. </t>
+      <t hangText="Resource Discovery:">The process allowing a web client to identify resources being hosted on a web server. </t>
+      <t hangText="Gradual Reveal:">A REST design where resources are discovered progressively using Web Linking. </t>
       <t hangText="Function Set:">A group of well-known REST resources that provides a particular service. </t>
       <t hangText="Profile:">A group of well-known Function Sets defined by a specification. </t>
       <t hangText="Device:">An IP smart object running a web server that hosts a group of Function Set instances from a profile. </t>
       <t hangText="Service Discovery:">The process making it possible for a web client to automatically detect devices and Function Sets offered by these devices on a CoRE network. </t>
-      <t hangText="Resource Discovery:">The process allowing a web client to identify resources being hosted on a web server. </t>
-      <t hangText="Gradual Reveal:">A REST design where resources are discovered progressively using Web Linking. </t>
-      <t hangText="Binding:">A unidirectional logical link between a source resource and a destination resource. </t>
     </list>
   </t> 
 
@@ -173,83 +189,14 @@
   <!-- **************************************************************** -->
   <!-- **************************************************************** -->
   <!-- **************************************************************** -->
-
-  <section anchor="function-set" title="Function Set">
-    
-    <t>This section defines how a set of REST resources can be created called a function set. A Function Set is similar to a function block in the sense that it consists of input, output and parameter resources and contains internal logic. A Function Set can have a subset of mandatory inputs, outputs and parameters to provide minimum interoperability. It can also be extended with manufacturer/user-specific resources. A device is composed of one or more Function Set instances.
-    </t>
-    <t>
-    	An example of function sets can be found from the CoRE Resource Directory specification that defines REST interfaces for registration, group and lookup <xref target="I-D.ietf-core-resource-directory"/>. The OMA Lightweight M2M standard [REF] also defines a function set structure called an Objects that use integer path, instance and resource URI segments. OMA Objects can be defined and then registered with an OMA maintained registry [REF]. This section is simply meant as a guideline for the definition of other such REST interfaces, either custom or part of other specifications.
-    </t>
-
-    <section anchor="definition" title="Defining a Function Set">
-    
-      <t>In a Function Set, types of resources are defined. Each type includes a human readable name, a path template, a Resource Type for discovery, the Interface Definition and the data type and allowed values. A Function Set definition may also include a field indicating if a sub-resource is mandatory or optional.
-      </t>
-      
-      <section anchor="path-template" title="Path template">
-      
-        <t>A Function Set is a container resource under which its sub-resources are organized. The profile defines the path to each resource of a Function Set in a path template. The template can contain either relative paths or absolute paths depending on the profile needs. An absolute Function Set should be located at its recommended root path on a web server, however it can be located under an alternative path if necessary (for example multi-purpose devices, gateways etc.). A relative Function Set can be instantiated as many times as needed on a web server with an arbitrary root path. However some Function Sets (e.g. device description) only make sense as singletons.
-        </t>
-        
-        <t>The path template includes a possible index {#} parameter, and possible fixed path segments.  The index {#} allows for multiple instances of this type of resource, and can be any string. The root path and the indexes are the only variable elements in a path template. All other path segments should be fixed.
-        </t>
-        
-      </section>
-
-      <section anchor="resource-type" title="Resource Type">
-      
-        <t>Each root resource of a Function Set is assigned a Resource Type parameter, therefore making it possible to discover it. Each sub-resource of a Function Set is also assigned a Resource Type parameter. This Resource Type is used for resource discovery and is usually necessary to discover optional resources supported on a specific device. The Resource Type of a Function Set may also be used for service discovery and can be exported to DNS-SD <xref target="RFC6763"/> for example.
-        </t>
-        
-        <t>The Resource Type parameter defines the value that should be included in the rt= field of the CoRE Link Format when describing a link to this resource. The value SHOULD be in the form &quot;namespace.type&quot; for root resources and &quot;namespace.type.subtype&quot; for sub-resources. This naming convention facilitates resource type filtering with the /.well-known/core resource. However a profile could allow mixing in foreign namespace references within a Function Set to import external references from other object models (e.g. SenML and UCUM).
-        </t>
-        
-      </section>
-
-      <section anchor="interface-description" title="Interface Description">
-      
-        <t>The Interface Description parameter defines the REST interface for that type of resource. Several base interfaces are defined in <xref target="interfaces"/> of this document. For a given profile, the Interface Description may be inferred from the Resource Type. In that case the Interface Description MAY be elided from link descriptions of resource types defined in the profile, but should be included for custom extensions to the profile.
-        </t>
-        
-        <t>The root resource of a Function Set should provide a list of links to its sub-resources in order to offer gradual reveal of resources. The CoRE Link List interface defined in <xref target="link-list"/> offers this functionality so a root resource should support this interface or a derived interface like CoRE Batch (See <xref target="batch"/>).
-        </t>
-        
-      </section>
-
-      <section anchor="data-type" title="Data type">
-      
-        <t>The Data Type field defines the type of value (and possible range) that is returned in response to a GET for that resource or accepted with a PUT. The interfaces defined in <xref target="interfaces"/> make use of plain text and SenML Media types for the actual format of this data. A profile may restrict the list of supported content formats for the CoRE interfaces or define new interfaces with new content types.
-        </t>
-        
-      </section>
-      
-    </section>
-    
-    <section anchor="discovery" title="Discovery">
-    
-      <t>A device conforming to a profile SHOULD make its resources discoverable by providing links to the resources on the path /.well-known/core as defined in <xref target="RFC6690"/>. All resources hosted on a device SHOULD be discoverable either with a direct link in /.well-known/core or by following successive links starting from /.well-known/core.
-      </t>
-      
-      <t>The root path of a Function Set instance SHOULD be directly referenced in /.well-known/core in order to offer discovery at the first discovery stage. A device with more than 10 individual resources SHOULD only expose Function Set instances in /.well-known/core to limit the size of this resource.
-      </t>
-      
-      <t>In addition, a device MAY register its resources to a Resource Directory using the registration interface defined in <xref target="I-D.ietf-core-resource-directory"/> if such a directory is available.
-      </t>
-      
-    </section>
-
-    <section anchor="versioning" title="Versioning">
-
-      <t>A profile should track Function Set changes to avoid incompatibility issues. Evolutions in a Function Set SHOULD be backward compatible.
-      </t>
-    
-    </section>
-    
+  <section anchor="interface-types" title="Interface Types">
   </section>
-
-  <section anchor="bindings" title="Bindings">
-    <t>In a M2M RESTful environment, endpoints exchange the content of their resources to operate the distributed system. Beforehand, a configuration phase is necessary to determine how the resources of the different endpoints are related to each other. This can be done either automatically using discovery mechanisms or by means of human intervention and a so-called commissioning tool. In this document the abstract relationship between two resources is called a Binding. The configuration phase necessitates the exchange of binding information so a format recognized by all CoRE endpoints is essential. This document defines a format based on the CoRE Link-Format to represent binding information along with the rules to define a binding method which is a specialized relationship between two resources. The purpose of a binding is to synchronize the content between a source resource and a destination resource. The destination resource MAY be a group resource if the authority component of the destination URI contains a group address (either a multicast address or a name that resolves to a multicast address). Since a binding is unidirectional, the binding entry defining a relationship is present only on one endpoint. The binding entry may be located either on the source or the destination endpoint depending on the binding method. The following table gives a summary of the binding methods described in more detail in <xref target="binding_methods"/>.
+  
+  <section anchor="collections" title="Collections">
+  </section>
+  
+  <section anchor="bindings" title="Link Bindings and Observe Attributes">
+    <t>In a M2M RESTful environment, endpoints exchange the content of their resources to operate the distributed system. Beforehand, a configuration phase is necessary to determine how the resources of the different endpoints are related to each other. This can be done either automatically using discovery mechanisms or by means of human intervention and a so-called commissioning tool. In this document the abstract relationship between two resources is called a link Binding. The configuration phase necessitates the exchange of binding information so a format recognized by all CoRE endpoints is essential. This document defines a format based on the CoRE Link-Format to represent binding information along with the rules to define a binding method which is a specialized relationship between two resources. The purpose of a binding is to synchronize the content between a source resource and a destination resource. The destination resource MAY be a group resource if the authority component of the destination URI contains a group address (either a multicast address or a name that resolves to a multicast address). Since a binding is unidirectional, the binding entry defining a relationship is present only on one endpoint. The binding entry may be located either on the source or the destination endpoint depending on the binding method. The following table gives a summary of the binding methods described in more detail in <xref target="binding_methods"/>.
     </t>
 
     <texttable>
@@ -264,7 +211,7 @@
     </texttable>  
   
     <section anchor="binding_format" title="Format">
-      <t>Since Binding lies in the creation of a link between two resources, Web Linking and the CoRE Link-Format are a natural way to represent binding information. This involves the creation of a new relation type, purposely named &quot;boundto&quot;. In a Web link with this relation type, the target URI contains the location of the source resource and the context URI points to the destination resource. The Web link attributes allow a fine-grained control of the type of synchronization exchange along with the conditions that trigger an update. This specification defines the attributes below:
+      <t>Since Binding involves the creation of a link between two resources, Web Linking and the CoRE Link-Format are a natural way to represent binding information. This involves the creation of a new relation type, purposely named &quot;boundto&quot;. In a Web link with this relation type, the target URI contains the location of the source resource and the context URI points to the destination resource. The Web link attributes allow a fine-grained control of the type of synchronization exchange along with the conditions that trigger an update. This specification defines the attributes below:
       </t>
         
       <texttable>
@@ -284,7 +231,7 @@
         <list style="hanging">
           <t hangText="Bind Method:">This is the identifier of a binding method which defines the rules to synchronize the destination resource. This attribute is mandatory.</t>
           <t hangText="Minimum Period:">When present, the minimum period indicates the minimum time to wait (in seconds) before sending a new synchronization message (even if it has changed). In the absence of this parameter, the minimum period is up to the notifier.</t>
-          <t hangText="Maximum Period:">When present, the maximum period indicates the maximum time in seconds between two consecutive syncronization messages (regardless if it has changed). In the absence of this parameter, the maximum period is up to the notifier. The maximum period MUST be greater than the minimum period parameter (if present).</t>
+          <t hangText="Maximum Period:">When present, the maximum period indicates the maximum time in seconds between two consecutive state synchronization messages (regardless if it has changed). In the absence of this parameter, the maximum period is up to the notifier. The maximum period MUST be greater than the minimum period parameter (if present).</t>
           <t hangText="Change Step:">When present, the change step indicates how much the value of a resource SHOULD change before sending a new notification (compared to the value of the last notification). This parameter has lower priority than the period parameters, thus even if the change step has been fulfilled, the time since the last notification SHOULD be between pmin and pmax. </t>
           <t hangText="Greater Than:">When present, Greater Than indicates the upper limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Greater Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
           <t hangText="Less Than:">When present, Less Than indicates the lower limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Less Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
@@ -313,7 +260,7 @@
         <list style="hanging">
           <t hangText="Polling:">The Polling method consists of sending periodic GET requests from the destination endpoint to the source resource and copying the content to the destination resource. The binding entry for this method MUST be stored on the destination endpoint. The destination endpoint MUST ensure that the polling frequency does not exceed the limits defined by the pmin and pmax attributes of the binding entry. The copying process MAY filter out content from the GET requests using value-based conditions (e.g Change Step, Less Than, Greater Than).</t>
           
-          <t hangText="Observe:">The Observe method relies on the Publish/Subscribe pattern thus an observation relationship is created between the destination endpoint and the source resource. On each notification the content from the source resource is copied to the destination resource. The creation of the observation relationship requires the CoAP Observation mechanism <xref target="I-D.ietf-core-observe"/> hence this method is only permitted when the resources are made available over CoAP. The binding entry for this method MUST be stored on the destination endpoint. The binding conditions are mapped as query string parameters (see <xref target="observation"/>).</t>
+          <t hangText="Observe:">The Observe method creates an observation relationship between the destination endpoint and the source resource. On each notification the content from the source resource is copied to the destination resource. The creation of the observation relationship requires the CoAP Observation mechanism <xref target="RFC7641"/> hence this method is only permitted when the resources are made available over CoAP. The binding entry for this method MUST be stored on the destination endpoint. The binding conditions are mapped as query string parameters (see <xref target="observation"/>).</t>
 
           <t hangText="Push:">When the Push method is assigned to a binding, the source endpoint sends PUT requests to the destination resource when the binding condition attributes are satisfied for the source resource. The source endpoint MUST only send a notification request if the binding conditions are met. The binding entry for this method MUST be stored on the source endpoint.</t>
         </list>               
@@ -324,7 +271,39 @@
       <t>The binding table is a special resource that gives access to the bindings on a endpoint. A binding table resource MUST support the Binding interface defined in <xref target="binding_interface"/>. A profile SHOULD allow only one resource table per endpoint.
       </t>
     </section>
+    
+    <section anchor="observation" title="Resource Observation Attributes">
+    
+      <t>When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism <xref target="RFC7641"/> MAY be used to observe any changes in a resource, and receive asynchronous notifications as a result. In addition, a set of query string parameters are defined here to allow a client to control how often a client is interested in receiving notifications and how much a resource value should change for the new representation to be interesting. These query parameters are described in the following table. A resource using an interface description defined in this specification and marked as Observable in its link description SHOULD support these observation parameters. The Change Step parameter can only be supported on resources with an atomic numeric value.
+      </t>
+      <t>These query parameters MUST be treated as resources that are read using GET and updated using PUT, and MUST NOT be included in the Observe request. Multiple parameters MAY be updated at the same time by including the values in the query string of a PUT. Before being updated, these parameters have no default value.
+      </t>
+      
+    <texttable>
+      <ttcol align="left">Resource</ttcol>
+      <ttcol align="left">Parameter</ttcol>
+      <ttcol align="left">Data Format</ttcol>
 
+      <c>Minimum Period</c> <c>/{resource}?pmin</c> <c>xsd:integer (>0)</c>
+      <c>Maximum Period</c> <c>/{resource}?pmax</c> <c>xsd:integer (>0)</c>
+      <c>Change Step</c> <c>/{resource}?st</c> <c>xsd:decimal (>0)</c>
+      <c>Less Than</c> <c>/{resource}?lt</c> <c>xsd:decimal</c>
+      <c>Greater Than</c> <c>/{resource}?gt</c> <c>xsd:decimal</c>
+    
+    </texttable>  
+    
+  <t>
+    <list style="hanging">
+          <t hangText="Minimum Period:">When present, the minimum period indicates the minimum time to wait (in seconds) before sending a new synchronization message (even if it has changed). In the absence of this parameter, the minimum period is up to the notifier.</t>
+          <t hangText="Maximum Period:">When present, the maximum period indicates the maximum time in seconds between two consecutive state synchronization messages (regardless if it has changed). In the absence of this parameter, the maximum period is up to the notifier. The maximum period MUST be greater than the minimum period parameter (if present).</t>
+          <t hangText="Change Step:">When present, the change step indicates how much the value of a resource SHOULD change before sending a new notification (compared to the value of the last notification). This parameter has lower priority than the period parameters, thus even if the change step has been fulfilled, the time since the last notification SHOULD be between pmin and pmax. </t>
+          <t hangText="Greater Than:">When present, Greater Than indicates the upper limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Greater Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
+          <t hangText="Less Than:">When present, Less Than indicates the lower limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Less Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
+    </list>
+  </t>    
+    
+    </section>
+    
   </section>
   
   <section anchor="interfaces" title="Interface Descriptions">
@@ -340,15 +319,16 @@
       <ttcol align="right">Interface</ttcol>
       <ttcol align="left">if=</ttcol>
       <ttcol align="left">Methods</ttcol>
+      <ttcol align="left">Content-Formats</ttcol>
       
-      <c>Link List</c> <c>core.ll</c> <c>GET</c>
-      <c>Batch</c> <c>core.b</c> <c>GET, PUT, POST (where applicable)</c>
-      <c>Linked Batch</c> <c>core.lb</c> <c>GET, PUT, POST, DELETE (where applicable)</c>
-      <c>Sensor</c> <c>core.s</c> <c>GET</c>
-      <c>Parameter</c> <c>core.p</c> <c>GET, PUT</c>
-      <c>Read-only Parameter</c> <c>core.rp</c> <c>GET</c>
-      <c>Actuator</c> <c>core.a</c> <c>GET, PUT, POST</c>     
-      <c>Binding</c> <c>core.bnd</c> <c>GET, POST, DELETE</c>     
+      <c>Link List</c> <c>core.ll</c> <c>GET</c> <c>link-format</c>
+      <c>Batch</c> <c>core.b</c> <c>GET, PUT, POST</c> <c>link-format, senml</c>
+      <c>Linked Batch</c> <c>core.lb</c> <c>GET, PUT, POST, DELETE</c> <c>link-format, senml</c>
+      <c>Sensor</c> <c>core.s</c> <c>GET</c> <c>link-format, text/plain</c>
+      <c>Parameter</c> <c>core.p</c> <c>GET, PUT</c> <c>link-format, text/plain</c>
+      <c>Read-only Parameter</c> <c>core.rp</c> <c>GET</c> <c>link-format, text/plain</c>
+      <c>Actuator</c> <c>core.a</c> <c>GET, PUT, POST</c> <c>link-format, text/plain</c>    
+      <c>Binding</c> <c>core.bnd</c> <c>GET, POST, DELETE</c> <c>link-format</c>    
     </texttable>
   
   <t>The following is an example of links in the CoRE Link Format using these interface descriptions. The resource hierarchy is based on a simple profile defined in <xref target="simple-profile"/>. These links are used in the subsequent examples below.</t>
@@ -587,38 +567,6 @@ Res: 2.04 Changed
     ]]></artwork>
     </figure>
  
-    </section>
-    
-    <section anchor="observation" title="Resource Observation Attributes">
-    
-      <t>When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism <xref target="I-D.ietf-core-observe"/> MAY be used to observe any changes in a resource, and receive asynchronous notifications as a result. In addition, a set of query string parameters are defined here to allow a client to control how often a client is interested in receiving notifications and how much a resource value should change for the new representation to be interesting. These query parameters are described in the following table. A resource using an interface description defined in this specification and marked as Observable in its link description SHOULD support these observation parameters. The Change Step parameter can only be supported on resources with an atomic numeric value.
-      </t>
-      <t>These query parameters MUST be treated as resources that are read using GET and updated using PUT, and MUST NOT be included in the Observe request. Multiple parameters MAY be updated at the same time by including the values in the query string of a PUT. Before being updated, these parameters have no default value.
-      </t>
-      
-    <texttable>
-      <ttcol align="left">Resource</ttcol>
-      <ttcol align="left">Parameter</ttcol>
-      <ttcol align="left">Data Format</ttcol>
-
-      <c>Minimum Period</c> <c>/{resource}?pmin</c> <c>xsd:integer (>0)</c>
-      <c>Maximum Period</c> <c>/{resource}?pmax</c> <c>xsd:integer (>0)</c>
-      <c>Change Step</c> <c>/{resource}?st</c> <c>xsd:decimal (>0)</c>
-      <c>Less Than</c> <c>/{resource}?lt</c> <c>xsd:decimal</c>
-      <c>Greater Than</c> <c>/{resource}?gt</c> <c>xsd:decimal</c>
-    
-    </texttable>  
-    
-  <t>
-    <list style="hanging">
-          <t hangText="Minimum Period:">When present, the minimum period indicates the minimum time to wait (in seconds) before sending a new synchronization message (even if it has changed). In the absence of this parameter, the minimum period is up to the notifier.</t>
-          <t hangText="Maximum Period:">When present, the maximum period indicates the maximum time in seconds between two consecutive syncronization messages (regardless if it has changed). In the absence of this parameter, the maximum period is up to the notifier. The maximum period MUST be greater than the minimum period parameter (if present).</t>
-          <t hangText="Change Step:">When present, the change step indicates how much the value of a resource SHOULD change before sending a new notification (compared to the value of the last notification). This parameter has lower priority than the period parameters, thus even if the change step has been fulfilled, the time since the last notification SHOULD be between pmin and pmax. </t>
-          <t hangText="Greater Than:">When present, Greater Than indicates the upper limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Greater Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
-          <t hangText="Less Than:">When present, Less Than indicates the lower limit value the resource value SHOULD cross before sending a new notification. This parameter has lower priority than the period parameters, thus even if the Less Than limit has been crossed, the time since the last notification SHOULD be between pmin and pmax. </t>
-    </list>
-  </t>    
-    
     </section>
     
     <section anchor="future" title="Future Interfaces">
@@ -897,6 +845,80 @@ Res: 2.04 Changed
   <!-- **************************************************************** -->
   <!-- **************************************************************** -->
 
+  <section anchor="function-set" title="Function Sets and Profiles">
+    
+    <t>This section defines how a set of REST resources can be created called a function set. A Function Set is similar to a function block in the sense that it consists of input, output and parameter resources and contains internal logic. A Function Set can have a subset of mandatory inputs, outputs and parameters to provide minimum interoperability. It can also be extended with manufacturer/user-specific resources. A device is composed of one or more Function Set instances.
+    </t>
+    <t>
+    	An example of function sets can be found from the CoRE Resource Directory specification that defines REST interfaces for registration, group and lookup <xref target="I-D.ietf-core-resource-directory"/>. The OMA Lightweight M2M standard [REF] also defines a function set structure called an Objects that use integer path, instance and resource URI segments. OMA Objects can be defined and then registered with an OMA maintained registry [REF]. This section is simply meant as a guideline for the definition of other such REST interfaces, either custom or part of other specifications.
+    </t>
+
+    <section anchor="definition" title="Defining a Function Set">
+    
+      <t>In a Function Set, types of resources are defined. Each type includes a human readable name, a path template, a Resource Type for discovery, the Interface Definition and the data type and allowed values. A Function Set definition may also include a field indicating if a sub-resource is mandatory or optional.
+      </t>
+      
+      <section anchor="path-template" title="Path template">
+      
+        <t>A Function Set is a container resource under which its sub-resources are organized. The profile defines the path to each resource of a Function Set in a path template. The template can contain either relative paths or absolute paths depending on the profile needs. An absolute Function Set should be located at its recommended root path on a web server, however it can be located under an alternative path if necessary (for example multi-purpose devices, gateways etc.). A relative Function Set can be instantiated as many times as needed on a web server with an arbitrary root path. However some Function Sets (e.g. device description) only make sense as singletons.
+        </t>
+        
+        <t>The path template includes a possible index {#} parameter, and possible fixed path segments.  The index {#} allows for multiple instances of this type of resource, and can be any string. The root path and the indexes are the only variable elements in a path template. All other path segments should be fixed.
+        </t>
+        
+      </section>
+
+      <section anchor="resource-type" title="Resource Type">
+      
+        <t>Each root resource of a Function Set is assigned a Resource Type parameter, therefore making it possible to discover it. Each sub-resource of a Function Set is also assigned a Resource Type parameter. This Resource Type is used for resource discovery and is usually necessary to discover optional resources supported on a specific device. The Resource Type of a Function Set may also be used for service discovery and can be exported to DNS-SD <xref target="RFC6763"/> for example.
+        </t>
+        
+        <t>The Resource Type parameter defines the value that should be included in the rt= field of the CoRE Link Format when describing a link to this resource. The value SHOULD be in the form &quot;namespace.type&quot; for root resources and &quot;namespace.type.subtype&quot; for sub-resources. This naming convention facilitates resource type filtering with the /.well-known/core resource. However a profile could allow mixing in foreign namespace references within a Function Set to import external references from other object models (e.g. SenML and UCUM).
+        </t>
+        
+      </section>
+
+      <section anchor="interface-description" title="Interface Description">
+      
+        <t>The Interface Description parameter defines the REST interface for that type of resource. Several base interfaces are defined in <xref target="interfaces"/> of this document. For a given profile, the Interface Description may be inferred from the Resource Type. In that case the Interface Description MAY be elided from link descriptions of resource types defined in the profile, but should be included for custom extensions to the profile.
+        </t>
+        
+        <t>The root resource of a Function Set should provide a list of links to its sub-resources in order to offer gradual reveal of resources. The CoRE Link List interface defined in <xref target="link-list"/> offers this functionality so a root resource should support this interface or a derived interface like CoRE Batch (See <xref target="batch"/>).
+        </t>
+        
+      </section>
+
+      <section anchor="data-type" title="Data type">
+      
+        <t>The Data Type field defines the type of value (and possible range) that is returned in response to a GET for that resource or accepted with a PUT. The interfaces defined in <xref target="interfaces"/> make use of plain text and SenML Media types for the actual format of this data. A profile may restrict the list of supported content formats for the CoRE interfaces or define new interfaces with new content types.
+        </t>
+        
+      </section>
+      
+    </section>
+    
+    <section anchor="discovery" title="Discovery">
+    
+      <t>A device conforming to a profile SHOULD make its resources discoverable by providing links to the resources on the path /.well-known/core as defined in <xref target="RFC6690"/>. All resources hosted on a device SHOULD be discoverable either with a direct link in /.well-known/core or by following successive links starting from /.well-known/core.
+      </t>
+      
+      <t>The root path of a Function Set instance SHOULD be directly referenced in /.well-known/core in order to offer discovery at the first discovery stage. A device with more than 10 individual resources SHOULD only expose Function Set instances in /.well-known/core to limit the size of this resource.
+      </t>
+      
+      <t>In addition, a device MAY register its resources to a Resource Directory using the registration interface defined in <xref target="I-D.ietf-core-resource-directory"/> if such a directory is available.
+      </t>
+      
+    </section>
+
+    <section anchor="versioning" title="Versioning">
+
+      <t>A profile should track Function Set changes to avoid incompatibility issues. Evolutions in a Function Set SHOULD be backward compatible.
+      </t>
+    
+    </section>
+    
+  </section>
+
   <section anchor="security" title="Security Considerations">
   <t> 
   An implementation of a client needs to be prepared to deal with responses to a request that differ from what is specified in this document. A server implementing what the client thinks is a resource with one of these interface descriptions could return malformed representations and response codes either by accident or maliciously. A server sending maliciously malformed responses could attempt to take advantage of a poorly implemented client for example to crash the node or perform denial of service.  
@@ -939,6 +961,19 @@ Res: 2.04 Changed
   <!-- **************************************************************** -->
 
   <section title="Changelog">
+  
+  <t>Changes from -03 to -04
+  <list style="symbols">
+  	<t>Fixed tickets #385 and #386</t>
+  	<t>Changed abstract and into to better describe content</t>
+  	<t>Focus on Interface and not function set/profiles in intro</t>
+  	<t>Changed references from draft-core-observe to RFC7641</t>
+  	<t>Moved Function sets and Profiles to section after Interfaces</t>
+  	<t>Moved Observe Attributes to the Link Binding section</t>
+  	<t>Add a Collection section to describe the collection types</t>
+  	<t></t>
+  </list>
+  </t>
 
   <t>Changes from -02 to -03
   <list style="symbols">
@@ -1014,9 +1049,10 @@ Res: 2.04 Changed
 
     <references title='Informative References'>
     &RFC7252;
-    &I-D.ietf-core-observe;
     &I-D.ietf-core-resource-directory;
+    &I-D.draft-jennings-core-senml;
     &RFC6763;
+    &RFC7641;
        
     </references>
   
