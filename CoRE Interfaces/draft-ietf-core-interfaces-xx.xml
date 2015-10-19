@@ -155,7 +155,7 @@
  Interface Types may be used in the composition of Function Sets and Profiles. Function Sets and Profiles are described and an example is given of a sensor and actuator device profile using Function Sets composed from the Interface Types described in this document.
   </t>
   <t>
-  This document describes a set of Interface Types which are referenced by the "if" link attribute and used to implement commonly used design patterns and functional abstractions. A client discovering the "if" link attribute will be able to consume resources based on its knowledge of the expected interface types. In this sense the Interface Type acts in a similar way as a Content-Format, but as a selector for a high level functional abstraction. Interface types may also be provided with hypermedia controls and affordances to drive client interaction using the principles of HATEOAS. In this case, the Interface Types serve as constructor templates for resource organization and hypermedia annotation.
+  This document describes a set of Interface Types which are referenced by the "if" link attribute and used to implement reusable design patterns and functional abstractions. A client discovering the "if" link attribute will be able to consume resources based on its knowledge of the expected interface types. In this sense the Interface Type acts in a similar way as a Content-Format, but as a selector for a high level functional abstraction. Interface types may also be provided with hypermedia controls and affordances to drive client interaction using the principles of HATEOAS. In this case, the Interface Types serve as constructor templates for resource organization and hypermedia annotation.
   </t>
   </section>
   
