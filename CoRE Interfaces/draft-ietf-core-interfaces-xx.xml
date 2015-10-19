@@ -103,7 +103,7 @@
              <street>150 Rose Orchard</street>
              <city>San Jose</city>
              <code>95134</code>
-             <country>FINLAND</country>
+             <country>USA</country>
             </postal>
             <phone>	</phone>
             <email>michael.koster@arm.com</email>
@@ -115,7 +115,7 @@
   <area>Internet</area>
 
   <workgroup>CoRE</workgroup>
-  <keyword>CoRE, Web Linking, Resource Discovery</keyword>
+  <keyword>CoRE, CoAP, Hypermedia, Web Linking, Resource Discovery</keyword>
 
     <abstract>
     <t>
@@ -153,6 +153,9 @@
   </t>
   <t>
  Interface Types may be used in the composition of Function Sets and Profiles. Function Sets and Profiles are described and an example is given of a sensor and actuator device profile using Function Sets composed from the Interface Types described in this document.
+  </t>
+  <t>
+  This document describes a set of Interface Types which are referenced by the "if" link attribute and used to implement commonly used design patterns and functional abstractions. A client discovering the "if" link attribute will be able to consume resources based on its knowledge of the expected interface types. In this sense the Interface Type acts in a similar way as a Content-Format, but as a selector for a high level functional abstraction. Interface types may also be provided with hypermedia controls and affordances to drive client interaction using the principles of HATEOAS. In this case, the Interface Types serve as constructor templates for resource organization and hypermedia annotation.
   </t>
   </section>
   
@@ -192,13 +195,13 @@
   <!-- **************************************************************** -->
   <section anchor="interface-types" title="Interface Types">
   <t>
-  An Interface Type may describe a resource in terms of it's associated content formats, data types, URI templates, REST methods, parameters, and responses. 
+  An Interface Type definition may describe a resource in terms of it's associated content formats, data types, URI templates, REST methods, parameters, and responses. 
   </t>
   </section>
   
   <section anchor="collections" title="Collections">
   
-  <section anchor="collect-intro" title="Introduction">
+  <section anchor="collect-intro" title="Introduction to Collections">
   <t>
   A Collection is a resource which represents one or more related resources. Within this document, a collection refers to a collection with characteristics defined in this document. A Collection Interface Type consists of a set of links and a set of items pointed to by the links which may be sub-resources of the collection resource. The collection types described in this document are Link List, Batch, Linked Batch, and Hypermedia Collection.
   </t>
@@ -212,7 +215,7 @@
   Some collections may have pre-configured items and links, and some collections may support dynamic creation and removal of items and links. Likewise, modification of items in some collections may be permitted, and not in others.
   </t>
   <t>
-  Collections support link embedding, which is analogous to an image tag displaying inline in a browser window. Resources pointed to by embedded links in collections may be interacted with using bulk operations on the collection resource. For example, performing a GET on a collection resource may return a single representation containing all of the linked resources.
+  Collections may support link embedding, which is analogous to an image tag (link) causing the image to display inline in a browser window. Resources pointed to by embedded links in collections may be interacted with using bulk operations on the collection resource. For example, performing a GET on a collection resource may return a single representation containing all of the linked resources.
   </t>
   <t>
   Links in collections may be selected for processing by a particular request by using Query Filtering as described in CoRE Link-Format <xref target="RFC6690"/>.
@@ -269,39 +272,82 @@
     </list>
   </t>  
   <t>
-  Links in the collection MAY be Read, Updated, Added, or Removed using the Link-Format Content-Format on the collection resource. Reading links uses the GET method and returns an array or list containing the link-values of all selected links. Links may be added to the collection using POST or PATCH methods. Updates to links MUST use the PATCH method and MAY use query filtering to select links for updating. The PATCH method on links MUST use the JSON Merge-Patch Content-Format (application/merge-patch+json) specified in RFC7396 <xref target="RFC7396"/> .
+  Links in the collection MAY be Read, Updated, Added, or Removed using the CoRE Link-Format or JSON Merge-Patch Content-Formats on the collection resource. Reading links uses the GET method and returns an array or list containing the link-values of all selected links. Links may be added to the collection using POST or PATCH methods. Updates to links MUST use the PATCH method and MAY use query filtering to select links for updating. The PATCH method on links MUST use the JSON Merge-Patch Content-Format (application/merge-patch+json) specified in RFC7396 <xref target="RFC7396"/> .
   </t>
   <t>
-  Items in the collection are by default represented using the SenML (application/senml+json) or plain text (text/plain) Content-Formats, depending on whether the representation is of a single data point or multiple data points. Items may be represented using any supported Content-Format.
+  Items in the collection SHOULD be represented using the SenML (application/senml+json) or plain text (text/plain) Content-Formats, depending on whether the representation is of a single data point or multiple data points. Items MAY be represented using any supported Content-Format.
   </t>
   <t>
   Link Embedding enables the bulk processing of items in the collection using a single operation targeting the collection resource. A subset of resources in the collection may be selected for operation using Query Filtering. Bulk Read operations using GET return a SenML representation of all selected resources. Bulk item Update operations using PUT or POST apply the payload document to all selected resource items in the collection, using a either a Batch or Group update policy. A Batch update is performed by applying the resource values in the payload document to all resources in the collection that match any resource name in the payload document. Group updates are performed by applying the payload document to each item in the collection. Group updates are indicated by the link relation type rel="grp" in the link. 
   </t>
   <t>
-  The collection resource is represented by default using the collection+senml+json resource. The Hypermedia Collection type is the only collection type which supports this representation. Reading a collection using this content-format returns a representation of the links and the items in the collection. Performing a POST operation using this Content-Format creates new items which are linked in the collection. Performing a PUT operation on this resource replaces the entire set of links and items with the payload. This COntent-Format is described in section <xref target="collection-format"/>.
+  The collection resource SHOULD represented using the collection+senml+json Content-Format. The Hypermedia Collection type is the only collection type which supports this representation. Reading a collection using this content-format returns a representation of the links and the items in the collection. Performing a POST operation using this Content-Format MAY create one or more new item(s) and their corresponding links in the collection. Performing a PUT operation on this resource replaces the entire set of links and items with the payload. This Content-Format is described in section <xref target="collection-format"/>. Implementations MAY provide an alternate method using POST in a Content-Format used by the items in the collection which creates a default link-value and system-assigned resource name. Such implementations MAY create sub-resources of the collection resource.
   </t>
   </section>
   
   <section anchor="queries" title="Queries on Collections">
   <t>
+  Collections MAY support query filtering as defined in CoRE Link-Format <xref target="RFC6690"/>. Operations targeting either the links or the items MAY select a subset of links and items in the collection by using query filtering. The Content-Format specified in the request header selects whether links or items are targeted by the operation.
   </t>
   </section>
   
   <section anchor="observing" title="Observing Collections">
   <t>
+  Resource Observation using CoAP <xref target="RFC7252"/> MAY be supported on a collection. A subset of the conditional observe parameters MAY be specified to apply. In most cases pmin and pmax are useful. Resource observation on a collection MAY report any changes of resource state in any item in the collection. Observation Responses, or notifications, SHOULD provide representations of the resources that have changed in SenML Content-Format. Notifications MAY include multiple observations of a particular resource, with SenML time stamps indicating the observation times. 
   </t>
   </section>
   
   <section anchor="hypermedia" title="Hypermedia Controls on Collections">
   <t>
+  Additional Hypermedia controls may be defined to enable clients to automatically consume the collection resources. Typically, the developer may map application level semantics onto collection operations. For example, invoking an Action on an actuator may be defined as creating an Action item resource in a collection of Actions associated with the actuator, each item in the collection representing a past, current, or future action to be processed by the actuator. Removing the item could cancel any pending or curent long-running action, and removing a completed action could free up resources for new actions to be invoked. A Hypermedia control for this pattern might provide a semantic name for the action, for example "Change Brightness", and might direct the client to supply a SenML representation of parameters for the action as well as provide instructions on what method (POST) to use and how to construct the URI (the collection URI in this case) if required. An example of this hypermedia control is shown below.
   </t>
   </section>
 
-  <section anchor="collection-format" title="The collection+senml+json Content-Format">
+  <section anchor="collection-types" title="Collection Types">
   <t>
+  There are four collection types defined in this document:
+  </t>     
+    <texttable>
+      <ttcol align="right">Collection Type</ttcol>
+      <ttcol align="left">if=</ttcol>
+      <ttcol align="left">Content-Formats</ttcol>
+      
+      <c>Link List</c> <c>core.ll</c> <c>link-format</c>
+      <c>Batch</c> <c>core.b</c> <c>link-format, senml</c>
+      <c>Linked Batch</c> <c>core.lb</c> <c>link-format, senml</c>
+      <c>Hypermedia Collection</c> <c>core.hc</c> <c>link-format, senml, collection+senml</c>
+      <c>Binding</c> <c>core.bnd</c> <c>link-format</c>    
+    </texttable>
+  <t>
+  Each collection type MAY support a subset of the methods and functions described above. For the first three collection types, the methods and functions are defined in the corresponding Interface Description. The Hypermedia Collection SHOULD expose hypermedia controls to applications to indicate which methods and functions are supported.
   </t>
   </section>
     
+  <section anchor="collection-format" title="The collection+senml+json Content-Format">
+  <t>
+  The collection+senml+json Content-Format is used to represent all of the attributes and resources of a collection in a single format. This is accomplished by extending the SenmL format by adding a links element "l". The links element is formatted as an array of links in the application/link-format+json Content-Format with the tag "l" which follows the structure of the "e" element. An example of this format is given below.
+  </t>
+    <figure>
+    <artwork align="left"><![CDATA[
+
+{
+  "bn":"/ep/sen/"
+  "e":[
+    { "n": "light", "v": 123, "u": "lx" },
+    { "n": "temp", "v": 27.2, "u": "degC" },
+    { "n": "humidity", "v": 80, "u": "%RH" }],
+  "l":[
+    { "href":"/ep/sen/", "rel":"self", "if": "core.hc", "rt": "ms" },
+    { "href":"light", "rt":"core.s" },
+    { "href":"temp", "rt":"core.s" },
+    { "href":"humidity", "rt":"core.s" }]
+}
+
+    ]]></artwork>
+    </figure>  
+
+  </section>
+  
   </section>
   
   <section anchor="bindings" title="Link Bindings and Observe Attributes">
