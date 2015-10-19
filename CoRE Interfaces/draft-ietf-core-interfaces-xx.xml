@@ -18,6 +18,7 @@
 <!ENTITY RFC6690 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6690.xml">
 <!ENTITY RFC6763 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6763.xml">
 <!ENTITY RFC7252 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7252.xml">
+<!ENTITY RFC7396 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7396.xml">
 <!ENTITY RFC7641 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7641.xml">
 <!ENTITY I-D.ietf-core-resource-directory SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-core-resource-directory.xml">
 <!ENTITY I-D.draft-jennings-core-senml SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-jennings-core-senml-01.xml">
@@ -190,9 +191,117 @@
   <!-- **************************************************************** -->
   <!-- **************************************************************** -->
   <section anchor="interface-types" title="Interface Types">
+  <t>
+  An Interface Type may describe a resource in terms of it's associated content formats, data types, URI templates, REST methods, parameters, and responses. 
+  </t>
   </section>
   
   <section anchor="collections" title="Collections">
+  
+  <section anchor="collect-intro" title="Introduction">
+  <t>
+  A Collection is a resource which represents one or more related resources. Within this document, a collection refers to a collection with characteristics defined in this document. A Collection Interface Type consists of a set of links and a set of items pointed to by the links which may be sub-resources of the collection resource. The collection types described in this document are Link List, Batch, Linked Batch, and Hypermedia Collection.
+  </t>
+  <t>
+  The links in a collection are represented in CoRE Link-Format Content-Formats including JSON and CBOR variants, and the items in the collection may be represented by senml, including JSON and CBOR variants. In general, a collection may support items of any available Content-Format.
+  </t>
+  <t>
+  A particular resource item may be a member of more than one collection at a time by being linked to, but may only be a subresource of one collection.
+  </t>
+  <t>
+  Some collections may have pre-configured items and links, and some collections may support dynamic creation and removal of items and links. Likewise, modification of items in some collections may be permitted, and not in others.
+  </t>
+  <t>
+  Collections support link embedding, which is analogous to an image tag displaying inline in a browser window. Resources pointed to by embedded links in collections may be interacted with using bulk operations on the collection resource. For example, performing a GET on a collection resource may return a single representation containing all of the linked resources.
+  </t>
+  <t>
+  Links in collections may be selected for processing by a particular request by using Query Filtering as described in CoRE Link-Format <xref target="RFC6690"/>.
+  </t>
+  </section>
+  
+  <section anchor="use-cases" title="Use Cases for Collections">
+  <t>
+  Collections may be used to provide gradual reveal of resources on an endpoint. There may be a small set of links at the .well-known/core location, which may in turn point to other collections of resources that represent device information, device configuration, device management, and various functional clusters of resources on the device.
+  </t>
+  <t>    
+  A collection may provide resource encapsulation, where link embedding may be used to provide a single resource with which a client may interact to obtain a set of related resource values. For example, a collection for manufacturer parameters may consist of manufacturer name, date of manufacture, location of manufacture, and serial number resources which can be read as a single senml data object.
+  </t>
+  <t>
+  A collection may be used to group a set of like resources for bulk state update or actuation. For example, the brightness control resources of a number of luminaries may be grouped by linking to them in a collection. The collection type may support receiving a single update form a client and sending that update to each resource item in the collection.
+  </t>
+  <t>
+  Items may be sub-resources of the collection resource. This enables updates to to multiple items in the collection to be processed together within the context of the collection resource.
+  </t>
+  <t>
+  Items may be dynamically created in a collection along with their hyperlinks. This provides an "item factory" pattern which can serve as a resource creation mechanism for dynamic resources. This pattern is also useful for creating temporary resources for the implementation of dynamic phenomena like commands, actions, and events using REST design patterns. Item creation uses the collection Content-Format which allows specification of links and item state in a single representation.
+  </t>
+  </section>
+  
+  <section anchor="content-formats" title="Content-Formats for Collections">
+  <t>
+  The collection interfaces by default use CoRE Link-Format for the link representations and SenML or text/plain for representations of items. The examples given are for collections that expose resources and links in these formats. In addition, a new "collection" Content-Format is defined based on the SenML framework which represents both links and items in the collection.
+  </t>
+  <t>
+  The choice of whether to return a representation of the links or of the items or of the collection format is determined by the accepts header option in the request. Likewise, the choice of updating link metadata or item data or the collection resource itself is determined by the Content-Format option in the header of the update request operation.
+  </t>
+  <t>
+  The default Content-Formats for collection types described in this document are:
+    <list style="hanging">
+      <t hangText="Links:">application/link-format, application/link-format+json</t>
+      <t hangText="Items:">application/senml+json, text/plain</t>
+      <t hangText="Collection:">application/collection+senml+json</t>
+    </list>
+  </t>
+  </section>
+  
+  <section anchor="links-items" title="Links and Items in Collections">
+  <t>
+  Links use CoRE Link-Format representation by default and may point to any resource reachable from the context of the collection. This includes absolute links and links that point to other network locations if the context of the collection allows. Links to sub-resources in the collection MUST have a path-element starting with the resource name, as per RFC3986 <xref target="RFC3986"/>. Links to resources in the global context MUST start with a root path identifier <xref target="RFC5988"/>.Links to other collections are formed per RFC3986.
+  </t>
+  <t>
+  Examples of links:
+    <list style="hanging">
+      <t hangText="&lt;/sen/&gt;;if=&quot;core.lb&quot;">: Link to the /sen/ collection describing it as a core.lb type collection (Linked Batch)</t>
+      <t hangText="&lt;/sen/&gt;;rel=&quot;grp&quot;">: Link to the /sen/ collection indicating that /sen/ is a member of a group in the collection in which the link appears.</t>
+      <t hangText="&lt;&quot;/sen/temp&quot;&gt;;rt=&quot;temperature&quot;">: An absolute link to the resource at the path /sen/temp</t>
+      <t hangText="&lt;temp&gt;;rt=&quot;temperature&quot;">: Link to the temp subresource of the collection in which this link appears.</t>
+      <t hangText="&lt;temp&gt;;anchor=&quot;/sen/&quot;">: A link to the temp subresource of the collection /sen/ which is assumed not to be a subresource of the collection in which the link appears ,but is expected to be identified in the collection by resource name.</t>
+    </list>
+  </t>  
+  <t>
+  Links in the collection MAY be Read, Updated, Added, or Removed using the Link-Format Content-Format on the collection resource. Reading links uses the GET method and returns an array or list containing the link-values of all selected links. Links may be added to the collection using POST or PATCH methods. Updates to links MUST use the PATCH method and MAY use query filtering to select links for updating. The PATCH method on links MUST use the JSON Merge-Patch Content-Format (application/merge-patch+json) specified in RFC7396 <xref target="RFC7396"/> .
+  </t>
+  <t>
+  Items in the collection are by default represented using the SenML (application/senml+json) or plain text (text/plain) Content-Formats, depending on whether the representation is of a single data point or multiple data points. Items may be represented using any supported Content-Format.
+  </t>
+  <t>
+  Link Embedding enables the bulk processing of items in the collection using a single operation targeting the collection resource. A subset of resources in the collection may be selected for operation using Query Filtering. Bulk Read operations using GET return a SenML representation of all selected resources. Bulk item Update operations using PUT or POST apply the payload document to all selected resource items in the collection, using a either a Batch or Group update policy. A Batch update is performed by applying the resource values in the payload document to all resources in the collection that match any resource name in the payload document. Group updates are performed by applying the payload document to each item in the collection. Group updates are indicated by the link relation type rel="grp" in the link. 
+  </t>
+  <t>
+  The collection resource is represented by default using the collection+senml+json resource. The Hypermedia Collection type is the only collection type which supports this representation. Reading a collection using this content-format returns a representation of the links and the items in the collection. Performing a POST operation using this Content-Format creates new items which are linked in the collection. Performing a PUT operation on this resource replaces the entire set of links and items with the payload. This COntent-Format is described in section <xref target="collection-format"/>.
+  </t>
+  </section>
+  
+  <section anchor="queries" title="Queries on Collections">
+  <t>
+  </t>
+  </section>
+  
+  <section anchor="observing" title="Observing Collections">
+  <t>
+  </t>
+  </section>
+  
+  <section anchor="hypermedia" title="Hypermedia Controls on Collections">
+  <t>
+  </t>
+  </section>
+
+  <section anchor="collection-format" title="The collection+senml+json Content-Format">
+  <t>
+  </t>
+  </section>
+    
   </section>
   
   <section anchor="bindings" title="Link Bindings and Observe Attributes">
@@ -1053,6 +1162,8 @@ Res: 2.04 Changed
     &I-D.draft-jennings-core-senml;
     &RFC6763;
     &RFC7641;
+    &RFC3986;
+    &RFC7396;
        
     </references>
   
