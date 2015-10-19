@@ -13,7 +13,7 @@
 <?rfc compact="no"?>
 <?rfc subcompact="no"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-02">
+<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-03">
 
   <front>
   <title abbrev="Publish-Subscribe Broker for CoAP">Publish-Subscribe Broker for the Constrained Application Protocol (CoAP)</title>
@@ -242,6 +242,7 @@ Client                                          Broker
   | ---------- POST /ps "<topic1>;ct=50" -------->|
   |                                               |
   | <---------------- 2.01 Created ---------------|
+  |             Location: /topics/topic1          |
   |                                               |
 ]]>
 </artwork>
@@ -640,7 +641,7 @@ When only end-to-end encryption is necessary and the CoAP Broker is trusted, Pay
 
     
 <section anchor="acks" title="Acknowledgements">
-  <t>The authors would like to thank Hannes Tschofenig, Zach Shelby, Mohit Sethi, Peter Van der Stok, Tim Kellogg, Anders Eriksson, and Goran Selander for their contributions and reviews. </t>
+  <t>The authors would like to thank Hannes Tschofenig, Zach Shelby, Mohit Sethi, Peter van der Stok, Tim Kellogg, Anders Eriksson, and Goran Selander for their contributions and reviews. </t>
 </section>
 
 
@@ -656,7 +657,6 @@ When only end-to-end encryption is necessary and the CoAP Broker is trusted, Pay
 <?rfc include="reference.RFC.6570"?>
 <?rfc include="reference.RFC.7641"?>
 <?rfc include="reference.I-D.ietf-core-resource-directory"?>
-<?rfc include="reference.I-D.ietf-core-observe"?>
 <?rfc include="reference.I-D.selander-ace-object-security"?>
 <!--      <?rfc include="reference.I-D.draft-ietf-core-interfaces"?> -->
 <?rfc include="reference.RFC.7252"?>
