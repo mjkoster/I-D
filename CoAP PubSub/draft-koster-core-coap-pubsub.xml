@@ -255,7 +255,7 @@ Client                                          Broker
 <t>A CoAP pub/sub Client uses the PUBLISH interface for updating topics on the broker. The client MUST use the PUT method to publish state updates to the CoAP pub/sub Broker. A client MUST use the content format specified upon creation of a given topic to publish updates to that topic. The broker MUST reject publish operations which do not use the specified content format. A CoAP client publishing on a topic MAY indicate the maximum lifetime of the value by including the Max-Age option in the publish request. A client MAY use confirmable (CON) or non-confirmable (NON) messages to publish updates to a broker. The broker MUST return a response code of "2.04 Changed" if the publish is accepted or "4.04 Not Found" if the topic does not exist. A broker MAY return "4.29 Too Many Requests" if simple flow control as described in <xref target="sec-flow-control"/> is implemented.
 </t>
 
-<t>The Broker MUST notify all clients subscribed on a particular topic each time it receives a publish on that topic. An example is shown in <xref target="subscribe-fig"/>. If a client publishes to a broker using non-confirmable messages, the broker MAY notify subscribed clients using non-confirmable messages. If a client publishes to a broker using confirmable messages, the broker MAY also notify all subscribed clients using confirmable messages. If a client publishes to a broker with the Max-Age option, the broker MUST include the same value for the Max-Age option in all notifications. A broker MUST use CoAP Notification as described in <xref target="I-D.ietf-core-observe"/> to notify subscribed clients.
+<t>The Broker MUST notify all clients subscribed on a particular topic each time it receives a publish on that topic. An example is shown in <xref target="subscribe-fig"/>. If a client publishes to a broker using non-confirmable messages, the broker MAY notify subscribed clients using non-confirmable messages. If a client publishes to a broker using confirmable messages, the broker MAY also notify all subscribed clients using confirmable messages. If a client publishes to a broker with the Max-Age option, the broker MUST include the same value for the Max-Age option in all notifications. A broker MUST use CoAP Notification as described in <xref target="RFC7641"/> to notify subscribed clients.
 </t>
 
 <t>The PUBLISH interface is specified as follows:
@@ -306,7 +306,7 @@ Client                                          Broker
 
 
 <section title="SUBSCRIBE">
-<t>CoAP pub/sub Clients subscribe to topics on the Broker using CoAP Observe as described in <xref target="I-D.ietf-core-observe"/>. A CoAP pub/sub Client wishing to Subscribe to a topic on a broker MUST use a CoAP GET with Observe registration. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of "2.05 Content" along with the most recently published value if the topic contains a valid value and the broker can supply the requested content format. The broker MUST accept Subscribe requests on a topic if the content format of the request matches the content format the topic was created with. The broker MAY accept Subscribe requests which specify content formats that the broker can supply as alternate content formats to the content format the topic was registered with. If the topic was published with the Max-Age option, the broker MUST set the Max-Age option in the valid response to the amount of time remaining for the value to be valid since the last publish operation on that topic. The Broker MUST return a response code of "2.04 No Content" if the Max-Age of the previously stored value has expired. The Broker MUST return a response code "4.04 Not Found" if the topic does not exist or has been removed. The Broker MUST return a response code "4.15 Unsupported Content Format" if it can not return the requested content format.
+<t>CoAP pub/sub Clients subscribe to topics on the Broker using CoAP Observe as described in <xref target="RFC7641"/>. A CoAP pub/sub Client wishing to Subscribe to a topic on a broker MUST use a CoAP GET with Observe registration. The Broker MAY add the client to a list of observers. The Broker MUST return a response code of "2.05 Content" along with the most recently published value if the topic contains a valid value and the broker can supply the requested content format. The broker MUST accept Subscribe requests on a topic if the content format of the request matches the content format the topic was created with. The broker MAY accept Subscribe requests which specify content formats that the broker can supply as alternate content formats to the content format the topic was registered with. If the topic was published with the Max-Age option, the broker MUST set the Max-Age option in the valid response to the amount of time remaining for the value to be valid since the last publish operation on that topic. The Broker MUST return a response code of "2.04 No Content" if the Max-Age of the previously stored value has expired. The Broker MUST return a response code "4.04 Not Found" if the topic does not exist or has been removed. The Broker MUST return a response code "4.15 Unsupported Content Format" if it can not return the requested content format.
 </t>
 
 <t>The SUBSCRIBE interface is specified as follows:
@@ -362,7 +362,7 @@ Client1   Client2                                          Broker
 
 
 <section title="UNSUBSCRIBE">
-<t>CoAP pub/sub Clients unsubscribe from topics on the Broker using the CoAP Cancel Observation operation. A CoAP pub/sub Client wishing to unsubscribe to a topic on a Broker MUST either use CoAP GET with Observe using an Observe parameter of 1 or send a CoAP Reset message in response to a publish <xref target="I-D.ietf-core-observe"/>.
+<t>CoAP pub/sub Clients unsubscribe from topics on the Broker using the CoAP Cancel Observation operation. A CoAP pub/sub Client wishing to unsubscribe to a topic on a Broker MUST either use CoAP GET with Observe using an Observe parameter of 1 or send a CoAP Reset message in response to a publish <xref target="RFC7641"/>.
 </t>
 
 <t>The UNSUBSCRIBE interface is specified as follows:
@@ -471,7 +471,7 @@ Client1   Client2                                          Broker
 
 
 <section title="REMOVE">
-<t> A CoAP pub/sub Client wishing to remove a topic can use the CoAP Delete operation on the URI of the topic. The CoAP pub/sub Broker MUST return "2.02 Deleted" if the remove operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be removed.
+<t> A CoAP pub/sub Client wishing to remove a topic MAY use the CoAP Delete operation on the URI of the topic. The CoAP pub/sub Broker MUST return "2.02 Deleted" if the remove operation is successful. The broker MUST return the appropriate 4.xx response code indicating the reason for failure if the topic can not be removed.
 </t>
 
 <t>The REMOVE interface is specified as follows:
@@ -654,6 +654,7 @@ When only end-to-end encryption is necessary and the CoAP Broker is trusted, Pay
 <?rfc include="reference.RFC.2119"?>
 <?rfc include="reference.RFC.6690"?>
 <?rfc include="reference.RFC.6570"?>
+<?rfc include="reference.RFC.7641"?>
 <?rfc include="reference.I-D.ietf-core-resource-directory"?>
 <?rfc include="reference.I-D.ietf-core-observe"?>
 <?rfc include="reference.I-D.selander-ace-object-security"?>

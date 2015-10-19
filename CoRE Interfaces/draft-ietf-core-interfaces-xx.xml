@@ -60,7 +60,7 @@
 <?rfc strict="yes" ?>
 
     <front>
-        <title>CoRE Interfaces</title>
+        <title>Reusable Interface Definitions for Constrained Resource Environments</title>
 
         <author initials="Z" surname="Shelby" fullname="Zach Shelby">
           <organization>
@@ -761,12 +761,7 @@ Res: 2.04 Changed
     
     <section anchor="future" title="Future Interfaces">
   
-    <t>It is expected that further interface descriptions will be defined in this and other specifications. Potential interfaces to be considered for this specifications include:
-    
-    <list style="hanging">
-      
-      <t hangText="Collection:">This resource would be a container that allows sub-resources to be added or removed.</t>
-    </list>
+    <t>It is expected that further interface descriptions will be defined in this and other specifications. 
     </t>
     
     </section>
@@ -1179,7 +1174,7 @@ Res: 2.04 Changed
   </t>
 
   <t>
-  The new link relation type "boundto" requires registration.
+  The new link relations type "boundto" and "grp" require registration.
   </t>
   
   <!-- We need a registry for binding methods? -->
