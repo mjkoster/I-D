@@ -60,7 +60,7 @@
 <?rfc strict="yes" ?>
 
     <front>
-        <title>Reusable Interface Definitions for Constrained Resource Environments</title>
+        <title>Reusable Interface Definitions for Constrained RESTful Environments</title>
 
         <author initials="Z" surname="Shelby" fullname="Zach Shelby">
           <organization>
