@@ -791,7 +791,7 @@ Res: 2.04 Changed
   <doc title="CoRE Interfaces"/>
 
   <resource_type id="s">
-    <doc title="Sensor resource type"/>
+    <doc title="Sensor interface type"/>
     <method href="#read"/>
     <method href="#observe"/>
     <method href="#observe-cancel"/>
@@ -800,7 +800,7 @@ Res: 2.04 Changed
   </resource_type>
 
   <resource_type id="p">
-    <doc title="Parameter resource type"/>
+    <doc title="Parameter interfacee type"/>
     <method href="#read"/>
     <method href="#observe"/>
     <method href="#observe-cancel"/>
@@ -810,7 +810,7 @@ Res: 2.04 Changed
   </resource_type>
 
   <resource_type id="rp">
-    <doc title="Read-only Parameter resource type"/>
+    <doc title="Read-only Parameter interface type"/>
     <method href="#read"/>
     <method href="#observe"/>
     <method href="#observe-cancel"/>
@@ -819,7 +819,7 @@ Res: 2.04 Changed
   </resource_type> 
 
   <resource_type id="a">
-    <doc title="Actuator resource type"/>
+    <doc title="Actuator interface type"/>
     <method href="#read"/>
     <method href="#observe"/>
     <method href="#observe-cancel"/>
@@ -830,12 +830,12 @@ Res: 2.04 Changed
   </resource_type>
 
   <resource_type id="ll">
-    <doc title="Link List type"/></doc>
+    <doc title="Link List interface type"/></doc>
     <method href="#listLinks"/>
   </resource_type>
 
   <resource_type id="b">
-    <doc title="Batch of sub-resources type">The methods read, 
+    <doc title="Batch of sub-resources interface type">The methods read, 
      observe, update and apply are applied to each sub-
      resource of the requested resource that supports it. Mixed 
      sub-resource types can be supported.</doc>
@@ -850,7 +850,7 @@ Res: 2.04 Changed
   </resource_type>
 
   <resource_type id="lb">
-    <doc title="Linked Batch resource type">. The methods read, 
+    <doc title="Linked Batch interface type">. The methods read, 
      obervableRead, update and apply are applied to each linked 
      resource of the requested resource that supports it. Mixed 
      linked resource types can be supported.</doc>
@@ -860,9 +860,27 @@ Res: 2.04 Changed
     <method href="#getattr"/>
     <method href="#setattr"/>
     <method href="#update"/>
+    <method href="#apply"/>
     <method href="#listLinks"/>
     <method href="#appendLinks"/>
     <method href="#clearLinks"/>
+  </resource_type>
+
+  <resource_type id="hc">
+    <doc title="Hypermedia Collection interface type">.</doc>
+    <method href="#read"/>
+    <method href="#observe"/>
+    <method href="#observe-cancel"/>
+    <method href="#getattr"/>
+    <method href="#setattr"/>
+    <method href="#update"/>
+    <method href="#apply"/>
+    <method href="#listLinks"/>
+    <method href="#appendLinks"/>
+    <method href="#clearLinks"/>
+    <method href="#updateLinks"/>
+    <method href="#readCollection"/>
+    <method href="#addItem"/>
   </resource_type>
 
   <resource_type id="bnd">
@@ -1016,9 +1034,42 @@ Res: 2.04 Changed
     <request>
     </request>
     <response status="200"/>
+    <response status="2.02"/>
+  </method>
+  
+  <method id="updateLinks" name="PATCH">
+    <doc>Update all Web Links in a resource which is a collection 
+    of links. Both HTTP and CoAP support this method.</doc>
+    <doc>This request MUST contain a Content-Format option with 
+    application/merge-patch+json.</doc>
+    <request>
+    </request>
+    <response status="200"/>
     <response status="2.04"/>
   </method>
   
+    <method id="addItem" name="POST">
+    <doc>Add zero or more items to the collection with their links. Both HTTP and CoAP support this method.</doc>
+    <doc>This request MAY contain a Content-Format option with 
+    application/collection+senml+json.</doc>
+    <doc>This request MAY contain a Content-Format option with 
+    application/senml+json.</doc>
+    <request>
+    </request>
+    <response status="200"/>
+    <response status="2.01"/>
+  </method>
+
+    <method id="readCollection" name="GET">
+    <doc>REturn a representation of both links and items in the collection. Both HTTP and CoAP support this method.</doc>
+    <doc>This request MUST contain an Accepts option with 
+    application/collection+senml+json.</doc>
+   <request>
+    </request>
+    <response status="200"/>
+    <response status="2.05"/>
+  </method>
+
 </application>
 
   ]]></artwork>
