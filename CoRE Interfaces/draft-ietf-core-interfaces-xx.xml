@@ -603,6 +603,41 @@ Res: 2.04 Changed
     
     </section>
 
+    <section anchor="hyper-collection" title="Hypermedia Collection">
+      
+      <t>
+      The Hypermedia Collection interface MAY provide a full set of the methods and link relation types described in section <xref target="collections"/> of this document.
+      </t>
+      <t>The following example interacts with a Hypermedia Collection at  /act1/actions/ by creating a new resource with Parameter sub-resources newVal, tTime. The example depicts an actuation operation with a new actuator value of 86.3% and a transition time of 10 seconds. The returned location of the created resource is then read, and a response is returned which includes the remaining time for the operation to complete "rTime". Then, the operation is cancelled by sending a DELETE operation to the location of the created resource that represents the running action.</t>
+      
+  <figure>
+    <artwork align="left"><![CDATA[
+
+Req: POST /Act1/Actions/
+Content-Format: application/collection+senml_json
+Pl: [{"n":newVal", "v":86.3}, {"n":tTime", "v":10}]
+Res: 2.01 Created 
+Location: Action1234
+
+Req: GET /Act1/Actions/Action1234
+Accepts: application/senml+json
+Res: 2.05 Content
+Pl: [{"n":newVal", "v":86.3}, 
+     {"n":tTime", "v":10}, 
+     {"n":"rTime", "v":"8.87"}]
+
+Req: DELETE /Act1/Actions/Action1234
+Res: 2.02 Deleted
+
+Req: GET /Act1/Actions/Action1234
+Res: 4.04 Not Found
+
+    ]]></artwork>
+    </figure>  
+    
+    </section>
+ 
+
     <section anchor="sensor" title="Sensor">
     
     <t>The Sensor interface allows the value of a sensor resource to be read (GET). The Media type of the resource can be either plain text or SenML. Plain text MAY be used for a single measurement that does not require meta-data. For a measurement with meta-data such as a unit or time stamp, SenML SHOULD be used. A resource with this interface MAY use SenML to return multiple measurements in the same representation, for example a list of recent measurements.</t>
@@ -1126,7 +1161,7 @@ Res: 2.04 Changed
   	<t>Moved Function sets and Profiles to section after Interfaces</t>
   	<t>Moved Observe Attributes to the Link Binding section</t>
   	<t>Add a Collection section to describe the collection types</t>
-  	<t></t>
+  	<t>Add the Hypermedia Collection Interface Description</t>
   </list>
   </t>
 
