@@ -13,7 +13,7 @@
 <?rfc compact="no"?>
 <?rfc subcompact="no"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-03">
+<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-04">
 
   <front>
   <title abbrev="Publish-Subscribe Broker for CoAP">Publish-Subscribe Broker for the Constrained Application Protocol (CoAP)</title>
@@ -168,10 +168,12 @@ Clients        pub/sub         Broker
 <list style="hanging">
 <t hangText="Interaction:">Client -> Broker</t>
 <t hangText="Method:">GET</t>
-<t hangText="URI Template:">{/.well-known/core}{/+ps}{/topic}{?rt}</t>
+<t hangText="URI Template:">{/.well-known/core}{/+ps}{/topic}{?q*}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
-<t hangText="rt := ">Resource Type (optional). MAY contain the value "core.ps"</t>
+<t hangText="/.well-known/core := ">for discovering the pub/sub function set (optional)</t>
+<t hangText="ps := ">pub/sub Function Set path (optional). The path of the pub/sub Function Set, as obtained from discovery, used to discover topics.</t>
+<t hangText="topic := ">The desired topic to return links for (optional).</t><t hangText="q := ">Query Filter (optional). MAY contain a query filter list as per <xref target="RFC6690"/> Section 4.1.</t>
 </list>
 </t>
 <t hangText="Content-Format:">application/link-format</t>
@@ -664,7 +666,7 @@ When only end-to-end encryption is necessary and the CoAP Broker is trusted, Pay
 
     
 <section anchor="acks" title="Acknowledgements">
-  <t>The authors would like to thank Hannes Tschofenig, Zach Shelby, Mohit Sethi, Peter van der Stok, Tim Kellogg, Anders Eriksson, and Goran Selander for their contributions and reviews. </t>
+  <t>The authors would like to thank Hannes Tschofenig, Zach Shelby, Mohit Sethi, Peter van der Stok, Tim Kellogg, Anders Eriksson, Goran Selander, Mikko Majanen, and Olaf Bergmann for their contributions and reviews. </t>
 </section>
 
 
