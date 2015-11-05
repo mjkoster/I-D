@@ -168,7 +168,8 @@ Clients        pub/sub         Broker
 <list style="hanging">
 <t hangText="Interaction:">Client -> Broker</t>
 <t hangText="Method:">GET</t>
-<t hangText="URI Template:">{/.well-known/core}{/+ps}{/topic}{?q*}</t>
+<t hangText="URI Template:">/.well-known/core</t>
+<t hangText="URI Template:">/{+ps/}{topic}{?q*}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
 <t hangText="/.well-known/core := ">for discovering the pub/sub function set (optional)</t>
@@ -234,7 +235,7 @@ Client                                          Broker
 <list style="hanging">
   <t hangText="Interaction:">Client -> Broker</t>
   <t hangText="Method:">POST</t>
-  <t hangText="URI Template:">/{+ps}</t>
+  <t hangText="URI Template:">/{+ps/}{topic}</t>
   <t hangText="URI Template Variables:">
     <list style="hanging">
       <t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery. A pub/sub broker SHOULD use the value "ps" for this variable whenever possible.</t>
@@ -288,7 +289,7 @@ Client                                          Broker
 <list style="hanging">
 <t hangText="Interaction:">Client -> Broker</t>
 <t hangText="Method:">PUT</t>
-<t hangText="URI Template:">/{+ps}/{topic}</t>
+<t hangText="URI Template:">/{+ps/}{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
 <t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery.</t>
@@ -340,7 +341,7 @@ Client                                          Broker
 <t hangText="Interaction:">Client -> Broker</t>
 <t hangText="Method:">GET</t>
 <t hangText="Options:">Observe:0</t>
-<t hangText="URI Template:">/{+ps}/{topic}</t>
+<t hangText="URI Template:">/{+ps/}{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
 <t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery.</t>
@@ -396,7 +397,7 @@ Client1   Client2                                          Broker
 <t hangText="Interaction:">Client -> Broker</t>
 <t hangText="Method:">GET</t>
 <t hangText="Options:">Observe:1</t>
-<t hangText="URI Template:">/{+ps}/{topic}</t>
+<t hangText="URI Template:">/{+ps/}{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
 <t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery.</t>
@@ -445,7 +446,7 @@ Client                                          Broker
 <list style="hanging">
 <t hangText="Interaction:">Client -> Broker</t>
 <t hangText="Method:">GET</t>
-<t hangText="URI Template:">/{+ps}/{topic}</t>
+<t hangText="URI Template:">/{+ps/}{topic}</t>
 <t hangText="URI Template Variables:">
 <list style="hanging">
 <t hangText="ps := ">pub/sub Function Set path (mandatory). The path of the pub/sub Function Set, as obtained from discovery.</t>
