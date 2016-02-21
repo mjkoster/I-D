@@ -61,9 +61,9 @@
 
 <section anchor="introduction" title="Introduction">
 
-<t>Interoperability for connected things is improving with the adoption of Internet Protocol (IP) in a number of emerging standards and ecosystems. OCF, Allseen, Thread Alliance and ZigBee, Bluetooth SIG, OMA LWM2M, IPSO Alliance, Nest Weave, and WiFi connected devices.</t>
+<t>Interoperability for connected things is improving with the adoption of Internet Protocol (IP) in a number of emerging standards and ecosystems. <xref target="OCF"/>, <xref target="Thread"/> and <xref target="ZigBee"/>, <xref target="BT-SIG"/>, <xref target="LWM2M"/>, <xref target="IPSO"/>, <xref target="Weave"/>, and WiFi connected devices.</t>
 
-<t>Consolidation is being seen in the adoption of HTTP and CoAP by these ecosystems. Many emerging standards support some form of web linking or resource directory (OCF, LWM2M, RFC6690, CoRE RD). Use of REST is becoming common, particularly for web integration and more recently at the device API and local network level (OCF, LWM2M). There is ongoing work in providing hypermedia support (IETF, OCF, W3C, T2TRG). Hypertext based systems can use link attributes to incorporate application semantics.</t>
+<t>Consolidation is being seen in the adoption of HTTP and CoAP <xref target="RFC7252"/> by these ecosystems. Many emerging standards support some form of web linking or resource directory <xref target="OCF"/>, <xref target="LWM2M"/>, <xref target="RFC6690"/>, <xref target="I-D.ietf-core-resource-directory"/>). Use of <xref target="REST"/> is becoming common, particularly for web integration and more recently at the device API and local network level <xref target="OCF"/>, <xref target="LWM2M"/>. There is ongoing work in providing hypermedia support <xref target="I-D.ietf-core-interfaces"/>, <xref target="OCF"/>, <xref target="W3C-WoT"/>, <xref target="T2TRG"/>. Hypertext based systems can use link attributes to incorporate application semantics.</t>
 
 <t>For application semantics, many organizations and alliances are creating new vocabularies bound to their own models. This can result in application incompatibility, for example an identifier like temperature may appear to be well known but is semantically incompatible across ecosystems and application domains.</t>
 
@@ -76,7 +76,7 @@
 
 <t>Conceptual models are layered, with core concepts forming a basis on which to build more sophisticated models. In the case of human language, we are used to a set of conceptual fragments like nouns, verbs, adjectives, and so on to express thoughts and feelings when we interact with one another.</t>
 
-<t>For interacting with connected things, there is a conceptual model in common use that is proposed by (W3C).  Using this model a connected Thing is defined by and interacted with through its Events, Actions, and Properties. Events can be considered to be state changes within the thing we may be interested in. Actions can be invoked when we want the thing to change its state or the state of its environment, like turn on a light. Properties are like the current state of a thing or its static attributes.</t>
+<t>For interacting with connected things, there is a conceptual model in common use that is proposed by <xref target="W3C-WoT"/>.  Using this model a connected Thing is defined by and interacted with through its Events, Actions, and Properties. Events can be considered to be state changes within the thing we may be interested in. Actions can be invoked when we want the thing to change its state or the state of its environment, like turn on a light. Properties are like the current state of a thing or its static attributes.</t>
 
 <t>Events, Actions, and Properties can form the basis of a simple, consistent conceptual framework upon which to build a general interaction language for things. We can ask a thing about it’s properties, we can observe events that change the state of the thing or indicate changes in its environment, and we can ask it to perform actions for us to change its state or its environment.</t>
 
@@ -100,34 +100,19 @@
 
 ]]></artwork></figure>
 
-<t>Schemas are publicly available domain specific meta-models, built through community consensus by domain experts and industry users. A working example of this today is [schema.org], which is a public vocabulary and ontology for interoperable web commerce. Applications use schemas to develop machine comprehensions of the hypertext controls and affordances exposed by connected things.</t>
+<t>Schemas are publicly available domain specific meta-models, built through community consensus by domain experts and industry users. A working example of this today is <xref target="schemaorg"/>, which is a public vocabulary and ontology for interoperable web commerce. Applications use schemas to develop machine comprehensions of the hypertext controls and affordances exposed by connected things.</t>
 
 <t>Domain Models are built from schemas by manufacturers or data suppliers. Domain Models represent instances or specific types of products or information assets. A Domain Model would generally be used to construct a virtual thing or an interface to a thing.</t>
 
 <t>Hypertext is exposed or referenced by things, and is used to bind vocabulary terms from the schema to instances of the Domain Model. Hypertext is made available in-band through the application protocol, for example CoAP or HTTP.</t>
 
-<t>Protocols represent common network capability, for example Thread, WiFi, Internet, and underlying protocols TCP/IP, UDP, and common application protocols CoAP, HTTP, as well as ecosystem protocol layers like OCF and LWM2M.</t>
+<t>Protocols represent common network capability, for example Thread, WiFi, Internet, and underlying protocols TCP/IP, UDP, and common application protocols CoAP, HTTP, as well as ecosystem protocol layers like <xref target="OCF"/> and <xref target="LWM2M"/>.</t>
 
 <t>Applications are the external logic and programs used to remotely control and orchestrate the activities of connected things. Domain specific vocabulary is exposed directly to applications through hypertext exposed through the application protocol.</t>
 
 <t>Application level interoperability is achieved by applications understanding the semantics of the common underlying conceptual model and interpreting the vocabulary that describes domain specific instances of that conceptual model. In the context of common application semantics, network and application protocols are relatively easy to adapt between ecosystems.</t>
 
-<t>Hypertext, Hypermedia
-Model
-Conceptual Model
-Schema</t>
-
-<t>W3C WoT
-T2TRG
-OCF
-Thread
-ZigBee Application Clusters
-Bluetooth SIG
-OMA LWM2M
-IPSO Alliance
-Nest Weave
-Hypertext (Fielding)
-Hypermedia Demonstrator</t>
+<t>A reference implementation of the above architecture is described at <xref target="HypermediaDemonstrator"/>.</t>
 
 </section>
 <section anchor="terminology" title="Terminology">
@@ -136,9 +121,17 @@ Hypermedia Demonstrator</t>
   <t hangText='Ecosystem'><vspace blankLines='0'/>
   Referring to a standard or platform supported by a corporate entity or an industry alliance or consortium.</t>
   <t hangText='Semantic Interoperability'><vspace blankLines='0'/>
-  The ability for applications to understand</t>
+  The ability for data sources and applications to exchange state information in a meaningful way without prior detailed knowledge</t>
+  <t hangText='Hypertext, Hypermedia'><vspace blankLines='0'/>
+  Meta-data that identifies the location and attributes of resources</t>
+  <t hangText='Conceptual Model'><vspace blankLines='0'/>
+  High level model that defines a set of semantic characteristics</t>
+  <t hangText='Schema:'><vspace blankLines='0'/>
+  A meta-model that defines how models are structured and annnotated</t>
+  <t hangText='Domain Model'><vspace blankLines='0'/>
+  A model of a product or type that defines the expected configuration of a specific instance or type</t>
   <t hangText='Application Domain'><vspace blankLines='0'/>
-  A group of applications that share common</t>
+  A group of applications that share common attributes and characteristics, for example connected automobiles</t>
 </list></t>
 
 </section>
@@ -316,6 +309,105 @@ Hypermedia Demonstrator</t>
   </front>
   <seriesInfo name="Ph.D." value="Dissertation, University of California, Irvine"/>
   <format type="PDF" target="http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf"/>
+</reference>
+<reference anchor="HypermediaDemonstrator" target="https://github.com/connectIOT/HypermediaDemo">
+  <front>
+    <title>Demonstration of a HATEOAS based system architecture for the Web of Things</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
+</reference>
+<reference anchor="W3C-WoT" target="https://www.w3.org/WoT/IG/">
+  <front>
+    <title>W3C Web of Things Interest Group</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
+</reference>
+<reference anchor="T2TRG" target="https://datatracker.ietf.org/rg/t2trg/charter/">
+  <front>
+    <title>IRTF Thing to Thing Research Group</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
+</reference>
+<reference anchor="OCF" target="http://openconnectivity.org/">
+  <front>
+    <title>Open Connectivity Foundation</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
+</reference>
+<reference anchor="Thread" target="http://www.threadgroup.org/">
+  <front>
+    <title>Thread Group</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
+</reference>
+<reference anchor="ZigBee" target="http://www.zigbee.org/download/standards-zigbee-cluster-library/">
+  <front>
+    <title>ZigBee Cluster Library</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
+</reference>
+<reference anchor="BT-SIG" target="https://www.bluetooth.com/">
+  <front>
+    <title>Bluetooth SIG</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
+</reference>
+<reference anchor="LWM2M" target="http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/oma-lightweightm2m-v1-0">
+  <front>
+    <title>OMA LWM2M</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
+</reference>
+<reference anchor="IPSO" target="http://www.ipso-alliance.org/ipso-community/resources/smart-objects-interoperability/">
+  <front>
+    <title>IPSO Smart Object Guidelines</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="n.d."/>
+  </front>
+</reference>
+<reference anchor="Weave" target="https://developer.nest.com/documentation/weave/weave-overview/">
+  <front>
+    <title>Nest Weave Overview</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
+</reference>
+<reference anchor="schemaorg" target="http://schema.org">
+  <front>
+    <title>Schema-org</title>
+    <author >
+      <organization></organization>
+    </author>
+    <date year="2016"/>
+  </front>
 </reference>
 
 
