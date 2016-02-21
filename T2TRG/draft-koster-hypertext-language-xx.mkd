@@ -13,7 +13,7 @@ pi:
   comments: yes
   subcompact: 'no'
   iprnotified: 'no'
-title: Model-Based Hypertext Language for Semantic Interoperability
+title: Model-Based Hypertext Language
 area: Internet
 wg: T2TRG
 kw: T2TRG, Web of Things, Hypermedia, Semantic Interoperability
@@ -37,7 +37,19 @@ informative:
   RFC7252:
   I-D.ietf-core-interfaces: 
   I-D.ietf-core-resource-directory: 
-  
+  REST:
+    target: http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf
+    title: Architectural Styles and the Design of Network-based Software Architectures
+    author:
+        ins: R. Fielding
+        name: Roy Thomas Fielding
+        org: University of California, Irvine
+    date: 2000
+    seriesinfo:
+      "Ph.D.": "Dissertation, University of California, Irvine"
+    format:
+      PDF: http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf
+
 --- abstract
 
 Interoperability for connected things is improving in a number of important areas, converging around Internet Protocol (IP) and internet-like design patterns. Hypermedia is becoming more common with web linking becoming part of a number of important standards. 
@@ -54,7 +66,7 @@ Interoperability for connected things is improving with the adoption of Internet
 
 Consolidation is being seen in the adoption of HTTP and CoAP by these ecosystems. Many emerging standards support some form of web linking or resource directory (OCF, LWM2M, RFC6690, CoRE RD). Use of REST is becoming common, particularly for web integration and more recently at the device API and local network level (OCF, LWM2M). There is ongoing work in providing hypermedia support (IETF, OCF, W3C, T2TRG). Hypertext based systems can use link attributes to incorporate application semantics. 
 
-For application semantics, many organizations and alliances are creating new vocabularies bound to their own models. This can result in application incompatibility, for example an identifier like temperature may appear to be well known but is semantically incompatible across ecosystems and application domains. For example, the scope of such an identifier, the set of parameters that it refers to, varies according to the conceptual model assumed by a particular framework. What is missing is a well known way to construct and maintain common models and vocabulary for application semantics, both across application domains and for specific domains. 
+For application semantics, many organizations and alliances are creating new vocabularies bound to their own models. This can result in application incompatibility, for example an identifier like temperature may appear to be well known but is semantically incompatible across ecosystems and application domains. 
 
 # Conceptual Models and Domain Specific Language
 
@@ -75,15 +87,15 @@ Semantic interoperability may be achieved through common definitions of cross do
 Figure 1 shows an example system architecture for broad interoperability at web scale. 
 
 ~~~~
-                                       +--------------+
-      +------------------------------->| Applications |
-      |                                +--------------+
-      |                                |   Protocols  |
-      |                                +--------------+
-      |                                |   Hypertext  |
-+-----------+     +--------------+     +--------------+
-|  Schemas  |---->| Domain Model |---->|    Things    |
-+-----------+     +--------------+     +--------------+
+                                           +--------------+
+          +------------------------------->| Applications |
+          |                                +--------------+
+          |                                |   Protocols  |
+          |                                +--------------+
+          |                                |   Hypertext  |
+    +-----------+     +--------------+     +--------------+
+    |  Schemas  |---->| Domain Model |---->|    Things    |
+    +-----------+     +--------------+     +--------------+
 
 ~~~~
 {: #fig-arch title='Reference Architecture' align="left"}
@@ -98,15 +110,8 @@ Protocols represent common network capability, for example Thread, WiFi, Interne
 
 Applications are the external logic and programs used to remotely control and orchestrate the activities of connected things. Domain specific vocabulary is exposed directly to applications through hypertext exposed through the application protocol.
 
-Application level interoperability is achieved by applications understanding the semantics of the common underlying conceptual model and interpreting the vocabulary that describes domain specific instances of that conceptual model. Applications understand the semantics of interacting with the connected thing, the network and application protocols are relatively easy to adapt to between ecosystems.
+Application level interoperability is achieved by applications understanding the semantics of the common underlying conceptual model and interpreting the vocabulary that describes domain specific instances of that conceptual model. In the context of common application semantics, network and application protocols are relatively easy to adapt between ecosystems.
 
-# Terminology {#terminology}
-
-Ecosystem
-:    Referring to a standard or platform supported by a corporate entity or an industry alliance or consortium.
-
-Semantic Interoperability
-Application Domain
 Hypertext, Hypermedia
 Model
 Conceptual Model
@@ -124,7 +129,16 @@ Nest Weave
 Hypertext (Fielding)
 Hypermedia Demonstrator
 
+# Terminology {#terminology}
 
+Ecosystem
+:    Referring to a standard or platform supported by a corporate entity or an industry alliance or consortium.
+
+Semantic Interoperability
+:    The ability for applications to understand 
+
+Application Domain
+:    A group of applications that share common
 {: vspace='0'}
 
 --- back
