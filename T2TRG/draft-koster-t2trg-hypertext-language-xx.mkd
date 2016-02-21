@@ -2,7 +2,7 @@
 stand_alone: true
 ipr: trust200902
 docname: draft-koster-t2trg-hypertext-language-00
-cat: info
+cat: exp
 pi:
   strict: 'yes'
   toc: 'yes'
@@ -15,7 +15,7 @@ pi:
   iprnotified: 'no'
 title: Model-Based Hypertext Language
 area: Internet
-wg: T2TRG
+wg: Thing-to-Thing Research Group
 kw: T2TRG, Web of Things, Hypermedia, Semantic Interoperability
 date: 2016-2-20
 author:
@@ -54,72 +54,94 @@ informative:
   HypermediaDemonstrator: 
     target: https://github.com/connectIOT/HypermediaDemo
     title: Demonstration of a HATEOAS based system architecture for the Web of Things
+    author: 
+        ins: M. Koster
     date: 2016
 
   W3C-WoT: 
     target: https://www.w3.org/WoT/IG/
     title: W3C Web of Things Interest Group
+    author: 
+        ins: WoT IG
     date: 2016
     
     
   T2TRG:
     target: https://datatracker.ietf.org/rg/t2trg/charter/
     title: IRTF Thing to Thing Research Group
+    author: 
+        ins: IRTF
     date: 2016
 
   OCF:
     target: http://openconnectivity.org/
     title: Open Connectivity Foundation
+    author: 
+        ins: OCF
     date: 2016
 
   Thread:
     target: http://www.threadgroup.org/
     title: Thread Group
+    author: 
+        ins: Thread Group
     date: 2016
 
   
   ZigBee:
     target: http://www.zigbee.org/download/standards-zigbee-cluster-library/
     title: ZigBee Cluster Library
+    author: 
+        ins: ZigBee Alliance
     date: 2016
 
   
   BT-SIG:
     target: https://www.bluetooth.com/
     title: Bluetooth SIG
+    author: 
+      ins: BT SIG
     date: 2016
 
   
   LWM2M:
     target: http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/oma-lightweightm2m-v1-0
     title: OMA LWM2M
+    author: 
+        ins: OMA
     date: 2016
 
   
   IPSO:
     target: http://www.ipso-alliance.org/ipso-community/resources/smart-objects-interoperability/
     title: IPSO Smart Object Guidelines
-    date:
+    author: 
+        ins: IPSO Alliance
+    date: 2016
 
   
   Weave:
     target: https://developer.nest.com/documentation/weave/weave-overview/
     title: Nest Weave Overview
+    author: 
+        ins: Nest
     date: 2016
 
   schemaorg:
     target: http://schema.org
-    title: Schema-org
+    title: Schema.org
+    author: 
+        ins: Schema.org
     date: 2016
     
     
 --- abstract
 
-Interoperability for connected things is improving in a number of important areas, converging around Internet Protocol (IP) and internet-like design patterns. Hypermedia is becoming more common with web linking becoming part of a number of important standards. 
+Interoperability for connected things is improving in a number of important areas, converging around Internet Protocol (IP) and internet design patterns. Hypermedia is becoming more common with web linking becoming part of a number of important standards. 
 
 However, there is still an interoperability gap in how application semantics are defined and used. Many organizations and industry alliances are defining vocabulary and taxonomy for application domains, independent of each other. These vocabularies are often bound to particular conceptual models, and are often semantically incompatible with each other. While it may be possible to adapt protocols and convert representations, it is difficult to develop a common application framework that works across ecosystems and domains.
 
-This article proposes a method that can be reused across application domains and across ecosystems, to define a shared conceptual model and common vocabulary. A public resource is described which does for connected things what schema.org does for web commerce, namely provide a community driven vocabulary and simple ontology that enables web scale interoperability between applications and connected things.
+This article proposes a method that can be reused across application domains and across ecosystems, to define a shared conceptual model and common vocabulary. A public resource is described which does for connected things what schema.org does for web commerce, to provide a community driven vocabulary and simple ontology that enables web scale interoperability between applications and connected things.
 
 --- middle
 
@@ -169,7 +191,7 @@ Domain Models are built from schemas by manufacturers or data suppliers. Domain 
 
 Hypertext is exposed or referenced by things, and is used to bind vocabulary terms from the schema to instances of the Domain Model. Hypertext is made available in-band through the application protocol, for example CoAP or HTTP. 
 
-Protocols represent common network capability, for example Thread, WiFi, Internet, and underlying protocols TCP/IP, UDP, and common application protocols CoAP, HTTP, as well as ecosystem protocol layers like {{OCF}} and {{LWM2M}}. 
+Protocols represent common network capability, for example {{Thread}}, WiFi, Internet, and underlying protocols TCP/IP, UDP, and common application protocols CoAP, HTTP, as well as ecosystem protocol layers like {{OCF}} and {{LWM2M}}. 
 
 Applications are the external logic and programs used to remotely control and orchestrate the activities of connected things. Domain specific vocabulary is exposed directly to applications through hypertext exposed through the application protocol.
 
@@ -183,22 +205,22 @@ Ecosystem
 :    Referring to a standard or platform supported by a corporate entity or an industry alliance or consortium.
 
 Semantic Interoperability
-:    The ability for data sources and applications to exchange state information in a meaningful way without prior detailed knowledge
+:    The ability for data sources and applications to exchange state information in a meaningful way without prior detailed knowledge.
 
 Hypertext, Hypermedia
-:    Meta-data that identifies the location and attributes of resources
+:    Meta-data that identifies the location and attributes of resources.
 
 Conceptual Model
-:    High level model that defines a set of semantic characteristics 
+:    A High level model that defines a set of semantic characteristics. 
 
 Schema:
-:    A meta-model that defines how models are structured and annnotated
+:    A meta-model that defines how models are structured and annnotated.
 
 Domain Model
-:    A model of a product or type that defines the expected configuration of a specific instance or type
+:    A model of a product or type that defines the expected configuration of a specific instance or type.
 
 Application Domain
-:    A group of applications that share common attributes and characteristics, for example connected automobiles
+:    A group of applications that share common attributes and characteristics, for example connected automobiles.
 {: vspace='0'}
 
 --- back

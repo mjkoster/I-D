@@ -15,7 +15,7 @@
 <?rfc subcompact="no"?>
 <?rfc iprnotified="no"?>
 
-<rfc ipr="trust200902" docName="draft-koster-t2trg-hypertext-language-00" category="info">
+<rfc ipr="trust200902" docName="draft-koster-t2trg-hypertext-language-00" category="exp">
 
   <front>
     <title>Model-Based Hypertext Language</title>
@@ -37,17 +37,17 @@
     <date year="2016" month="February" day="20"/>
 
     <area>Internet</area>
-    <workgroup>T2TRG</workgroup>
+    <workgroup>Thing-to-Thing Research Group</workgroup>
     <keyword>T2TRG, Web of Things, Hypermedia, Semantic Interoperability</keyword>
 
     <abstract>
 
 
-<t>Interoperability for connected things is improving in a number of important areas, converging around Internet Protocol (IP) and internet-like design patterns. Hypermedia is becoming more common with web linking becoming part of a number of important standards.</t>
+<t>Interoperability for connected things is improving in a number of important areas, converging around Internet Protocol (IP) and internet design patterns. Hypermedia is becoming more common with web linking becoming part of a number of important standards.</t>
 
 <t>However, there is still an interoperability gap in how application semantics are defined and used. Many organizations and industry alliances are defining vocabulary and taxonomy for application domains, independent of each other. These vocabularies are often bound to particular conceptual models, and are often semantically incompatible with each other. While it may be possible to adapt protocols and convert representations, it is difficult to develop a common application framework that works across ecosystems and domains.</t>
 
-<t>This article proposes a method that can be reused across application domains and across ecosystems, to define a shared conceptual model and common vocabulary. A public resource is described which does for connected things what schema.org does for web commerce, namely provide a community driven vocabulary and simple ontology that enables web scale interoperability between applications and connected things.</t>
+<t>This article proposes a method that can be reused across application domains and across ecosystems, to define a shared conceptual model and common vocabulary. A public resource is described which does for connected things what schema.org does for web commerce, to provide a community driven vocabulary and simple ontology that enables web scale interoperability between applications and connected things.</t>
 
 
 
@@ -106,7 +106,7 @@
 
 <t>Hypertext is exposed or referenced by things, and is used to bind vocabulary terms from the schema to instances of the Domain Model. Hypertext is made available in-band through the application protocol, for example CoAP or HTTP.</t>
 
-<t>Protocols represent common network capability, for example Thread, WiFi, Internet, and underlying protocols TCP/IP, UDP, and common application protocols CoAP, HTTP, as well as ecosystem protocol layers like <xref target="OCF"/> and <xref target="LWM2M"/>.</t>
+<t>Protocols represent common network capability, for example <xref target="Thread"/>, WiFi, Internet, and underlying protocols TCP/IP, UDP, and common application protocols CoAP, HTTP, as well as ecosystem protocol layers like <xref target="OCF"/> and <xref target="LWM2M"/>.</t>
 
 <t>Applications are the external logic and programs used to remotely control and orchestrate the activities of connected things. Domain specific vocabulary is exposed directly to applications through hypertext exposed through the application protocol.</t>
 
@@ -121,17 +121,17 @@
   <t hangText='Ecosystem'><vspace blankLines='0'/>
   Referring to a standard or platform supported by a corporate entity or an industry alliance or consortium.</t>
   <t hangText='Semantic Interoperability'><vspace blankLines='0'/>
-  The ability for data sources and applications to exchange state information in a meaningful way without prior detailed knowledge</t>
+  The ability for data sources and applications to exchange state information in a meaningful way without prior detailed knowledge.</t>
   <t hangText='Hypertext, Hypermedia'><vspace blankLines='0'/>
-  Meta-data that identifies the location and attributes of resources</t>
+  Meta-data that identifies the location and attributes of resources.</t>
   <t hangText='Conceptual Model'><vspace blankLines='0'/>
-  High level model that defines a set of semantic characteristics</t>
+  A High level model that defines a set of semantic characteristics.</t>
   <t hangText='Schema:'><vspace blankLines='0'/>
-  A meta-model that defines how models are structured and annnotated</t>
+  A meta-model that defines how models are structured and annnotated.</t>
   <t hangText='Domain Model'><vspace blankLines='0'/>
-  A model of a product or type that defines the expected configuration of a specific instance or type</t>
+  A model of a product or type that defines the expected configuration of a specific instance or type.</t>
   <t hangText='Application Domain'><vspace blankLines='0'/>
-  A group of applications that share common attributes and characteristics, for example connected automobiles</t>
+  A group of applications that share common attributes and characteristics, for example connected automobiles.</t>
 </list></t>
 
 </section>
@@ -313,7 +313,7 @@
 <reference anchor="HypermediaDemonstrator" target="https://github.com/connectIOT/HypermediaDemo">
   <front>
     <title>Demonstration of a HATEOAS based system architecture for the Web of Things</title>
-    <author >
+    <author initials="M." surname="Koster">
       <organization></organization>
     </author>
     <date year="2016"/>
@@ -322,7 +322,7 @@
 <reference anchor="W3C-WoT" target="https://www.w3.org/WoT/IG/">
   <front>
     <title>W3C Web of Things Interest Group</title>
-    <author >
+    <author initials="." surname="WoT IG">
       <organization></organization>
     </author>
     <date year="2016"/>
@@ -331,7 +331,7 @@
 <reference anchor="T2TRG" target="https://datatracker.ietf.org/rg/t2trg/charter/">
   <front>
     <title>IRTF Thing to Thing Research Group</title>
-    <author >
+    <author initials="." surname="IRTF">
       <organization></organization>
     </author>
     <date year="2016"/>
@@ -340,7 +340,7 @@
 <reference anchor="OCF" target="http://openconnectivity.org/">
   <front>
     <title>Open Connectivity Foundation</title>
-    <author >
+    <author initials="." surname="OCF">
       <organization></organization>
     </author>
     <date year="2016"/>
@@ -349,7 +349,7 @@
 <reference anchor="Thread" target="http://www.threadgroup.org/">
   <front>
     <title>Thread Group</title>
-    <author >
+    <author initials="." surname="Thread Group">
       <organization></organization>
     </author>
     <date year="2016"/>
@@ -358,7 +358,7 @@
 <reference anchor="ZigBee" target="http://www.zigbee.org/download/standards-zigbee-cluster-library/">
   <front>
     <title>ZigBee Cluster Library</title>
-    <author >
+    <author initials="." surname="ZigBee Alliance">
       <organization></organization>
     </author>
     <date year="2016"/>
@@ -367,7 +367,7 @@
 <reference anchor="BT-SIG" target="https://www.bluetooth.com/">
   <front>
     <title>Bluetooth SIG</title>
-    <author >
+    <author initials="." surname="BT SIG">
       <organization></organization>
     </author>
     <date year="2016"/>
@@ -376,7 +376,7 @@
 <reference anchor="LWM2M" target="http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/oma-lightweightm2m-v1-0">
   <front>
     <title>OMA LWM2M</title>
-    <author >
+    <author initials="." surname="OMA">
       <organization></organization>
     </author>
     <date year="2016"/>
@@ -385,16 +385,16 @@
 <reference anchor="IPSO" target="http://www.ipso-alliance.org/ipso-community/resources/smart-objects-interoperability/">
   <front>
     <title>IPSO Smart Object Guidelines</title>
-    <author >
+    <author initials="." surname="IPSO Alliance">
       <organization></organization>
     </author>
-    <date year="n.d."/>
+    <date year="2016"/>
   </front>
 </reference>
 <reference anchor="Weave" target="https://developer.nest.com/documentation/weave/weave-overview/">
   <front>
     <title>Nest Weave Overview</title>
-    <author >
+    <author initials="." surname="Nest">
       <organization></organization>
     </author>
     <date year="2016"/>
@@ -402,8 +402,8 @@
 </reference>
 <reference anchor="schemaorg" target="http://schema.org">
   <front>
-    <title>Schema-org</title>
-    <author >
+    <title>Schema.org</title>
+    <author initials="Schema." surname="org">
       <organization></organization>
     </author>
     <date year="2016"/>
