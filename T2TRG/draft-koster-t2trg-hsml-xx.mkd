@@ -76,7 +76,7 @@ informative:
 
     
 --- abstract
-Machine hypermedia content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{senml}}. Structured data contains both links and items in collections. This draft describes a content format for representation of collections of machine resources. 
+Machine hypermedia content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{I-D.jennings-core-senml}}. Structured data contains both links and items in a type known as the collection type. This draft describes content formats for representation of machine resources in collections. 
 --- middle
 
 # Introduction {#introduction}
@@ -132,17 +132,16 @@ Collection is a web page for things. This draft describes a content format for m
 
 ### Link Embedding
 
-
 # Security Considerations
 
 ## Object Signing
-Collection representations are encapsulated and may be signed objects in order to protect the integrity
+Collection representations are encapsulated and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.
 
 ## Signed Embedded Time Stamps
-The collection may include time stamps (bt and t)
+The collection may include time stamps (bt and t) that are signed with the object data and metadata.
 
 ## Signed Embedded Access Control 
-The colleciton representation may include access control information in the encapsulation, also signed
+The colleciton representation may include access control information in the encapsulation, also signed with the metadata, that can instruct the server to allow a particular class of access to requests that contain a particular credential.
 
 # Examples
 Figure 1 shows an example document in hsml+json format
@@ -177,7 +176,8 @@ Figure 1 shows an example document in hsml+json format
 
 # Reserved Identifiers {#reserved-identifiers}
 
-## hsml keywords
+## hsml Keywords
+The following keywords are reserved for use by hsml processing to identify sub-elements of a hsml serialization
 
 "i"
 :    indicates the list of named items
@@ -186,7 +186,8 @@ Figure 1 shows an example document in hsml+json format
 :    indicates the list of links
 {: vspace='0'}
 
-## link keywords
+## Link Keywords
+The following keywords are reserved for use in a hsml serialization to indicate elements of a web link
 
 "href"
 :    target of a link reference. This may be a relative reference in the collection e.g. "currentValue" or a local absolute reference "/sensors/temp/currentValue" or a full reference "https://example.com/sensors/temp/currentValue"
@@ -198,7 +199,8 @@ Figure 1 shows an example document in hsml+json format
 :    link relation type
 {: vspace='0'}
 
-### link relation types
+### Link Relation Types
+The following keywords are reserved for use in a hsml serialization to indicate types of link relations
 
 "self"
 :    refers to the collection itself
@@ -213,7 +215,8 @@ Figure 1 shows an example document in hsml+json format
 :    the item is available for collective (group) interaction
 {: vspace='0'}
 
-### link attribute types 
+### Link Attribute Types 
+The following keywords are reserved for use in a hsml serialization to indicate types of link attributes
 
 "rt"
 :    the resource type of the item
@@ -225,7 +228,8 @@ Figure 1 shows an example document in hsml+json format
 :    the content-format of the item
 {: vspace='0'}
 
-## senml keywords
+## SenML Keywords
+The following keywords are reserved for use in a hsml serialization to indicate elements within the serialization
 
 "bn"
 :    the base name or base URI of the collection, relative to the service location e.g. "/sensors/temp/"

@@ -183,6 +183,7 @@
 <section anchor="reserved-identifiers" title="Reserved Identifiers">
 
 <section anchor="hsml-keywords" title="hsml keywords">
+<t>The following keywords are reserved for use by hsml processing to identify sub-elements of a hsml serialization</t>
 
 <t><list style="hanging">
   <t hangText='“i”'><vspace blankLines='0'/>
@@ -193,6 +194,7 @@
 
 </section>
 <section anchor="link-keywords" title="link keywords">
+<t>The following keywords are reserved for use in a hsml serialization to indicate elements of a web link</t>
 
 <t><list style="hanging">
   <t hangText='“href”'><vspace blankLines='0'/>
@@ -204,6 +206,7 @@
 </list></t>
 
 <section anchor="link-relation-types" title="link relation types">
+<t>The following keywords are reserved for use in a hsml serialization to indicate types of link relations</t>
 
 <t><list style="hanging">
   <t hangText='“self”'><vspace blankLines='0'/>
@@ -218,6 +221,7 @@
 
 </section>
 <section anchor="link-attribute-types" title="link attribute types">
+<t>The following keywords are reserved for use in a hsml serialization to indicate types of link attributes</t>
 
 <t><list style="hanging">
   <t hangText='“rt”'><vspace blankLines='0'/>
@@ -231,6 +235,7 @@
 </section>
 </section>
 <section anchor="senml-keywords" title="senml keywords">
+<t>The following keywords are reserved for use in a hsml serialization to indicate elements within the serialization</t>
 
 <t><list style="hanging">
   <t hangText='“bn”'><vspace blankLines='0'/>
