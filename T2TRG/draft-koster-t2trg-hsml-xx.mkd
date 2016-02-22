@@ -1,0 +1,259 @@
+---
+stand_alone: true
+ipr: trust200902
+docname: draft-koster-t2trg-hsml-00
+cat: exp
+pi:
+  strict: 'yes'
+  toc: 'yes'
+  tocdepth: '3'
+  symrefs: 'yes'
+  sortrefs: 'yes'
+  compact: 'yes'
+  comments: yes
+  subcompact: 'no'
+  iprnotified: 'no'
+title: Content Formats for Hypertext Sensor Markup
+area: Internet
+wg: Thing-to-Thing Research Group
+kw: T2TRG, Web of Things, Hypermedia, Semantic Interoperability
+date: 2016-2-21
+author:
+- ins: M. Koster
+  name: Michael Koster
+  org: SmartThings
+  street: 1281 Lawrence Station Road
+  city: Sunnyvale
+  code: '94089'
+  country: USA
+  phone: "+1-707-502-5136"
+  email: michael.koster@smartthings.com
+normative:
+informative:
+  RFC6690:
+  I-D.ietf-core-links-json:
+  RFC3986:
+  RFC5988:
+  RFC7252:
+  I-D.ietf-core-interfaces:
+  I-D.ietf-core-resource-directory:
+  I-D.jennings-core-senml:
+
+  REST:
+    target: http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf
+    title: Architectural Styles and the Design of Network-based Software Architectures
+    author:
+        ins: R. Fielding
+        name: Roy Thomas Fielding
+        org: University of California, Irvine
+    date: 2000
+    seriesinfo:
+      "Ph.D.": "Dissertation, University of California, Irvine"
+    format:
+      PDF: http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf
+
+  HypermediaDemonstrator: 
+    target: https://github.com/connectIOT/HypermediaDemo
+    title: Demonstration of a HATEOAS based system architecture for the Web of Things
+    author: 
+        ins: M. Koster
+    date: 2016
+
+  W3C-WoT: 
+    target: https://www.w3.org/WoT/IG/
+    title: W3C Web of Things Interest Group
+    author: 
+        ins: WoT IG
+    date: 2016
+    
+    
+  T2TRG:
+    target: https://datatracker.ietf.org/rg/t2trg/charter/
+    title: IRTF Thing to Thing Research Group
+    author: 
+        ins: IRTF
+    date: 2016
+
+    
+--- abstract
+Machine hypermedia content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{senml}}. Structured data contains both links and items in collections. This draft describes a content format for representation of collections of machine resources. 
+--- middle
+
+# Introduction {#introduction}
+Collection is a web page for things. This draft describes a content format for machine collections that contain named items and links that point to and describe items. Link representations are compatible with CoRE Link-Format {{RFC6690}}. Item representations in the collection are compatible with {{I-D.jennings-core-senml}}.
+
+# Structure of the Collection
+
+## Base
+
+## Links
+
+## Items
+
+# URI handling
+
+## Base URI and item names
+
+## Query filtering and selection
+
+# Content Formats
+
+## JSON
+
+## XML
+
+## Alternate Content Formats
+
+### Link-Format
+
+### SenML
+
+# Interaction Methods
+
+## Collection Interaction
+
+### GET
+
+### POST
+
+### PUT
+
+### DELETE
+
+## Link Interaction
+
+### Link List
+
+### Add Links
+
+### Link Patch
+
+## Item Interaction
+
+### Link Embedding
+
+
+# Security Considerations
+
+## Object Signing
+Collection representations are encapsulated and may be signed objects in order to protect the integrity
+
+## Signed Embedded Time Stamps
+The collection may include time stamps (bt and t)
+
+## Signed Embedded Access Control 
+The colleciton representation may include access control information in the encapsulation, also signed
+
+# Examples
+Figure 1 shows an example document in hsml+json format
+
+~~~~
+{
+  "bn":"/3303/1/",
+  "i":[
+    {"n":"5700","v":"31.3","u":"Cel"},
+    {"n":"5701","vs":"Cel"},
+    {"n":"5602","v":"87.1","u":"Cel"},
+    {"n":"5601","v":"18.3","u":"Cel"},
+    {"n":"5605"},
+    {"n":"5603","v":"0","u":"Cel"},
+    {"n":"5604","v":"260","u":"Cel"},
+    {"n":"5750","vs":"Inboard Bearing"}
+  ],
+  "l":[
+    {"href":"","rel":"self","rt":"temperature","u":"Cel"},
+    {"href":"5700","rt":"currentValue","u":"Cel"},
+    {"href":"5701","rt":"units"},
+    {"href":"5602","rt":"maxValue","u":"Cel"},
+    {"href":"5601","rt":"minValue","u":"Cel"},
+    {"href":"5605","rt":"resetMaxMin"},
+    {"href":"5603","rt":"minRange","u":"Cel"},
+    {"href":"5604","rt":"maxRange","u":"Cel"},
+    {"href":"5750","rt":"appType"}
+  ]
+}
+~~~~
+{: #fig-example-hsml title='application/hsml+json Example' align="left"}
+
+# Reserved Identifiers {#reserved-identifiers}
+
+## hsml keywords
+
+"i"
+:    indicates the list of named items
+
+"l"
+:    indicates the list of links
+{: vspace='0'}
+
+## link keywords
+
+"href"
+:    target of a link reference. This may be a relative reference in the collection e.g. "currentValue" or a local absolute reference "/sensors/temp/currentValue" or a full reference "https://example.com/sensors/temp/currentValue"
+
+"anchor"
+:    overrides the default resource context 
+
+"rel"
+:    link relation type
+{: vspace='0'}
+
+### link relation types
+
+"self"
+:    refers to the collection itself
+
+"item"
+:    the item is represented in the "local" context of the collection, i.e. not a subresource
+
+"sub"
+:    the item is a subresource of the collection
+
+"grp"
+:    the item is available for collective (group) interaction
+{: vspace='0'}
+
+### link attribute types 
+
+"rt"
+:    the resource type of the item
+
+"u"
+:    units of measure
+
+"ct"
+:    the content-format of the item
+{: vspace='0'}
+
+## senml keywords
+
+"bn"
+:    the base name or base URI of the collection, relative to the service location e.g. "/sensors/temp/"
+
+"bt"
+:    the base time that corresponds with the encapsulated state of the collection
+
+"t"
+:    the time stamp that corresponds to the encapsulated state of the item in the collection, relative to the base time "bt"
+
+"n"
+:    the name or URI of the resource, relative to the base name of the collection e.g. "currentValue". 
+
+"u"
+:    units of measure
+
+"v"
+:    number value
+
+"vb"
+:    boolean value
+
+"vo"
+:    object value, an extension to the senml value types to enable embedded objects and forms
+
+"vs"
+:    string value
+{: vspace='0'}
+
+--- back
+
