@@ -90,12 +90,6 @@ Collection is a web page for things. This draft describes a content format for m
 
 ## Items
 
-# URI handling
-
-## Base URI and item names
-
-## Query filtering and selection
-
 # Content Formats
 
 ## JSON
@@ -108,42 +102,7 @@ Collection is a web page for things. This draft describes a content format for m
 
 ### SenML
 
-# Interaction Methods
-
-## Collection Interaction
-
-### GET
-
-### POST
-
-### PUT
-
-### DELETE
-
-## Link Interaction
-
-### Link List
-
-### Add Links
-
-### Link Patch
-
-## Item Interaction
-
-### Link Embedding
-
-# Security Considerations
-
-## Object Signing
-Collection representations are encapsulated and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.
-
-## Signed Embedded Time Stamps
-The collection may include time stamps (bt and t) that are signed with the object data and metadata.
-
-## Signed Embedded Access Control 
-The colleciton representation may include access control information in the encapsulation, also signed with the metadata, that can instruct the server to allow a particular class of access to requests that contain a particular credential.
-
-# Examples
+# Example Serialization Formats
 Figure 1 shows an example document in hsml+json format
 
 ~~~~
@@ -173,6 +132,58 @@ Figure 1 shows an example document in hsml+json format
 }
 ~~~~
 {: #fig-example-hsml title='application/hsml+json Example' align="left"}
+
+Link-Format
+
+SenML
+
+# URI handling
+
+## Base URI and item names
+
+## Query filtering and selection
+
+# Interaction Methods
+
+## Collection Interaction
+
+### GET 
+List Collection
+
+### POST 
+Add Item
+
+### PUT 
+Replace Entire Collection
+
+### DELETE 
+Remove Entire COllection
+
+## Link Interaction
+
+### GET 
+List Links
+
+### POST 
+Add Links
+
+### PATCH 
+Modify Links
+
+## Item Interaction
+
+### Link Embedding
+
+# Security Considerations
+
+## Object Signing
+Collection representations are encapsulated and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.
+
+## Signed Embedded Time Stamps
+The collection may include time stamps (bt and t) that are signed with the object data and metadata.
+
+## Signed Embedded Access Control 
+The colleciton representation may include access control information in the encapsulation, also signed with the metadata, that can instruct the server to allow a particular class of access to requests that contain a particular credential.
 
 # Reserved Identifiers {#reserved-identifiers}
 

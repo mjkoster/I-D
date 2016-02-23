@@ -43,7 +43,7 @@
     <abstract>
 
 
-<t>Machine hypermedia content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="senml"/>. Structured data contains both links and items in collections. This draft describes a content format for representation of collections of machine resources.</t>
+<t>Machine hypermedia content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.jennings-core-senml"/>. Structured data contains both links and items in a type known as the collection type. This draft describes content formats for representation of machine resources in collections.</t>
 
 
 
@@ -71,15 +71,6 @@
 
 </section>
 </section>
-<section anchor="uri-handling" title="URI handling">
-
-<section anchor="base-uri-and-item-names" title="Base URI and item names">
-
-</section>
-<section anchor="query-filtering-and-selection" title="Query filtering and selection">
-
-</section>
-</section>
 <section anchor="content-formats" title="Content Formats">
 
 <section anchor="json" title="JSON">
@@ -98,58 +89,7 @@
 </section>
 </section>
 </section>
-<section anchor="interaction-methods" title="Interaction Methods">
-
-<section anchor="collection-interaction" title="Collection Interaction">
-
-<section anchor="get" title="GET">
-
-</section>
-<section anchor="post" title="POST">
-
-</section>
-<section anchor="put" title="PUT">
-
-</section>
-<section anchor="delete" title="DELETE">
-
-</section>
-</section>
-<section anchor="link-interaction" title="Link Interaction">
-
-<section anchor="link-list" title="Link List">
-
-</section>
-<section anchor="add-links" title="Add Links">
-
-</section>
-<section anchor="link-patch" title="Link Patch">
-
-</section>
-</section>
-<section anchor="item-interaction" title="Item Interaction">
-
-<section anchor="link-embedding" title="Link Embedding">
-
-</section>
-</section>
-</section>
-<section anchor="security-considerations" title="Security Considerations">
-
-<section anchor="object-signing" title="Object Signing">
-<t>Collection representations are encapsulated and may be signed objects in order to protect the integrity</t>
-
-</section>
-<section anchor="signed-embedded-time-stamps" title="Signed Embedded Time Stamps">
-<t>The collection may include time stamps (bt and t)</t>
-
-</section>
-<section anchor="signed-embedded-access-control" title="Signed Embedded Access Control">
-<t>The colleciton representation may include access control information in the encapsulation, also signed</t>
-
-</section>
-</section>
-<section anchor="examples" title="Examples">
+<section anchor="example-serialization-formats" title="Example Serialization Formats">
 <t>Figure 1 shows an example document in hsml+json format</t>
 
 <figure title="application/hsml+json Example" align="left" anchor="fig-example-hsml"><artwork><![CDATA[
@@ -179,10 +119,81 @@
 }
 ]]></artwork></figure>
 
+<t>Link-Format</t>
+
+<t>SenML</t>
+
+</section>
+<section anchor="uri-handling" title="URI handling">
+
+<section anchor="base-uri-and-item-names" title="Base URI and item names">
+
+</section>
+<section anchor="query-filtering-and-selection" title="Query filtering and selection">
+
+</section>
+</section>
+<section anchor="interaction-methods" title="Interaction Methods">
+
+<section anchor="collection-interaction" title="Collection Interaction">
+
+<section anchor="get" title="GET">
+<t>List Collection</t>
+
+</section>
+<section anchor="post" title="POST">
+<t>Add Item</t>
+
+</section>
+<section anchor="put" title="PUT">
+<t>Replace Entire Collection</t>
+
+</section>
+<section anchor="delete" title="DELETE">
+<t>Remove Entire COllection</t>
+
+</section>
+</section>
+<section anchor="link-interaction" title="Link Interaction">
+
+<section anchor="get-1" title="GET">
+<t>List Links</t>
+
+</section>
+<section anchor="post-1" title="POST">
+<t>Add Links</t>
+
+</section>
+<section anchor="patch" title="PATCH">
+<t>Modify Links</t>
+
+</section>
+</section>
+<section anchor="item-interaction" title="Item Interaction">
+
+<section anchor="link-embedding" title="Link Embedding">
+
+</section>
+</section>
+</section>
+<section anchor="security-considerations" title="Security Considerations">
+
+<section anchor="object-signing" title="Object Signing">
+<t>Collection representations are encapsulated and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.</t>
+
+</section>
+<section anchor="signed-embedded-time-stamps" title="Signed Embedded Time Stamps">
+<t>The collection may include time stamps (bt and t) that are signed with the object data and metadata.</t>
+
+</section>
+<section anchor="signed-embedded-access-control" title="Signed Embedded Access Control">
+<t>The colleciton representation may include access control information in the encapsulation, also signed with the metadata, that can instruct the server to allow a particular class of access to requests that contain a particular credential.</t>
+
+</section>
 </section>
 <section anchor="reserved-identifiers" title="Reserved Identifiers">
 
-<section anchor="hsml-keywords" title="hsml keywords">
+<section anchor="hsml-keywords" title="hsml Keywords">
 <t>The following keywords are reserved for use by hsml processing to identify sub-elements of a hsml serialization</t>
 
 <t><list style="hanging">
@@ -193,7 +204,7 @@
 </list></t>
 
 </section>
-<section anchor="link-keywords" title="link keywords">
+<section anchor="link-keywords" title="Link Keywords">
 <t>The following keywords are reserved for use in a hsml serialization to indicate elements of a web link</t>
 
 <t><list style="hanging">
@@ -205,7 +216,7 @@
   link relation type</t>
 </list></t>
 
-<section anchor="link-relation-types" title="link relation types">
+<section anchor="link-relation-types" title="Link Relation Types">
 <t>The following keywords are reserved for use in a hsml serialization to indicate types of link relations</t>
 
 <t><list style="hanging">
@@ -220,7 +231,7 @@
 </list></t>
 
 </section>
-<section anchor="link-attribute-types" title="link attribute types">
+<section anchor="link-attribute-types" title="Link Attribute Types">
 <t>The following keywords are reserved for use in a hsml serialization to indicate types of link attributes</t>
 
 <t><list style="hanging">
@@ -234,7 +245,7 @@
 
 </section>
 </section>
-<section anchor="senml-keywords" title="senml keywords">
+<section anchor="senml-keywords" title="SenML Keywords">
 <t>The following keywords are reserved for use in a hsml serialization to indicate elements within the serialization</t>
 
 <t><list style="hanging">
