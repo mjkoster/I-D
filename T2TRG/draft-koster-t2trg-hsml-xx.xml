@@ -61,10 +61,22 @@
 </section>
 <section anchor="structure-of-the-collection" title="Structure of the Collection">
 
-<section anchor="base" title="Base">
+<section anchor="base-elements" title="Base elements">
+<t>Base elements set the context under which to interpret values in links and items within a representation od a colection.</t>
+
+<t>The base name element (bn) indicates the base URI or an absolute reference from which to base relative references found in the links. It functions as an embedded base URI reference as per <xref target="RFC3986"/> Section 5.1.1</t>
+
+<t>The format of the base elements are specified in <xref target="I-D.jennings-core-senml"/>. <xref target="fig-example-basename"/> is an example of a base name element.</t>
+
+<figure title="SenML Base Name Example" align="left" anchor="fig-example-basename"><artwork><![CDATA[
+    "bn": "/dev/sen/temp/"
+]]></artwork></figure>
+
+<t>Other base items from SenML are permissible, including base time (bt) and base value(bv). If additional senml base element are present, the client MUST interpret the items in the collection in the context of the applicable base elements. For example, if there is a “bv” or base value elment, all of the returned values from items in the collection MUST be added to the base value as per <xref target="I-D.jennings-core-senml"/>.</t>
 
 </section>
 <section anchor="links" title="Links">
+<t>The links element (l) is an array of hyperlinks based on the structure and syntax of <xref target="I-D.ietf-core-links-json"/></t>
 
 </section>
 <section anchor="items" title="Items">
@@ -90,7 +102,7 @@
 </section>
 </section>
 <section anchor="example-serialization-formats" title="Example Serialization Formats">
-<t>Figure 1 shows an example document in hsml+json format</t>
+<t><xref target="fig-example-hsml"/> shows an example document in hsml+json format</t>
 
 <figure title="application/hsml+json Example" align="left" anchor="fig-example-hsml"><artwork><![CDATA[
 {

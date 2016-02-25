@@ -84,9 +84,22 @@ Collection is a web page for things. This draft describes a content format for m
 
 # Structure of the Collection
 
-## Base
+## Base elements
+Base elements set the context under which to interpret values in links and items within a representation od a colection.
+
+The base name element (bn) indicates the base URI or an absolute reference from which to base relative references found in the links. It functions as an embedded base URI reference as per {{RFC3986}} Section 5.1.1
+
+The format of the base elements are specified in {{I-D.jennings-core-senml}}. {{fig-example-basename}} is an example of a base name element.
+
+~~~
+    "bn": "/dev/sen/temp/"
+~~~    
+{: #fig-example-basename title='SenML Base Name Example' align="left"}
+
+Other base items from SenML are permissible, including base time (bt) and base value(bv). If additional senml base element are present, the client MUST interpret the items in the collection in the context of the applicable base elements. For example, if there is a "bv" or base value elment, all of the returned values from items in the collection MUST be added to the base value as per {{I-D.jennings-core-senml}}.
 
 ## Links
+The links element (l) is an array of hyperlinks based on the structure and syntax of {{I-D.ietf-core-links-json}}. An example of the links element 
 
 ## Items
 
@@ -103,7 +116,7 @@ Collection is a web page for things. This draft describes a content format for m
 ### SenML
 
 # Example Serialization Formats
-Figure 1 shows an example document in hsml+json format
+{{fig-example-hsml}} shows an example document in hsml+json format
 
 ~~~~
 {
@@ -157,7 +170,7 @@ Add Item
 Replace Entire Collection
 
 ### DELETE 
-Remove Entire COllection
+Remove Entire Collection
 
 ## Link Interaction
 

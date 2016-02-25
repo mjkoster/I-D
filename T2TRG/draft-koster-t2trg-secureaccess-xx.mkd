@@ -1,0 +1,127 @@
+---
+stand_alone: true
+ipr: trust200902
+docname: draft-koster-t2trg-secureaccess-00
+cat: exp
+pi:
+  strict: 'yes'
+  toc: 'yes'
+  tocdepth: '3'
+  symrefs: 'yes'
+  sortrefs: 'yes'
+  compact: 'yes'
+  comments: yes
+  subcompact: 'no'
+  iprnotified: 'no'
+title: Secure Access Control for Connected Objects
+area: Internet
+wg: Thing-to-Thing Research Group
+kw: T2TRG, Web of Things, Security, Access Control
+date: 2016-2-24
+author:
+- ins: M. Koster
+  name: Michael Koster
+  org: SmartThings
+  street: 1281 Lawrence Station Road
+  city: Sunnyvale
+  code: '94089'
+  country: USA
+  phone: "+1-707-502-5136"
+  email: michael.koster@smartthings.com
+normative:
+informative:
+  RFC6690:
+  I-D.ietf-core-links-json:
+  RFC3986:
+  RFC5988:
+  RFC7252:
+  I-D.ietf-core-interfaces:
+  I-D.ietf-core-resource-directory:
+  I-D.jennings-core-senml:
+
+  REST:
+    target: http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf
+    title: Architectural Styles and the Design of Network-based Software Architectures
+    author:
+        ins: R. Fielding
+        name: Roy Thomas Fielding
+        org: University of California, Irvine
+    date: 2000
+    seriesinfo:
+      "Ph.D.": "Dissertation, University of California, Irvine"
+    format:
+      PDF: http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf
+
+  HypermediaDemonstrator: 
+    target: https://github.com/connectIOT/HypermediaDemo
+    title: Demonstration of a HATEOAS based system architecture for the Web of Things
+    author: 
+        ins: M. Koster
+    date: 2016
+
+  W3C-WoT: 
+    target: https://www.w3.org/WoT/IG/
+    title: W3C Web of Things Interest Group
+    author: 
+        ins: WoT IG
+    date: 2016
+    
+    
+  T2TRG:
+    target: https://datatracker.ietf.org/rg/t2trg/charter/
+    title: IRTF Thing to Thing Research Group
+    author: 
+        ins: IRTF
+    date: 2016
+
+    
+--- abstract
+Security is acknowledged as one of the key system attributes to deliver in order to achieve the internet of things at scale. This draft focuses on a single aspect of security, end-to-end access control for connected objects. In the context of this article, this means that the access control priveleges for a particular connected object or resource may be defined at some point of origin and enforced at some point of use or delivery, using information securely transmitted within the object representation itself. 
+--- middle
+
+# Introduction {#introduction}
+Security is a broad topic, particularly in the context of the internet of connected things. There are many aspects and technologies needed to secure entire web scale systems, including secure naming and identity, trusted authorities, key distribution mechanisms, encryption technologies, and so on. 
+
+This draft is focused on end-to-end access control for connected objects. The basic technique is to embed within the object a set of access control metadata elements which are associated with a set of security credentials. 
+
+Each credential or group credential is associated with a license that enables a particular set of access methods on the object, subject to additional policy assertions contained in the access control metadata. These policy assertions may be for example time/rate/opcount restrictions in addition to read/write/execute permissions. For example the license may allow 24 hours of access with unlimited read and one time update of a specific set of properties.
+
+# Access Control
+
+{{fig-example-something}} is an example of something.
+
+~~~
+    "some thing"
+~~~    
+{: #fig-example-something title='Some Thing' align="left"}
+
+# Terminology {#terminology}
+License
+:    A metadata element that is associated with a security credential and which enables a particular access policy to the bearer of the credential. 
+
+Object Signing
+:    The process of adding a cryptographic signature to a representation of a data object that can verify that the contents of the object have not been altered since the object was signed. 
+
+Connected Object
+:    A resource from the network point of view, which encapsulates a set of attribute or property values and may be self-describing e.g. SenML, Linked Data. Also may refer to a set of network connected capabilities to sense or actuate in the physical world. 
+{: vspace='0'}
+
+# Security Considerations
+
+## Object Signing
+Collection representations are encapsulated and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.
+
+## Signed Embedded Time Stamps
+The collection may include time stamps (bt and t) that are signed with the object data and metadata.
+
+## Signed Embedded Access Control 
+The colleciton representation may include access control information in the encapsulation, also signed with the metadata, that can instruct the server to allow a particular class of access to requests that contain a particular credential.
+
+# Reserved Identifiers {#reserved-identifiers}
+
+"vs"
+:    string value
+{: vspace='0'}
+
+--- back
+
