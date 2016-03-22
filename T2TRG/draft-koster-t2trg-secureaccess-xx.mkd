@@ -86,7 +86,7 @@ This draft is focused on end-to-end access control for connected objects. The ba
 
 Each credential or group credential is associated with a license that enables a particular set of access methods on the object, subject to additional policy assertions contained in the access control metadata. These policy assertions may be for example time/rate/opcount restrictions in addition to read/write/execute permissions. For example the license may allow 24 hours of access with unlimited read and one time update of a specific set of properties.
 
-# Access Control
+# Access Control Use Cases and Requirements
 
 {{fig-example-something}} is an example of something.
 
@@ -95,9 +95,16 @@ Each credential or group credential is associated with a license that enables a 
 ~~~    
 {: #fig-example-something title='Some Thing' align="left"}
 
+# Access Control Metadata Formats
+
+# Example object serializations using JSON-LD and Linked Data Signatures 
+
 # Terminology {#terminology}
 License
-:    A metadata element that is associated with a security credential and which enables a particular access policy to the bearer of the credential. 
+:    A metadata element that is associated with a security credential and which specifies a particular access policy to be applied to the bearer of the credential. 
+
+Assertion
+:    A metadata element that is used to present a security credential or other qualifying information transmitted as an update representation or as request parameters
 
 Object Signing
 :    The process of adding a cryptographic signature to a representation of a data object that can verify that the contents of the object have not been altered since the object was signed. 
@@ -107,19 +114,11 @@ Connected Object
 {: vspace='0'}
 
 # Security Considerations
-
-## Object Signing
-Collection representations are encapsulated and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.
-
-## Signed Embedded Time Stamps
-The collection may include time stamps (bt and t) that are signed with the object data and metadata.
-
-## Signed Embedded Access Control 
-The colleciton representation may include access control information in the encapsulation, also signed with the metadata, that can instruct the server to allow a particular class of access to requests that contain a particular credential.
+Servers need to use external protocols to secure other aspects of the system
 
 # Reserved Identifiers {#reserved-identifiers}
 
-"vs"
+"licenses"
 :    string value
 {: vspace='0'}
 

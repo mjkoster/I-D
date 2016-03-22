@@ -76,16 +76,24 @@ informative:
 
     
 --- abstract
+The scale and scope of the web has been in part driven by the availability of HTML as a common serialization for structured resources. General use of hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standard hypermedia controls. 
+
 Machine hypermedia content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{I-D.jennings-core-senml}}. Structured data contains both links and items in a type known as the collection type. This draft describes content formats for representation of machine resources in collections. 
 --- middle
 
 # Introduction {#introduction}
-Collection is a web page for things. This draft describes a content format for machine collections that contain named items and links that point to and describe items. Link representations are compatible with CoRE Link-Format {{RFC6690}}. Item representations in the collection are compatible with {{I-D.jennings-core-senml}}.
+Collection is a web page for things. 
 
-# Structure of the Collection
+This draft describes a content format for machine resource collections that contain named items and links that point to and describe items. Link representations are compatible with CoRE Link-Format {{RFC6690}}. Item representations in the collection are compatible with {{I-D.jennings-core-senml}}.
+
+The hsml content format is compatible with both SenML and CoRE Link-format by reusing the keyword identifiers from these standards in the internal namespace of the collection.
+
+A representation for machine forms is proposed that uses a common set of reserved keywords to provide a standard hypermedia control for clients to perform state updates on resources.  
+
+# Structure of the Collection {#structure}
 
 ## Base elements
-Base elements set the context under which to interpret values in links and items within a representation od a colection.
+Base elements describe the context under which to interpret values in links and items within a representation of a colection.
 
 The base name element (bn) indicates the base URI or an absolute reference from which to base relative references found in the links. It functions as an embedded base URI reference as per {{RFC3986}} Section 5.1.1
 
@@ -103,7 +111,7 @@ The links element (l) is an array of hyperlinks based on the structure and synta
 
 ## Items
 
-# Content Formats
+# Content Formats {#content-fprmats}
 
 ## JSON
 
@@ -115,7 +123,7 @@ The links element (l) is an array of hyperlinks based on the structure and synta
 
 ### SenML
 
-# Example Serialization Formats
+# Example Serialization Formats {#example-formats}
 {{fig-example-hsml}} shows an example document in hsml+json format
 
 ~~~~
@@ -150,13 +158,13 @@ Link-Format
 
 SenML
 
-# URI handling
+# URI handling {#uri}
 
 ## Base URI and item names
 
 ## Query filtering and selection
 
-# Interaction Methods
+# Interaction Methods {#interaction-methods}
 
 ## Collection Interaction
 
@@ -190,13 +198,16 @@ Modify Links
 # Security Considerations
 
 ## Object Signing
-Collection representations are encapsulated and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.
+Collection representations are application state encapsulations and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.
 
 ## Signed Embedded Time Stamps
 The collection may include time stamps (bt and t) that are signed with the object data and metadata.
 
 ## Signed Embedded Access Control 
-The colleciton representation may include access control information in the encapsulation, also signed with the metadata, that can instruct the server to allow a particular class of access to requests that contain a particular credential.
+The colleciton representation may include embedded access control information, also signed with the metadata, that can instruct the server to enforce a particular access policy for requests that contain a particular credential.
+
+## Secure State Updates
+Representations submitted to a server to update the state of a resource (POST, PUT, DELETE) may also contain embedded signed assertions which may be used by the server to decide whether to apply or reject the update.
 
 # Reserved Identifiers {#reserved-identifiers}
 
@@ -204,13 +215,13 @@ The colleciton representation may include access control information in the enca
 The following keywords are reserved for use by hsml processing to identify sub-elements of a hsml serialization
 
 "i"
-:    indicates the list of named items
+:    indicates the list of named items, which are maps containing keywords from {{I-D.jennings-core-senml}} and specified in {{item-keywords}}
 
 "l"
-:    indicates the list of links
+:    indicates the list of links, which are maps containing keywords from  {{I-D.ietf-core-links-json}} and specified in {{link-keywords}}
 {: vspace='0'}
 
-## Link Keywords
+## Link Keywords {#link-keywords}
 The following keywords are reserved for use in a hsml serialization to indicate elements of a web link
 
 "href"
@@ -252,7 +263,7 @@ The following keywords are reserved for use in a hsml serialization to indicate 
 :    the content-format of the item
 {: vspace='0'}
 
-## SenML Keywords
+## Item Keywords {#item-keywords}
 The following keywords are reserved for use in a hsml serialization to indicate elements within the serialization
 
 "bn"

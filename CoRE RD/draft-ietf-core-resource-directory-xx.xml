@@ -15,7 +15,7 @@
 <?rfc subcompact="no"?>
 <?rfc iprnotified="no"?>
 
-<rfc ipr="trust200902" docName="draft-ietf-core-resource-directory-05" category="std">
+<rfc ipr="trust200902" docName="draft-ietf-core-resource-directory-07" category="std">
 
   <front>
     <title>CoRE Resource Directory</title>
@@ -34,16 +34,16 @@
       </address>
     </author>
     <author initials="M." surname="Koster" fullname="Michael Koster">
-      <organization>ARM</organization>
+      <organization>SmartThings</organization>
       <address>
         <postal>
-          <street>150 Rose Orchard</street>
-          <city>San Jose</city>
-          <code>95134</code>
+          <street>665 Clyde Avenue</street>
+          <city>Mountain View</city>
+          <code>94043</code>
           <country>USA</country>
         </postal>
-        <phone>+1-408-576-1500 x11516</phone>
-        <email>Michael.Koster@arm.com</email>
+        <phone>+1-707-502-5136</phone>
+        <email>Michael.Koster@smartthings.com</email>
       </address>
     </author>
     <author initials="C." surname="Bormann" fullname="Carsten Bormann">
@@ -68,7 +68,7 @@
       </address>
     </author>
 
-    <date year="2015" month="October" day="16"/>
+    <date year="2016" month="March" day="21"/>
 
     <area>Internet</area>
     <workgroup>CoRE</workgroup>
@@ -111,7 +111,7 @@ static interfaces result in fragility. The discovery of resources provided by
 an HTTP Web Server is typically called Web Linking <xref target="RFC5988"/>. The use of
 Web Linking for the description and discovery of resources hosted by
 constrained web servers is specified by the CoRE Link Format
-<xref target="RFC6690"/>. This specification however only describes how to discover
+<xref target="RFC6690"/>. However, <xref target="RFC6690"/> only describes how to discover
 resources from the web server that hosts them by requesting
 <spanx style="verb">/.well-known/core</spanx>. In many M2M scenarios, direct discovery of resources is
 not practical due to sleeping nodes, disperse networks, or networks where
@@ -296,9 +296,9 @@ to the desired resources and endpoints. The Resource Directory service need
 not be coupled with the data intermediary service. Mapping of Resource Directories
 to data intermediaries may be many-to-many.</t>
 
-<t>Metadata in link-format, link-format+cbor, or link-format+json representations are supplied by Resource Directories, which may be internally stored as  triples, or relation/attribute
+<t>Metadata in web link compatible representations are supplied by Resource Directories, which may be internally stored as  triples, or relation/attribute
 pairs providing metadata about resource links. External catalogs that are
-represented in other formats may be converted to link-format, link-format+json, or link-format+cbor for storage and access by Resource Directories. Since it is common practice for these to be URN encoded, simple and lossless structural transforms will
+represented in other formats may be converted to common web linking formats for storage and access by Resource Directories. Since it is common practice for these to be URN encoded, simple and lossless structural transforms should
 generally be sufficient to store external metadata in Resource Directories.</t>
 
 <t>The additional features of Resource Directory allow domains to be defined
@@ -440,7 +440,11 @@ resource of the RD. When performing multicast discovery, the multicast IP
 address used will depend on the scope required and the multicast capabilities
 of the network.</t>
 
-<t>HTTP does not support multicast and consequently discovery has no HTTP interface.</t>
+<t>A Resource Directory MAY provide hints about the content-formats it supports in the links it exposes or registers, using the “ct” link attribute, as shown in the example below. Clients MAY use these hints to select alternate content-formats for interaction with the Resource Directory.</t>
+
+<t>HTTP does not support multicast and consequently only unicast discovery can be supported 
+using HTTP. Links to Resource Directories MAY be registered in other Resource Directories,
+and well-known entry points SHOULD be provided to enable the bootstrapping of unicast discovery.</t>
 
 <t>An RD implementation of this specification MUST support query filtering for
 the rt parameter as defined in <xref target="RFC6690"/>.</t>
@@ -457,15 +461,15 @@ the rt parameter as defined in <xref target="RFC6690"/>.</t>
   <t hangText='URI Template Variables:'>
         <list style="hanging">
         <t hangText='rt :='>
-        Resource Type (optional). MAY contain the value “core.rd”, “core.rd-lookup”,
+        Resource Type (optional). MAY contain one or more of the values “core.rd”, “core.rd-lookup”,
 “core.rd-group” or “core.rd*”</t>
       </list>
   </t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format (if any)</t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format+json (if any)</t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format+cbor (if any)</t>
 </list></t>
 
@@ -509,9 +513,9 @@ possible.</t>
 Req: GET coap://[ff02::1]/.well-known/core?rt=core.rd*
 
 Res: 2.05 Content
-</rd>;rt="core.rd",
-</rd-lookup>;rt="core.rd-lookup",
-</rd-group>;rt="core.rd-group"
+</rd>;rt="core.rd";ct="application/link-format+cbor",
+</rd-lookup>;rt="core.rd-lookup";ct="application/link-format+cbor",
+</rd-group>;rt="core.rd-group";ct="application/link-format+cbor"
 ]]></artwork></figure>
 
 </section>
@@ -574,11 +578,11 @@ mandatory when the directory is filled by a third party such as an
 installation tool.</t>
       </list>
   </t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format</t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format+json</t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format+cbor</t>
 </list></t>
 
@@ -630,7 +634,7 @@ Location: /rd/4521
 <figure align="left"><artwork><![CDATA[
 Req: POST /rd?ep=node1 HTTP/1.1
 Host : example.com
-Content-Type: application/link-format
+Content-Format: application/link-format
 Payload:
 </sensors/temp>;ct=41;rt="temperature-c";if="sensor",
 </sensors/light>;ct=41;rt="light-lux";if="sensor"
@@ -685,11 +689,11 @@ assumed. This parameter is compulsory when the directory is filled by a
 third party such as an installation tool.</t>
       </list>
   </t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format (optional)</t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format+json (optional)</t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format+cbor (optional)</t>
 </list></t>
 
@@ -697,7 +701,7 @@ third party such as an installation tool.</t>
 
 <t><list style="hanging">
   <t hangText='Success:'>
-  2.04 “Changed” or 204 “No Content” in the update was successfully processed.</t>
+  2.04 “Changed” or 204 “No Content” if the update was successfully processed.</t>
   <t hangText='Failure:'>
   4.00 “Bad Request” or 400 “Bad Request”. Malformed request.</t>
   <t hangText='Failure:'>
@@ -851,6 +855,8 @@ Payload:
 
 </section>
 <section anchor="link-up" title="Update Endpoint Links">
+
+<t>[This section will be removed before or as a result of a working-group last-call if the PATCH methods do not achieve the same level of consensus as the present document.]</t>
 
 <t>A PATCH update adds, removes or changes links for the endpoint by including link update information in the payload of the update as a merge-patch+json format <xref target="RFC7396"/>
 document.</t>
@@ -1031,11 +1037,11 @@ no multicast address is configured.  This parameter is compulsory when the
 directory is filled by an installation tool.</t>
       </list>
   </t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format</t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format+json</t>
-  <t hangText='Content-Type:'>
+  <t hangText='Content-Format:'>
   application/link-format+cbor</t>
 </list></t>
 
@@ -1187,6 +1193,16 @@ included parameters MUST match for a resource to be returned.  The character
         RD Lookup Function Set path (mandatory). This is the path of the RD Lookup
 Function Set. An RD SHOULD use the value “rd-lookup” for this variable whenever
 possible.</t>
+      </list>
+  </t>
+  <t hangText='Content-Format:'>
+  application/link-format (optional)</t>
+  <t hangText='Content-Format:'>
+  application/link-format+json (optional)</t>
+  <t hangText='Content-Format:'>
+  application/link-format+cbor (optional)
+
+      <list style="hanging">
         <t hangText='lookup-type :='>
         (“d”, “ep”, “res”, “gp”) (mandatory) This variable is used to select the
 kind of lookup to perform (domain, endpoint, resource, or group).</t>
@@ -1406,7 +1422,7 @@ resolution of an endpoint’s IP address, port number, and protocol.</t>
 networks, where the latter can facilitate scaling.  This document
 defines a mapping between CoRE Link Format attributes and DNS-Based
 Service Discovery <xref target="RFC6763"/> fields that permits
-discovery of CoAP services by either means.</t>
+discovery of CoAP services by either method.</t>
 
 <section anchor="cheshire" title="DNS-based Service discovery">
 
@@ -1422,7 +1438,8 @@ specification.</t>
 <t>Service Name = &lt;Instance&gt;.&lt;ServiceType&gt;.&lt;Domain&gt;.</t>
 
 <t>The service name is the label of SRV/TXT resource records. The SRV RR specifies
-the host and the port of the endpoint. The TXT RR provides additional information.</t>
+the host and the port of the endpoint. The TXT RR provides additional information 
+in the form of key/value pairs.</t>
 
 <t>The &lt;Domain&gt; part of the service name is identical to the global (DNS
 subdomain) part of the authority in URIs that identify servers or groups
@@ -1434,9 +1451,9 @@ underscore character.  The second label indicates the transport and is always
 “_udp” for UDP-based CoAP services.  In cases where narrowing the scope of
 the search may be useful, these labels may be optionally preceded by a
 subtype name followed by the “_sub” label.  An example of this more specific
-&lt;ServiceType&gt; is “lamp._sub._dali._udp”.</t>
+&lt;ServiceType&gt; is “light._sub._dali._udp”.</t>
 
-<t>The default &lt;Instance&gt; part of the service name may be set at the factory
+<t>A default &lt;Instance&gt; part of the service name may be set at the factory
 or during the commissioning process.  It SHOULD uniquely identify an instance
 of &lt;ServiceType&gt; within a &lt;Domain&gt;.  Taken together, these three
 elements comprise a unique name for an SRV/ TXT record pair within the DNS
@@ -1908,13 +1925,13 @@ below, two endpoints are updated with an additional resource using the path
 <figure align="left"><artwork><![CDATA[
 Req: POST
  coap://[FDFD::ABCD:1]/light/grp1
- (content-type:application/link-format)<light/middle>,<light/left>
+ (Content-Format:application/link-format)<light/middle>,<light/left>
 
 Res: 2.04 Changed
 
 Req: POST
  coap://[FDFD::ABCD:2]/light/grp1
-(content-type:application/link-format)<light/right>
+(Content-Format:application/link-format)<light/right>
 
 Res: 2.04 Changed
 ]]></artwork></figure>
@@ -2297,12 +2314,29 @@ link payload - new or modified links
 <t>Srdjan Krco, Szymon Sasin, Kerry Lynn, Esko Dijk, Anders
 Brandt, Matthieu Vial, Mohit Sethi, Sampo Ukkola and Linyi
 Tian have provided helpful comments, discussions and ideas to improve and
-shape this document. Zach would also like to thank his colleagues from the
+shape this document. Section 9 is based on an earlier draft
+by Kerry Lynn. Zach would also like to thank his colleagues from the
 EU FP7 SENSEI project, where many of the resource directory concepts were
 originally developed.</t>
 
 </section>
 <section anchor="changelog" title="Changelog">
+
+<t>changes from -06 to -07</t>
+
+<t><list style="symbols">
+  <t>added text in the discovery section to allow content format hints to be exposed in the discovery link attributes</t>
+  <t>editorial updates to section 9</t>
+  <t>update author information</t>
+  <t>minor text corrections</t>
+</list></t>
+
+<t>Changes from -05 to -06</t>
+
+<t><list style="symbols">
+  <t>added note that the PATCH section is contingent on the progress of
+the PATCH method</t>
+</list></t>
 
 <t>changes from -04 to -05</t>
 
@@ -2562,15 +2596,15 @@ originally developed.</t>
     <organization />
 </author>
 
-<date month='July' day='6' year='2015' />
+<date month='November' day='1' year='2015' />
 
 <abstract><t>JavaScript Object Notation, JSON (RFC7159) is a text-based data format which is popular for Web based data exchange.  Concise Binary Object Representation, CBOR (RFC7049) is a binary data format which has been optimized for data exchange for the Internet of Things (IoT).  For many IoT scenarios, CBOR formats will be preferred since it can help decrease transmission payload sizes as well as implementation code sizes compared to other data formats.  Web Linking (RFC5988) provides a way to represent links between Web resources as well as the relations expressed by them and attributes of such a link.  In constrained networks, a collection of Web links can be exchanged in the CoRE link format (RFC6690).  Outside of constrained environments, it may be useful to represent these collections of Web links in JSON, and similarly, inside constrained environments, in CBOR.  This specification defines a common format for this.  Group Communication for the Constrained Application Protocol (RFC7390) defines a number of JSON formats for controlling communication between groups of nodes employing the Constrained Application Protocol (CoAP).  In a similar vein, this specification defines CBOR variants of these formats.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-links-json-03' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-links-json-04' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-links-json-03.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-links-json-04.txt' />
 </reference>
 
 
@@ -2701,7 +2735,7 @@ originally developed.</t>
 
 <reference anchor='I-D.ietf-core-interfaces'>
 <front>
-<title>CoRE Interfaces</title>
+<title>Reusable Interface Definitions for Constrained RESTful Environments</title>
 
 <author initials='Z' surname='Shelby' fullname='Zach Shelby'>
     <organization />
@@ -2715,15 +2749,17 @@ originally developed.</t>
     <organization />
 </author>
 
-<date month='July' day='6' year='2015' />
+<date month='October' day='19' year='2015' />
 
-<abstract><t>This document defines well-known REST interface descriptions for Batch, Sensor, Parameter and Actuator types for use in contrained web servers using the CoRE Link Format.  A short reference is provided for each type that can be efficiently included in the interface description attribute of the CoRE Link Format.  These descriptions are intended to be for general use in resource designs or for inclusion in more specific interface profiles.  In addition, this document defines the concepts of Function Set and Binding.  The former is the basis element to create RESTful profiles and the latter helps the configuration of links between resources located on one or more endpoints.</t></abstract>
+<abstract><t>This document defines a set of reusable REST resource design patterns suitable for use in constrained environments, based on IETF CoRE standards for information representation and information exchange.  Interface types for Sensors, Actuators, Parameters, and resource Collections are defined using the "if" link attribute defined by CoRE Link Format [RFC6690].  Clients may use the "if" attribute to determine how to consume resources.  Dynamic linking of state updates between resources, either on an endpoint or between endpoints, is defined with the concept of Link Bindings.  We also define conditional observation attributes that work with Link Bindings or with simple CoAP Observe [RFC7641].</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-interfaces-03' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-interfaces-04' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-03.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-04.txt' />
+<format type='PDF'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-04.pdf' />
 </reference>
 
 

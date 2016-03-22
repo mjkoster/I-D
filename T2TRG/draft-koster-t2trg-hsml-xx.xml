@@ -43,6 +43,8 @@
     <abstract>
 
 
+<t>The scale and scope of the web has been in part driven by the availability of HTML as a common serialization for structured resources. General use of hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standard hypermedia controls.</t>
+
 <t>Machine hypermedia content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.jennings-core-senml"/>. Structured data contains both links and items in a type known as the collection type. This draft describes content formats for representation of machine resources in collections.</t>
 
 
@@ -56,13 +58,19 @@
 
 
 <section anchor="introduction" title="Introduction">
-<t>Collection is a web page for things. This draft describes a content format for machine collections that contain named items and links that point to and describe items. Link representations are compatible with CoRE Link-Format <xref target="RFC6690"/>. Item representations in the collection are compatible with <xref target="I-D.jennings-core-senml"/>.</t>
+<t>Collection is a web page for things.</t>
+
+<t>This draft describes a content format for machine resource collections that contain named items and links that point to and describe items. Link representations are compatible with CoRE Link-Format <xref target="RFC6690"/>. Item representations in the collection are compatible with <xref target="I-D.jennings-core-senml"/>.</t>
+
+<t>The hsml content format is compatible with both SenML and CoRE Link-format by reusing the keyword identifiers from these standards in the internal namespace of the collection.</t>
+
+<t>A representation for machine forms is proposed that uses a common set of reserved keywords to provide a standard hypermedia control for clients to perform state updates on resources.</t>
 
 </section>
-<section anchor="structure-of-the-collection" title="Structure of the Collection">
+<section anchor="structure" title="Structure of the Collection">
 
 <section anchor="base-elements" title="Base elements">
-<t>Base elements set the context under which to interpret values in links and items within a representation od a colection.</t>
+<t>Base elements describe the context under which to interpret values in links and items within a representation of a colection.</t>
 
 <t>The base name element (bn) indicates the base URI or an absolute reference from which to base relative references found in the links. It functions as an embedded base URI reference as per <xref target="RFC3986"/> Section 5.1.1</t>
 
@@ -76,14 +84,14 @@
 
 </section>
 <section anchor="links" title="Links">
-<t>The links element (l) is an array of hyperlinks based on the structure and syntax of <xref target="I-D.ietf-core-links-json"/></t>
+<t>The links element (l) is an array of hyperlinks based on the structure and syntax of <xref target="I-D.ietf-core-links-json"/>. An example of the links element</t>
 
 </section>
 <section anchor="items" title="Items">
 
 </section>
 </section>
-<section anchor="content-formats" title="Content Formats">
+<section anchor="content-fprmats" title="Content Formats">
 
 <section anchor="json" title="JSON">
 
@@ -101,7 +109,7 @@
 </section>
 </section>
 </section>
-<section anchor="example-serialization-formats" title="Example Serialization Formats">
+<section anchor="example-formats" title="Example Serialization Formats">
 <t><xref target="fig-example-hsml"/> shows an example document in hsml+json format</t>
 
 <figure title="application/hsml+json Example" align="left" anchor="fig-example-hsml"><artwork><![CDATA[
@@ -136,7 +144,7 @@
 <t>SenML</t>
 
 </section>
-<section anchor="uri-handling" title="URI handling">
+<section anchor="uri" title="URI handling">
 
 <section anchor="base-uri-and-item-names" title="Base URI and item names">
 
@@ -162,7 +170,7 @@
 
 </section>
 <section anchor="delete" title="DELETE">
-<t>Remove Entire COllection</t>
+<t>Remove Entire Collection</t>
 
 </section>
 </section>
@@ -191,7 +199,7 @@
 <section anchor="security-considerations" title="Security Considerations">
 
 <section anchor="object-signing" title="Object Signing">
-<t>Collection representations are encapsulated and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.</t>
+<t>Collection representations are application state encapsulations and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.</t>
 
 </section>
 <section anchor="signed-embedded-time-stamps" title="Signed Embedded Time Stamps">
@@ -199,7 +207,11 @@
 
 </section>
 <section anchor="signed-embedded-access-control" title="Signed Embedded Access Control">
-<t>The colleciton representation may include access control information in the encapsulation, also signed with the metadata, that can instruct the server to allow a particular class of access to requests that contain a particular credential.</t>
+<t>The colleciton representation may include embedded access control information, also signed with the metadata, that can instruct the server to enforce a particular access policy for requests that contain a particular credential.</t>
+
+</section>
+<section anchor="secure-state-updates" title="Secure State Updates">
+<t>Representations submitted to a server to update the state of a resource (POST, PUT, DELETE) may also contain embedded signed assertions which may be used by the server to decide whether to apply or reject the update.</t>
 
 </section>
 </section>
@@ -210,9 +222,9 @@
 
 <t><list style="hanging">
   <t hangText='“i”'><vspace blankLines='0'/>
-  indicates the list of named items</t>
+  indicates the list of named items, which are maps containing keywords from <xref target="I-D.jennings-core-senml"/> and specified in <xref target="item-keywords"/></t>
   <t hangText='“l”'><vspace blankLines='0'/>
-  indicates the list of links</t>
+  indicates the list of links, which are maps containing keywords from  <xref target="I-D.ietf-core-links-json"/> and specified in <xref target="link-keywords"/></t>
 </list></t>
 
 </section>
@@ -257,7 +269,7 @@
 
 </section>
 </section>
-<section anchor="senml-keywords" title="SenML Keywords">
+<section anchor="item-keywords" title="Item Keywords">
 <t>The following keywords are reserved for use in a hsml serialization to indicate elements within the serialization</t>
 
 <t><list style="hanging">
