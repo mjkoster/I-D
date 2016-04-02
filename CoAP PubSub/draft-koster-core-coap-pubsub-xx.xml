@@ -19,9 +19,9 @@
   <title abbrev="Publish-Subscribe Broker for CoAP">Publish-Subscribe Broker for the Constrained Application Protocol (CoAP)</title>
 
     <author fullname="Michael Koster" initials="M.K." surname="Koster">
-      <organization>ARM Limited</organization>
+      <organization>SmartThings</organization>
       <address>
-	    <email>Michael.Koster@arm.com</email>
+	    <email>Michael.Koster@smartthings.com</email>
       </address>
     </author>
 
@@ -42,7 +42,7 @@
     </author>
 	
 
-    <date year="2015"/>
+    <date year="2016"/>
     <keyword>Internet-Draft</keyword>
     <keyword>CoRE</keyword>
     <keyword>CoAP</keyword>

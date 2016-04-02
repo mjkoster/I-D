@@ -1,0 +1,174 @@
+---
+stand_alone: true
+ipr: trust200902
+docname: draft-koster-t2trg-terms-00
+cat: exp
+pi:
+  strict: 'yes'
+  toc: 'yes'
+  tocdepth: '3'
+  symrefs: 'yes'
+  sortrefs: 'yes'
+  compact: 'yes'
+  comments: yes
+  subcompact: 'no'
+  iprnotified: 'no'
+title: Terms for Interoperable Hypermedia Controls
+area: Internet
+wg: Thing-to-Thing Research Group
+kw: T2TRG, Web of Things, Hypermedia, Semantic Interoperability
+date: 2016-2-21
+author:
+- ins: M. Koster
+  name: Michael Koster
+  org: SmartThings
+  street: 1281 Lawrence Station Road
+  city: Sunnyvale
+  code: '94089'
+  country: USA
+  phone: "+1-707-502-5136"
+  email: michael.koster@smartthings.com
+normative:
+informative:
+  RFC6690:
+  I-D.ietf-core-links-json:
+  RFC3986:
+  RFC5988:
+  RFC7252:
+  I-D.ietf-core-interfaces:
+  I-D.ietf-core-resource-directory:
+  I-D.jennings-core-senml:
+
+  REST:
+    target: http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf
+    title: Architectural Styles and the Design of Network-based Software Architectures
+    author:
+        ins: R. Fielding
+        name: Roy Thomas Fielding
+        org: University of California, Irvine
+    date: 2000
+    seriesinfo:
+      "Ph.D.": "Dissertation, University of California, Irvine"
+    format:
+      PDF: http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf
+
+  HypermediaDemonstrator: 
+    target: https://github.com/connectIOT/HypermediaDemo
+    title: Demonstration of a HATEOAS based system architecture for the Web of Things
+    author: 
+        ins: M. Koster
+    date: 2016
+
+  W3C-WoT: 
+    target: https://www.w3.org/WoT/IG/
+    title: W3C Web of Things Interest Group
+    author: 
+        ins: WoT IG
+    date: 2016
+    
+    
+  T2TRG:
+    target: https://datatracker.ietf.org/rg/t2trg/charter/
+    title: IRTF Thing to Thing Research Group
+    author: 
+        ins: IRTF
+    date: 2016
+
+    
+--- abstract
+Machine hypermedia content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{I-D.jennings-core-senml}}. Resource Directories {{I-D.ietf-core-resource-directory}} may hold links of different content-formats and media types, and should be able to provide a level of semantic interoperability.
+
+This document describes a set of terms to be used as keywords in web links and other hypermedia controls to provide semantic interoperability across constrained environments and machine to machine communication systems, and to help bridge these systems to web scale services and applications.
+--- middle
+
+# Introduction {#introduction}
+
+
+# Content Formats {#content-fprmats}
+
+Link-Format
+
+
+# Security Considerations
+
+Link terms used to select resources, like addresses
+
+Access control
+
+# Identifiers {#identifiers}
+
+## Link Keywords {#link-keywords}
+The following keywords indicate elements of a web link
+
+"href"
+:    target of a link reference. This may be a relative reference in the collection e.g. "currentValue" or a local absolute reference "/sensors/temp/currentValue" or a full reference "https://example.com/sensors/temp/currentValue"
+
+"anchor"
+:    overrides the default resource context 
+
+"rel"
+:    link relation type, how the target is related to the context or how the target behaves in relation to the context in response to a specified method
+{: vspace='0'}
+
+### Link Relation Types
+The following keywords are link relations, values for the rel property
+
+"self"
+:    target resource represents the context, link describes the context, target resource may be blank
+
+"item"
+:    the target resource is an item in the context collection
+
+"sub"
+:    the item is a subresource of the context resource
+
+"grp"
+:    the item is available for collective interaction
+
+"hosts"
+:    indicates that the context is a host of the target resource
+{: vspace='0'}
+
+### Link Attribute Types 
+The following keywords are link attributes
+
+"rt"
+:    the resource type
+
+"if"
+:    the interface type
+
+"u"
+:    units of measure
+
+"ins"
+:    the instance identifier
+
+"mt"
+:    the media type type string(s) offered for the target resource
+
+"ct"
+:    the CoAP content-format(s) offered for the target resource
+
+"con"
+:    overrides the registration context of a link in a resource directory
+
+"obs"
+:    indicates observability of target resource
+
+"sz"
+:    indicates the expected size of a representation of the target resource
+{: vspace='0'}
+
+## Form Keywords {#form-keywords}
+The following keywords are reserved for use in a hsml serialization to indicate elements within the serialization
+
+"method"
+:    protocol method to use when constructing a message for the target resource
+
+"accept"
+:    media type to use to serialize the request payload to be applied to the target resource
+{: vspace='0'}
+
+--- back
+

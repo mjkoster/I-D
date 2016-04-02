@@ -96,21 +96,21 @@
 
         <author initials="M" surname="Koster" fullname="Michael Koster">
           <organization>
-             ARM
+             SmartThings
           </organization>
           <address>
             <postal>
-             <street>150 Rose Orchard</street>
-             <city>San Jose</city>
-             <code>95134</code>
+             <street>665 Clyde Avenue</street>
+             <city>Mountain View</city>
+             <code>94043</code>
              <country>USA</country>
             </postal>
             <phone>	</phone>
-            <email>michael.koster@arm.com</email>
+            <email>michael.koster@smartthings.com</email>
           </address>
         </author>
 
-  <date year="2015"/>
+  <date year="2016"/>
 
   <area>Internet</area>
 
