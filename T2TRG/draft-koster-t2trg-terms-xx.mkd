@@ -13,7 +13,7 @@ pi:
   comments: yes
   subcompact: 'no'
   iprnotified: 'no'
-title: Terms for Interoperable Hypermedia Controls
+title: Common Terms for Property Types used in Hypermedia Controls
 area: Internet
 wg: Thing-to-Thing Research Group
 kw: T2TRG, Web of Things, Hypermedia, Semantic Interoperability
@@ -82,36 +82,63 @@ This document describes a set of terms to be used as keywords in web links and o
 --- middle
 
 # Introduction {#introduction}
+There are many vocabularies proposed for indicating functions and affordances of hypermedia controls.
+
+Hydra, HAL, RESTdesc, RAML, Siren, JSON Hyper-Schema 
+
+Include table as example
+
+Also
+RFC 5988, RFC6690, Resource Directory, also JSON-LD
 
 
-# Content Formats {#content-fprmats}
+# Content Formats {#content-formats}
 
-Link-Format
+Link-Format, serializations, and extensions
+RFC 6690, RFC 5988
 
 
-# Security Considerations
+#  Types of Hypermedia Controls
 
-Link terms used to select resources, like addresses
+## Links
+Hyperlinks are hyprmedia controls that provide a typed reference from a context resource to a target resource. The relation type, "rel" describes the how the target resource is related to the context. The context of a reference is determined as provided for in {RFC3986}. 
 
-Access control
+For example, with a collection, the context is by default the resource of the collection, and links associated with the collection assume this default context. Some of these links identify items in the collection and describe how items in the collection are related to the collection, for example by using the relation value rel=item. Other links may identify other resources that describe the collection or are otherwise related to the collection, for example rel=describedby indicates that the target resource contains a description of the context. 
+
+The default context of a link may be overridden by using the "anchor" property in the link. This enables a link to be stored in a different context from the resource it describes or links to. For example, a search index may contain links unrelated to the resource the index links are stored in. These links should hane an anchor property included that defines the resource they describe. The context of a link may also be defined by including a complete reference to a URL in the target.
+
+Link Attributes are additional properties that describe the target resource of a link. For example, content-format is indicated by "ct", as in ct=40 to indicate the CoAP header mapping for application/link-format.
+
+## Forms
+Forms are hypermedia controls that describe how to construct a message to effect a state change on the context resource. The relation type "rel" in a form describes the expected state change. The message is described in terms of the target resource, method, content format, and template. 
+
+
+## Link Bindings
+Link Bindings {I-D.ietf-core-interfaces} are hypermedia controls that describe how to construct a message that contains a representation of a state change that has occured on the context resource. The target of a Link Binding represents the destination resource of the message. 
+
+The link binding may optionally contain properties that describe the expected message generation behavior, including method, media type, and template. Filter parameters may be included which define when messages should be generated.
+
+As some examples, the state change message may be used to synchronize the state of another resource using PUT, to add state change records to a collection using POST, or to pass state change information to application handlers through a message broker using PUBLISH. 
 
 # Identifiers {#identifiers}
 
+This section defines a common set of identifiers for use in defining property types used in hypermedia controls, including links, forms, and link bindings. 
+
 ## Link Keywords {#link-keywords}
-The following keywords indicate elements of a web link
+The following keywords indicate elements of a web link or form
 
 "href"
 :    target of a link reference. This may be a relative reference in the collection e.g. "currentValue" or a local absolute reference "/sensors/temp/currentValue" or a full reference "https://example.com/sensors/temp/currentValue"
 
 "anchor"
-:    overrides the default resource context 
+:    reference to override the default context resource for the link
 
 "rel"
 :    link relation type, how the target is related to the context or how the target behaves in relation to the context in response to a specified method
 {: vspace='0'}
 
 ### Link Relation Types
-The following keywords are link relations, values for the rel property
+The following keywords are some link relations, values for the rel property, e.g. <>;rel=self
 
 "self"
 :    target resource represents the context, link describes the context, target resource may be blank
@@ -119,36 +146,36 @@ The following keywords are link relations, values for the rel property
 "item"
 :    the target resource is an item in the context collection
 
-"sub"
-:    the item is a subresource of the context resource
-
-"grp"
-:    the item is available for collective interaction
-
 "hosts"
 :    indicates that the context is a host of the target resource
+
+"about"
+:    indicates that the target resource is a subject of the context
+
+"describedby"
+:    indicates that the target resource describes the context resource
 {: vspace='0'}
 
-### Link Attribute Types 
-The following keywords are link attributes
+### Link Attribute Types {#link-attributes}
+The following keywords are link attributes that may have values providing additional description of the target resource, e.g. u=Cel
 
 "rt"
-:    the resource type
+:    the resource type or relation type when used with some hypermedia controls
 
 "if"
-:    the interface type
+:    the interface type, defining a view of or interaction model on the resource
 
 "u"
-:    units of measure
+:    units of measure to expected for the application semantics of the resource
 
 "ins"
-:    the instance identifier
+:    the instance identifier when there are links that look alike
 
 "mt"
 :    the media type type string(s) offered for the target resource
 
 "ct"
-:    the CoAP content-format(s) offered for the target resource
+:    the CoAP content-format number(s) offered for the target resource
 
 "con"
 :    overrides the registration context of a link in a resource directory
@@ -161,14 +188,54 @@ The following keywords are link attributes
 {: vspace='0'}
 
 ## Form Keywords {#form-keywords}
-The following keywords are reserved for use in a hsml serialization to indicate elements within the serialization
+The following additional keywords provide message construction and processing information for forms. Forms MAY also use the link attribute types already defined in {link-keywords} and {link-attributes}. Form relation types are used to describe abstract actions on the context resource, and are often derived from application semantics. 
 
 "method"
 :    protocol method to use when constructing a message for the target resource
 
 "accept"
 :    media type to use to serialize the request payload to be applied to the target resource
+
+"template"
+:    a template for constructed the expected representation of the resource to be sent in the message
 {: vspace='0'}
+
+### Form Relation Types {#form-relations}
+The following keywords are example relations for forms that describe the semantics relative to the context
+
+"additem"
+:    the form describes how to add an item to a collection
+{: vspace='0'}
+
+## Link Binding Keywords
+The following keywords are reserved for use in describing link bindings. Link bindings are like forms, except they instruct the system how to construct an outgoing message to indicate a state change on a resource. A Link Binding defines anchor, href, and rel, and may also use link and form attributes as needed.
+
+"boundto"
+:    a link relation type that indicates the target of the link is bound to the context resource in some way to exchange state information
+
+"pmin"
+:    minimum notification period as per CoRE Interfaces
+
+"pmax"
+:    maximum notification period as per CoRE Interfaces
+
+"lt"
+:    lower bound value for fixed threshold notification
+
+"gt"
+:    upper bound value for fixed threshold notification
+
+"st"
+:    change value for dynamic threshold notification
+{: vspace='0'}
+
+
+# Security Considerations
+
+Link terms used to select resources, like addresses
+
+Access control
+
 
 --- back
 
