@@ -86,9 +86,9 @@ Collection is a web page for things.
 
 This draft describes a content format for machine resource collections that contain named items and links that point to and describe items. Link representations are compatible with CoRE Link-Format {{RFC6690}}. Item representations in the collection are compatible with {{I-D.jennings-core-senml}}.
 
-A representation for machine forms is proposed that uses a common set of reserved keywords to provide a standard hypermedia control for clients to perform state updates on resources.  
+The hsml content format is compatible with both SenML and CoRE Link-format by reusing the keyword identifiers from these standards in the internal namespace of the collection.
 
-The hsml content format is compatible with both SenML and CoRE Link-format by reusing the keyword identifiers from these standards in the base representation of the collection.
+A representation for machine forms is proposed that uses a common set of reserved keywords to provide a standard hypermedia control for clients to perform state updates on resources.  
 
 # Structure of the Collection {#structure}
 
