@@ -934,11 +934,11 @@ a group MAY have a multicast address associated with it.</t>
 makes a request to the RD indicating the name of the group to create (or
 update), optionally the domain the group belongs to, and optionally the multicast
 address of the group. The registration message includes the list of endpoints
-that belong to that group. If an endpoint has already registered with the
-RD, the RD attempts to use the context of the endpoint from its RD endpoint
-entry. If the client registering the group knows the endpoint has already
-registered, then it MAY send a blank target URI for that endpoint link when
-registering the group. Configuration of the endpoints themselves is out of
+that belong to that group.</t>
+
+<t>All the endpoints in the group MUST be registered with the RD before regidstering a group. If an endpoint is not yet registered to the RD before registering the group, the registration message returns an error. The RD sends a blank target URI for every endpoint link when registering the group.</t>
+
+<t>Configuration of the endpoints themselves is out of
 scope of this specification. Such an interface for managing the group membership
 of an endpoint has been defined in <xref target="RFC7390"/>.</t>
 
@@ -1249,7 +1249,7 @@ endpoint belongs to:</t>
 Req: GET /rd-lookup/gp?ep=node1
 
 Res: 2.05 Content
-<coap://[FDFD::123]:61616>;gp="lights1";ep="node1",
+</rd-group/12>;gp="lights1";ep="node1",
 ]]></artwork></figure>
 
 </section>
@@ -1277,7 +1277,7 @@ iNumber. This attribute is used by a Resource Directory to distinguish between
 multiple instances of the same resource type within the directory.</t>
 
 <t>This attribute MUST be no more than 63 bytes in length. The resource identifier
-attribute MUST NOT appear more than once in a link description.</t>
+attribute MUST NOT appear more than once in a link description.  This attribute MAY be used as a query parameter in the RD Lookup Function Set defined in Section 7.</t>
 
 </section>
 <section anchor="export-attribute-exp" title="Export attribute ‘exp’">
@@ -1290,7 +1290,7 @@ are useful mainly locally, for example checking the observability of a resource
 before accessing it, determining the size of a resource, or traversing dynamic
 resource structures. However, other links are very useful to be exported
 to other directories, for example the entry point resource to a functional
-service.</t>
+service.  This attribute MAY be used as a query parameter in the RD Lookup Function Set defined in Section 7.</t>
 
 </section>
 </section>
@@ -1517,11 +1517,9 @@ large-scale DDoS attacks on the target. Especially, if the service
 returns a response that is order of magnitudes larger than the
 request, the situation becomes even worse as now the attack can be
 amplified. DNS servers have been widely used for DDoS amplification
-attacks. Recently, it has been observed that NTP Servers, that also
-run on unprotected UDP have been used for DDoS attacks
-(http://tools.cisco.com/security/center/content/CiscoSecurityNotice/CVE-2013-5211) <!-- TODO: Ref, and cut down the verbiage, as this is already discussed in
-RFC 7252 --> since there is no return routability check and can have a large
-amplification factor. The responses from the NTP server were found to be
+attacks. There is also a danger that NTP Servers could become implicated in denial-of-service (DoS) attacks since they run on unprotected UDP, there 
+is no return routability check, and they can have a large amplification factor. 
+The responses from the NTP server were found to be
 19 times larger than the request. A Resource Directory (RD) which responds
 to wild-card lookups is potentially vulnerable if run with CoAP over UDP.
 Since there is no return routability check and the responses can be significantly
@@ -1600,6 +1598,14 @@ query parameter MUST be a valid URI query key <xref target="RFC3986"/>.</t>
       <c>count</c>
       <c>Integer</c>
       <c>Used for pagination</c>
+      <c>Resource Instance</c>
+      <c>ins</c>
+      <c>&#160;</c>
+      <c>Instance Identifier</c>
+      <c>Export</c>
+      <c>exp</c>
+      <c>&#160;</c>
+      <c>A link MAY be exported to another Resource Directory</c>
 </texttable>
 
 <t>The IANA policy for future additions to the sub-registry is “Expert Review”
@@ -1639,7 +1645,7 @@ entities.</t>
 <t>The example installation consists of one presence sensor, and two luminaries,
 luminary1 and luminary2, each with their own wireless interface. Each luminary
 contains three lamps: left, right and middle. Each luminary is accessible
-through one end-point. For each lamp a resource exists to modify the settings
+through one endpoint. For each lamp a resource exists to modify the settings
 of a lamp in a luminary. The purpose of the installation is that the presence
 sensor notifies the presence of persons to a group of lamps. The group of
 lamps consists of: middle and left lamps of luminary1 and right lamp of luminary2.</t>
@@ -1674,17 +1680,17 @@ during installation. Therefore, the SLAAC addresses are used in this section.</t
 
 <t>For discovery, the resource types (rt) of the devices are important. The
 lamps in the luminaries have rt: light, and the presence sensor has rt: p-sensor.
-The end-points have names which are relevant to the light installation manager.
+The endpoints have names which are relevant to the light installation manager.
 In this case luminary1, luminary2, and the presence sensor are located in
 room 2-4-015, where luminary1 is located at the window and luminary2 and
-the presence sensor are located at the door. The end-point names reflect
+the presence sensor are located at the door. The endpoint names reflect
 this physical location. The middle, left and right lamps are accessed via
 path /light/middle, /light/left, and /light/right respectively. The identifiers
-relevant to the Resource Directory are shown in <xref target="end-point"/> below:</t>
+relevant to the Resource Directory are shown in <xref target="endpoint"/> below:</t>
 
-<texttable title="Resource Directory identifiers" anchor="end-point">
+<texttable title="Resource Directory identifiers" anchor="endpoint">
       <ttcol align='left'>Name</ttcol>
-      <ttcol align='left'>end-point</ttcol>
+      <ttcol align='left'>endpoint</ttcol>
       <ttcol align='left'>resource path</ttcol>
       <ttcol align='left'>resource type</ttcol>
       <c>luminary1</c>
@@ -1717,7 +1723,7 @@ relevant to the Resource Directory are shown in <xref target="end-point"/> below
       <c>p-sensor</c>
 </texttable>
 
-<t>The CT inserts the end-points of the luminaries and the sensor in the RD
+<t>The CT inserts the endpoints of the luminaries and the sensor in the RD
 using the Context parameter (con) to specify the interface address:</t>
 
 <figure align="left"><artwork><![CDATA[
@@ -1760,7 +1766,7 @@ the two luminaries and the presence sensor by the CT.</t>
 
 <t>The group is specified in the RD. The Context parameter is set to the site-local
 multicast address allocated to the group.
-In the POST in the example below, these two end-points and the end-point
+In the POST in the example below, these two endpoints and the endpoint
 of the presence sensor are registered as members of the group.</t>
 
 <figure align="left"><artwork><![CDATA[
@@ -1779,8 +1785,8 @@ Location: /rd-group/501
 can learn to which groups they belong, and enable their interface for the
 multicast address.</t>
 
-<t>The luminary, knowing its domain, queries the RD for the end-point with rt=light
-and d=R2-4-015. The RD returns all end-points in the domain.</t>
+<t>The luminary, knowing its domain, queries the RD for the endpoint with rt=light
+and d=R2-4-015. The RD returns all endpoints in the domain.</t>
 
 <figure align="left"><artwork><![CDATA[
 Req: GET coap://[FDFD::ABCD:0]/rd-lookup/ep
@@ -1794,8 +1800,8 @@ Res: 2.05 Content
 ]]></artwork></figure>
 
 <t>Knowing its own IPv6 address, the luminary discovers its endpoint name. With
-the end-point name the luminary queries the RD for all groups to which the
-end-point belongs.</t>
+the endpoint name the luminary queries the RD for all groups to which the
+endpoint belongs.</t>
 
 <figure align="left"><artwork><![CDATA[
 Req: GET coap://[FDFD::ABCD:0]/rd-lookup/gp
@@ -1863,8 +1869,7 @@ grp1234._group._udp.bc.example.com  IN TXT
 
 <t>This example shows how the OMA LWM2M specification makes use of Resource Directory (RD).</t>
 
-<t>OMA LWM2M is a profile for device services based on CoAP, CoRE RD, and
-other IETF RFCs and drafts. LWM2M defines a simple object model and a number of abstract interfaces and operations for device management and device service enablement.</t>
+<t>OMA LWM2M is a profile for device services based on CoAP(OMA Name Authority). LWM2M defines a simple object model and a number of abstract interfaces and operations for device management and device service enablement.</t>
 
 <t>An LWM2M server is an instance of an LWM2M middleware service layer, containing a Resource Directory along with other LWM2M interfaces defined by the LWM2M specification.</t>
 
@@ -1902,12 +1907,12 @@ case, object-instance can be “empty” (which is different from
 
 <t>base-uri := Base URI for LWM2M resources or “undefined” for default (empty) base URI</t>
 
-<t>object-id := OMNA registered object ID (0-65535)</t>
+<t>object-id := OMNA (OMA Name Authority) registered object ID (0-65535)</t>
 
 <t>object-instance := Object instance identifier (0-65535) or
 “undefined”/”empty” (see above)) to refer to all instances of an object ID</t>
 
-<t>resource-id := OMNA registered resource ID (0-65535) or “undefined” to refer to all resources within an instance</t>
+<t>resource-id := OMNA (OMA Name Authority) registered resource ID (0-65535) or “undefined” to refer to all resources within an instance</t>
 
 <t>resource-instance := Resource instance identifier or “undefined” to refer to single instance of a resource</t>
 
@@ -1934,7 +1939,7 @@ registration lifetime configured, in instance 0 of a type 1 object
 
 <t>Resources within the LWM2M object instance are not registered with the RD, but may be discovered by reading the resource links from the object instance using GET with a CoAP Content-Format of application/link-format. Resources may also be read as a structured object by performing a GET to the object instance with a Content-Format of senml+json.</t>
 
-<t>When an LWM2M object or instance is registered, this indicates to the LWM2M server that the object and it’s resources are available for management and service enablement (REST API) operations.</t>
+<t>When an LWM2M object or instance is registered, this indicates to the LWM2M server that the object and its resources are available for management and service enablement (REST API) operations.</t>
 
 <t>LWM2M endpoints may use the following RD registration parameters as defined in <xref target="tab-registry"/> :</t>
 
@@ -2026,7 +2031,7 @@ link payload - new or modified links
 </section>
 <section anchor="acknowledgments" title="Acknowledgments">
 
-<t>Srdjan Krco, Szymon Sasin, Kerry Lynn, Esko Dijk, Anders
+<t>Oscar Novo, Srdjan Krco, Szymon Sasin, Kerry Lynn, Esko Dijk, Anders
 Brandt, Matthieu Vial, Mohit Sethi, Sampo Ukkola and Linyi
 Tian have provided helpful comments, discussions and ideas to improve and
 shape this document. Section 9 is based on an earlier draft
