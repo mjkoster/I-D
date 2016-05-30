@@ -1,7 +1,7 @@
 ---
 title: CoRE Resource Directory
 docname: draft-ietf-core-resource-directory-08
-date: 2016-04-30
+date: 2016-05-30
 stand_alone: true
 ipr: trust200902
 cat: std
@@ -212,7 +212,7 @@ provided using the CoRE Link Format.
                +------------+
                     |     |
                     |   +------------+
-                    |   |   Group    | <-- Name, IP
+                    |   |   Group    | <-- Name, Scheme, IP, Port
                     |   +------------+
                     |     |
                +------------+
@@ -487,7 +487,7 @@ Failure:
 : No error response to a multicast request.
 
 HTTP support :
-: NO
+: YES (Unicast only)
 
 The following example shows an endpoint discovering an RD using this interface,
 thus learning that the base RD resource is, in this example, at /rd.  Note

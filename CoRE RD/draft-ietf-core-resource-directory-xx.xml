@@ -68,7 +68,7 @@
       </address>
     </author>
 
-    <date year="2016" month="April" day="30"/>
+    <date year="2016" month="May" day="30"/>
 
     <area>Internet</area>
     <workgroup>CoRE</workgroup>
@@ -219,7 +219,7 @@ provided using the CoRE Link Format.</t>
                +------------+
                     |     |
                     |   +------------+
-                    |   |   Group    | <-- Name, IP
+                    |   |   Group    | <-- Name, Scheme, IP, Port
                     |   +------------+
                     |     |
                +------------+
@@ -493,7 +493,7 @@ request.</t>
   <t hangText='Failure:'>
   No error response to a multicast request.</t>
   <t hangText='HTTP support :'>
-  NO</t>
+  YES (Unicast only)</t>
 </list></t>
 
 <t>The following example shows an endpoint discovering an RD using this interface,
