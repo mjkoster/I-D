@@ -18,7 +18,7 @@
 <rfc ipr="trust200902" docName="draft-koster-t2trg-hsml-00" category="exp">
 
   <front>
-    <title>Content Formats for Hypertext Sensor Markup</title>
+    <title>Media Types for Hypertext Sensor Markup</title>
 
     <author initials="M." surname="Koster" fullname="Michael Koster">
       <organization>SmartThings</organization>
@@ -34,7 +34,7 @@
       </address>
     </author>
 
-    <date year="2016" month="February" day="21"/>
+    <date year="2016" month="June" day="24"/>
 
     <area>Internet</area>
     <workgroup>Thing-to-Thing Research Group</workgroup>
@@ -43,9 +43,7 @@
     <abstract>
 
 
-<t>The scale and scope of the web has been in part driven by the availability of HTML as a common serialization for structured resources. General use of hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standard hypermedia controls.</t>
-
-<t>Machine hypermedia content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.jennings-core-senml"/>. Structured data contains both links and items in a type known as the collection type. This draft describes content formats for representation of machine resources in collections.</t>
+<t>The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. Machine optimized content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.ietf-core-senml"/>. Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A common data model is described with a representation format that uses a common set of reserved keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.</t>
 
 
 
@@ -57,115 +55,172 @@
   <middle>
 
 
-<section anchor="introduction" title="Introduction">
-<t>Collection is a web page for things.</t>
+<section anchor="scope" title="Scope of this document">
 
-<t>This draft describes a content format for machine resource collections that contain named items and links that point to and describe items. Link representations are compatible with CoRE Link-Format <xref target="RFC6690"/>. Item representations in the collection are compatible with <xref target="I-D.jennings-core-senml"/>.</t>
+<t>As with HTML, this is a broadly scoped document which specifies representation formats, data models, interaction models, transfer mapping, URI processing, and some extensions including forms and bindings.</t>
 
-<t>The hsml content format is compatible with both SenML and CoRE Link-format by reusing the keyword identifiers from these standards in the internal namespace of the collection.</t>
-
-<t>A representation for machine forms is proposed that uses a common set of reserved keywords to provide a standard hypermedia control for clients to perform state updates on resources.</t>
+<t>The features listed above and new features may be specified and extended as needed in other documents which refer to this document.</t>
 
 </section>
-<section anchor="structure" title="Structure of the Collection">
+<section anchor="overview-and-use-case-requirements" title="Overview and Use Case Requirements">
 
-<section anchor="base-elements" title="Base elements">
-<t>Base elements describe the context under which to interpret values in links and items within a representation of a colection.</t>
+<t>Use case requirements include the following.</t>
+
+<t>A standardized way to expose self-describing resource representations using embedded links and link annotations.</t>
+
+<t>A standardized way of organizing and interacting with resource instances using hyperlinks.</t>
+
+<t>A standardized encapsulation of resources for modeling things, capabilities, groups, indices, and other common structures.</t>
+
+</section>
+<section anchor="model" title="Data Model and Interaction Model">
+
+<t>The HSML data model consists of collections containing links and items. An instance of a collection is identified by a URI.</t>
+
+<t>Items are data elements, either within the context the collection, or outide the context of the collection. An instance of an item is identified by a URI.</t>
+
+<t>Links are standard web links as in <xref target="RFC5988"/> or <xref target="RFC6690"/>.</t>
+
+<t>Items are identified by links in a collection. An Item may only be in the context of one collection, but may be identified by any number of links in any number of collections.</t>
+
+<t>Links in a collection may point to items within the context of the collection or they may point to items external to the collection, on the same server or on other servers.</t>
+
+<t>Items in the collection that use the SenML data model may be embedded in the collection and transferred either along with the links or separately from links.</t>
+
+<section anchor="normative-representation" title="Normative Representation">
+
+<t>JSON formatted examples are used in this document to illustrate normative and informative concepts. Representations in other formats may be derived from the JSON representations.</t>
+
+</section>
+<section anchor="links" title="Links">
+
+<t>Links follow the specifications in <xref target="RFC5988"/> and <xref target="RFC6690"/> with extensions to implement forms and bindings as described in this document and any referencing extension documents.</t>
+
+</section>
+<section anchor="collections" title="Collections">
+
+<t>Collections contain one or more links and extended links, and may contain data items referred to by the links. A representation of a collection may contain both links and data items.</t>
+
+</section>
+<section anchor="link-embedding" title="Link Embedding">
+
+<t>Link embedding emnables the transfer of more than one item in a collection using a single transfer operation.</t>
+
+<section anchor="batch-operations-on-multiple-items-in-a-collection" title="Batch operations on multiple items in a collection">
+
+<t>A collection of items enables operations on more than one item at a time by exposing a structured a representation of multiple resources in the collection.</t>
+
+<t>Applications may select resources by using URI parameters, and transfer representations of multiple resources using the SenML multi-item format.</t>
+
+</section>
+<section anchor="collective-operation-on-groups-of-linked-resources" title="Collective operation on groups of linked resources">
+
+<t>Resource links in the collection may specify group transfer semantics, where transfer operations are replicated the resources indicated by the links optionally selected using URI parameters. Group responses are aggregated using the SenML multi-item format.</t>
+
+</section>
+</section>
+</section>
+<section anchor="abstract-transfer-model" title="Abstract Transfer Model">
+
+<t>The HSML media type assumes a transfer model capable of interacting with representations using a simple CRUD model, allowing for basic life cycle operations on resources and collections.</t>
+
+<t><list style="hanging">
+  <t hangText='CREATE'><vspace blankLines='0'/>
+  Create an instance of a resource as specified using the payload as a constructor. Optionally return a reference to the created resource. Typically uses POST in CoAP or HTTP, may use PUBLISH in pubsub protocols.</t>
+  <t hangText='RETRIEVE'><vspace blankLines='0'/>
+  Obtain a representation of the selected resource. Typically uses GET in CoAP or HTTP, could use SUBSCRIBE with message retention in pubsub.</t>
+  <t hangText='UPDATE'><vspace blankLines='0'/>
+  Replace or partially replace the representation of the selected resource. Typically uses PUT or PATCH in CoAP and HTTP, could use PUBLISH in pubsub in the frequent case that CREATE and UPDATE are not needed on the same resource.</t>
+  <t hangText='DELETE'><vspace blankLines='0'/>
+  Remove the representation of the selected resource. Typically uses DELETE in CoAP or HTTP. There is no natural mapping to pubsub if a remove operation is not provided.</t>
+  <t hangText='OBSERVE'><vspace blankLines='0'/>
+  Obtain a sequence of representations of the selected resource, indicating state updates which occur on the resource. Typically uses CoAP Observe, HTTP EventSource, MQTT SUBSCRIBE. OBSERVE is the transfer equivalent of performing a RETRIEVE on the resource immediately following each state change of the resource.</t>
+</list></t>
+
+</section>
+<section anchor="collections" title="Collections">
+
+<section anchor="base-element" title="Base element">
+<t>A base element describe the context under which to interpret values in items within the representation of a colection.</t>
 
 <t>The base name element (bn) indicates the base URI or an absolute reference from which to base relative references found in the links. It functions as an embedded base URI reference as per <xref target="RFC3986"/> Section 5.1.1</t>
 
-<t>The format of the base elements are specified in <xref target="I-D.jennings-core-senml"/>. <xref target="fig-example-basename"/> is an example of a base name element.</t>
+<t>The format of the base elements are specified in <xref target="I-D.ietf-core-senml"/>. <xref target="fig-example-basename"/> is an example of a base name element.</t>
 
 <figure title="SenML Base Name Example" align="left" anchor="fig-example-basename"><artwork><![CDATA[
     "bn": "/dev/sen/temp/"
 ]]></artwork></figure>
 
-<t>Other base items from SenML are permissible, including base time (bt) and base value(bv). If additional senml base element are present, the client MUST interpret the items in the collection in the context of the applicable base elements. For example, if there is a “bv” or base value elment, all of the returned values from items in the collection MUST be added to the base value as per <xref target="I-D.jennings-core-senml"/>.</t>
+<t>Other base items from SenML are permissible, including base time (bt) and base value(bv). If additional senml base element are present, the client MUST interpret the items in the collection in the context of the applicable base elements. For example, if there is a “bv” or base value elment, all of the returned values from items in the collection MUST be added to the base value as per <xref target="I-D.ietf-core-senml"/>.</t>
 
 </section>
-<section anchor="links" title="Links">
-<t>The links element (l) is an array of hyperlinks based on the structure and syntax of <xref target="I-D.ietf-core-links-json"/>. An example of the links element</t>
+<section anchor="link-element" title="Link element">
+<t>A link element is a hyperlinks based on the structure and syntax of <xref target="RFC6690"/>. An example of link elements</t>
 
 </section>
-<section anchor="items" title="Items">
+<section anchor="item-element" title="Item element">
+<t>An item element in a collection is a data element that is referenced by a URI in the collection. THe URI reference to an item in a collection must use the collection URI as context or specify a link anchor property to override the default context.</t>
 
-</section>
-</section>
-<section anchor="content-fprmats" title="Content Formats">
+<t>Items may be embedded in the collection, they may be subresources of the collection, or they may be items in other collections referenced by links in the collection.</t>
 
-<section anchor="json" title="JSON">
-
-</section>
-<section anchor="xml" title="XML">
-
-</section>
-<section anchor="alternate-content-formats" title="Alternate Content Formats">
-
-<section anchor="link-format" title="Link-Format">
-
-</section>
-<section anchor="senml" title="SenML">
+<t>Items in the collection must be indicated by a relative references (href) that serve as a selection variables for matching to URI parameters and resource names in multi-resource representataions.</t>
 
 </section>
 </section>
-</section>
-<section anchor="example-formats" title="Example Serialization Formats">
-<t><xref target="fig-example-hsml"/> shows an example document in hsml+json format</t>
+<section anchor="representation-formats" title="Representation Formats">
+
+<t>Example Serialization Formats {#example-formats}
+<xref target="fig-example-hsml"/> shows an example document in hsml+json format</t>
 
 <figure title="application/hsml+json Example" align="left" anchor="fig-example-hsml"><artwork><![CDATA[
 {
-  "bn":"/3303/1/",
-  "i":[
-    {"n":"5700","v":"31.3","u":"Cel"},
-    {"n":"5701","vs":"Cel"},
-    {"n":"5602","v":"87.1","u":"Cel"},
-    {"n":"5601","v":"18.3","u":"Cel"},
-    {"n":"5605"},
-    {"n":"5603","v":"0","u":"Cel"},
-    {"n":"5604","v":"260","u":"Cel"},
-    {"n":"5750","vs":"Inboard Bearing"}
-  ],
-  "l":[
-    {"href":"","rel":"self","rt":"temperature","u":"Cel"},
-    {"href":"5700","rt":"currentValue","u":"Cel"},
-    {"href":"5701","rt":"units"},
-    {"href":"5602","rt":"maxValue","u":"Cel"},
-    {"href":"5601","rt":"minValue","u":"Cel"},
-    {"href":"5605","rt":"resetMaxMin"},
-    {"href":"5603","rt":"minRange","u":"Cel"},
-    {"href":"5604","rt":"maxRange","u":"Cel"},
-    {"href":"5750","rt":"appType"}
-  ]
 }
 ]]></artwork></figure>
 
-<t>Link-Format</t>
+</section>
+<section anchor="uri-and-parameter-processing" title="URI and Parameter Processing">
 
-<t>SenML</t>
+<t>The HSML media type defines URI reference processing and URI Query processing but does not in general define fragment (#) references in URIs.</t>
+
+<t>If fragment references are provided in a particular transfer implementation, they should be used to select single items in collections in accordance with current practice.</t>
+
+<section anchor="uri-path-processing" title="URI Path Processing">
+
+<t>The path part of the URI reference used to indicate HSML resources may be used as a reference to a collection or to an item in a collection. Collection references should contain the trailing slash character “/” in accordance with BCP. Server implementations should return links to collections with the trailing “/”, and should attempt to accept references to collections without the trailing “/” if such references can be used to construct unambiguous references.</t>
+
+<t>References to items in a collection should not contain the trailing “/” character. Servers should return item references that do not contain the trailing “/” character, and should should attempt to accept references to items in collections with the trailing “/” if such references can be used to construct unambiguous references.</t>
+
+<t>URI references may be routed to collections in the order in which path segments appear in the reference, from left to right reading the path string, separated by “/” characters.</t>
+
+<t>URI references may alternatively be routed as opaque strings to resources. In this case, the resolution of relative references to items in a collection should be possible by concatenating the relative reference to the context URI of the collection. Note that this may enforce certain naming conventions such as the trailing slash in practice.</t>
 
 </section>
-<section anchor="uri" title="URI handling">
+<section anchor="uri-parameter-processing" title="URI Parameter processing">
 
-<section anchor="base-uri-and-item-names" title="Base URI and item names">
+<t>URI Parameters, typically mapped as query parameters in HTTP and CoAP, are used for selecting resources, selecting partial representations, and otherwise modifying aspects of the expected or included representation. In this way, they may be considered part of the URI, since they help identify a unique representation to be transferred.</t>
 
-</section>
-<section anchor="query-filtering-and-selection" title="Query filtering and selection">
+<section anchor="resource-selection" title="Resource selection">
 
-</section>
-</section>
-<section anchor="interaction-methods" title="Interaction Methods">
+<t>URI Parameters may be used to select resources in a collection for transfer. This is done using the common parameter matching rules specified in <xref target="RFC6690"/>.</t>
 
-<section anchor="collection-interaction" title="Collection Interaction">
-
-<section anchor="get" title="GET">
-<t>List Collection</t>
+<t>Resource selection is performed based on matching URI Parameters with Link Parameters of all links in the collection which are exposed by the indicated media type and interface type. URI Parameters listed in <xref target="uri-params"/> are excluded from the matching process.</t>
 
 </section>
-<section anchor="post" title="POST">
-<t>Add Item</t>
+</section>
+</section>
+<section anchor="transfer-model-mapping" title="Transfer Model Mapping">
+
+<section anchor="collection" title="Collection">
+
+<section anchor="retrieve" title="RETRIEVE">
+<t>List Collection Links and Items</t>
 
 </section>
-<section anchor="put" title="PUT">
+<section anchor="create" title="CREATE">
+<t>Add Items and Links</t>
+
+</section>
+<section anchor="update" title="UPDATE">
 <t>Replace Entire Collection</t>
 
 </section>
@@ -174,109 +229,158 @@
 
 </section>
 </section>
-<section anchor="link-interaction" title="Link Interaction">
+<section anchor="links-1" title="Links">
 
-<section anchor="get-1" title="GET">
+<section anchor="retrieve-1" title="RETRIEVE">
 <t>List Links</t>
 
 </section>
-<section anchor="post-1" title="POST">
-<t>Add Links</t>
+<section anchor="create-1" title="CREATE">
+<t>Add Links only</t>
 
 </section>
-<section anchor="patch" title="PATCH">
+<section anchor="update-including-partial-update" title="UPDATE (including partial update)">
 <t>Modify Links</t>
 
 </section>
-</section>
-<section anchor="item-interaction" title="Item Interaction">
-
-<section anchor="link-embedding" title="Link Embedding">
+<section anchor="delete-1" title="DELETE">
+<t>Remove Links</t>
 
 </section>
 </section>
-</section>
-<section anchor="security-considerations" title="Security Considerations">
+<section anchor="items" title="Items">
 
-<section anchor="object-signing" title="Object Signing">
-<t>Collection representations are application state encapsulations and may be signed objects in order to protect the integrity of data and metadata, including time and access control information.</t>
+<section anchor="link-embedding-items" title="Link Embedding Items">
 
-</section>
-<section anchor="signed-embedded-time-stamps" title="Signed Embedded Time Stamps">
-<t>The collection may include time stamps (bt and t) that are signed with the object data and metadata.</t>
+<t>Collective operations on items in collections are invoked by using the URI of the collections, along with URI parameters, to select one or more items in the collection.</t>
 
 </section>
-<section anchor="signed-embedded-access-control" title="Signed Embedded Access Control">
-<t>The colleciton representation may include embedded access control information, also signed with the metadata, that can instruct the server to enforce a particular access policy for requests that contain a particular credential.</t>
+<section anchor="retrieve-2" title="RETRIEVE">
+<t>Retrieve Items</t>
 
 </section>
-<section anchor="secure-state-updates" title="Secure State Updates">
-<t>Representations submitted to a server to update the state of a resource (POST, PUT, DELETE) may also contain embedded signed assertions which may be used by the server to decide whether to apply or reject the update.</t>
+<section anchor="update-1" title="UPDATE">
+<t>Modify Items</t>
+
+</section>
+<section anchor="delete-2" title="DELETE">
+<t>Remove Items</t>
+
+</section>
+</section>
+<section anchor="groups" title="Groups">
+
+<t>Group transfer operations are provided by collections that contain links with the “grp” relation value.</t>
+
+<t>Transfer operations which specify the collection URI as target are sent to the resolved URI of each link in the collection that contains the “grp” relation.</t>
+
+<t>URI Parameters may be used to select a particular subset of target resources within the group in the collection.</t>
+
+<t>Responses from the selected group resources are aggregated and by default returned as a single response using the response aggregation method specified in <xref target=""/>.</t>
+
+<t>Optionally, a chunked response may be specified, if allowed by the transfer implementation, in which the response from each group member is returned individually as a sequence of responses.</t>
+
+</section>
+</section>
+<section anchor="link-extensions" title="Link extensions">
+
+<section anchor="forms" title="Forms">
+
+<t>Forms are hypermedia controls used to construct transfer operations that change the state of resources. The vocabulary and semantics roughly follows the use of forms in HTML <xref target=""/>.</t>
+
+</section>
+<section anchor="bindings" title="Bindings">
+
+<t>Bindings are hypermedia controls used to construct transfer operations that expose state changes of resources. A binding invokes an outbound transfer operation on a target resource.</t>
 
 </section>
 </section>
 <section anchor="reserved-identifiers" title="Reserved Identifiers">
 
-<section anchor="hsml-keywords" title="hsml Keywords">
-<t>The following keywords are reserved for use by hsml processing to identify sub-elements of a hsml serialization</t>
+<t>This section defines the common reserved identifiers that are expected to be processed by implementations of HSML clients and servers. There are many more relation types and link parameters defined and registered with IANA. Implementations should not restrict processing to the keywords identified in this document; they should accept all IANA registered keywords as valid identifiers.</t>
+
+<t>Many of the keywords listed are defined in other RFCs and IETF documents. This document does not redefine any existing keywords. Where a definition exists, the existing definition will be used. Where multiple conflicting definitions exist, this document will indicate the required definition.</t>
+
+<t>New definitions are summarized in <xref target="iana-cons"/>.</t>
+
+<section anchor="default-curie" title="Default CURIE">
+
+<t>Identifiers in representations using the HSML media types are assumed to use the default CURIE “hsml”. An identifier that is not matched to an existing namespace is assumed to carry the prefix “hsml”.</t>
+
+<t>For example, if the identifier “method” is encountered and it doesn’t resolve to an IANA registered parameter (reg-parameter in <xref target="RFC5988"/>) resolution should be attempted using “hsml:method”.</t>
+
+<t>This document defines an ad-hoc registry of identifiers defined in the HSML namespace in <xref target=""/>.</t>
+
+</section>
+<section anchor="uri-parameters-uriparams" title="URI Parameters {#uri=params}">
+
+<t>The following URI Parameters are used to filter representations according to specific processing rules and should not be used to attempt to match link parameters.</t>
 
 <t><list style="hanging">
-  <t hangText='“i”'><vspace blankLines='0'/>
-  indicates the list of named items, which are maps containing keywords from <xref target="I-D.jennings-core-senml"/> and specified in <xref target="item-keywords"/></t>
-  <t hangText='“l”'><vspace blankLines='0'/>
-  indicates the list of links, which are maps containing keywords from  <xref target="I-D.ietf-core-links-json"/> and specified in <xref target="link-keywords"/></t>
+  <t hangText='“if”'>
+  Interface type, used to select a partial representation of a collection</t>
+  <t hangText='“count”'>
+  Indicates the number of items to be returned from the collection</t>
+  <t hangText='“start”'>
+  Indicates the array index of the item in the collection to select as the first item to be returned</t>
+  <t hangText='“page”'>
+  Page number, in units of count</t>
 </list></t>
 
 </section>
 <section anchor="link-keywords" title="Link Keywords">
-<t>The following keywords are reserved for use in a hsml serialization to indicate elements of a web link</t>
+<t>The following keywords are reserved for use in an HSML serialization to indicate elements of a web link</t>
 
 <t><list style="hanging">
+  <t hangText='“anchor”'><vspace blankLines='0'/>
+  overrides the default resource context of the link</t>
+  <t hangText='“rel”'><vspace blankLines='0'/>
+  link relation type as defined in <xref target="RFC5988"/> and <xref target="RFC6690"/></t>
   <t hangText='“href”'><vspace blankLines='0'/>
   target of a link reference. This may be a relative reference in the collection e.g. “currentValue” or a local absolute reference “/sensors/temp/currentValue” or a full reference “https://example.com/sensors/temp/currentValue”</t>
-  <t hangText='“anchor”'><vspace blankLines='0'/>
-  overrides the default resource context</t>
-  <t hangText='“rel”'><vspace blankLines='0'/>
-  link relation type</t>
 </list></t>
 
 <section anchor="link-relation-types" title="Link Relation Types">
-<t>The following keywords are reserved for use in a hsml serialization to indicate types of link relations</t>
+<t>The following keywords are reserved for use in a HSML serialization to indicate types of link relations, and are used for values of “rel”.</t>
 
 <t><list style="hanging">
   <t hangText='“self”'><vspace blankLines='0'/>
-  refers to the collection itself</t>
+  refers to the collection that contains the link</t>
   <t hangText='“item”'><vspace blankLines='0'/>
-  the item is represented in the “local” context of the collection, i.e. not a subresource</t>
+  the link points to an item in the collection</t>
   <t hangText='“sub”'><vspace blankLines='0'/>
-  the item is a subresource of the collection</t>
+  the link points to a subresource item of the collection</t>
   <t hangText='“grp”'><vspace blankLines='0'/>
-  the item is available for collective (group) interaction</t>
+  the item the link points to is available for collective interaction through the collection URI according to group semantics described in {}</t>
 </list></t>
 
 </section>
 <section anchor="link-attribute-types" title="Link Attribute Types">
-<t>The following keywords are reserved for use in a hsml serialization to indicate types of link attributes</t>
+<t>The following keywords are reserved for use in a HSML serialization to indicate types of link attributes</t>
 
 <t><list style="hanging">
-  <t hangText='“rt”'><vspace blankLines='0'/>
-  the resource type of the item</t>
-  <t hangText='“u”'><vspace blankLines='0'/>
+  <t hangText='“rt”'>
+  the resource type(s) of the item</t>
+  <t hangText='“u”'>
   units of measure</t>
-  <t hangText='“ct”'><vspace blankLines='0'/>
-  the content-format of the item</t>
+  <t hangText='“ct”'>
+  the CoAP content-format number(s) associated with the item</t>
+  <t hangText='“content-type”'>
+  the media type string(s) associated with the item</t>
+  <t hangText='“obs”'>
+  presence of this attribute indicates that the associated resource is observable</t>
 </list></t>
 
 </section>
 </section>
-<section anchor="item-keywords" title="Item Keywords">
-<t>The following keywords are reserved for use in a hsml serialization to indicate elements within the serialization</t>
+<section vspace="0" anchor="item-keywords" title="Item Keywords">
+<t>The following keywords are reserved for use in a HSML serialization to indicate elements within the serialization. These are defined in <xref target="I_D.ietf-core-senml"/>.</t>
 
 <t><list style="hanging">
   <t hangText='“bn”'><vspace blankLines='0'/>
   the base name or base URI of the collection, relative to the service location e.g. “/sensors/temp/”</t>
   <t hangText='“bt”'><vspace blankLines='0'/>
-  the base time that corresponds with the encapsulated state of the collection</t>
+  the base time that corresponds to the encapsulated state of the collection</t>
   <t hangText='“t”'><vspace blankLines='0'/>
   the time stamp that corresponds to the encapsulated state of the item in the collection, relative to the base time “bt”</t>
   <t hangText='“n”'><vspace blankLines='0'/>
@@ -288,10 +392,174 @@
   <t hangText='“vb”'><vspace blankLines='0'/>
   boolean value</t>
   <t hangText='“vo”'><vspace blankLines='0'/>
-  object value, an extension to the senml value types to enable embedded objects and forms</t>
+  object value, an extension to the senml value types to enable embedded objects</t>
   <t hangText='“vs”'><vspace blankLines='0'/>
   string value</t>
 </list></t>
+
+</section>
+<section anchor="link-parameters-used-in-forms" title="Link Parameters used in Forms">
+
+<t><list style="hanging">
+  <t hangText='“anchor”'><vspace blankLines='0'/>
+  May override the default context of a form and store it in a different location from the subject resource</t>
+  <t hangText='“rel”'><vspace blankLines='0'/>
+  Indicates the action being exposed by the form</t>
+  <t hangText='“action”'><vspace blankLines='0'/>
+  URI for mapping an action specified in a form, similar to “href” in links</t>
+  <t hangText='“type”'><vspace blankLines='0'/>
+  Additional indicator of the action being exposed, can be used with “rel”</t>
+  <t hangText='“method”'><vspace blankLines='0'/>
+  Transfer method to use on a particular action</t>
+  <t hangText='“accepts”'><vspace blankLines='0'/>
+  The Content-Types that are accepted on create and update methods</t>
+  <t hangText='“content-type”'><vspace blankLines='0'/>
+  The Content-Types that are exposed by retrieve and observe methods</t>
+  <t hangText='“ct”'><vspace blankLines='0'/>
+  the CoAP content-format number(s) exposed or accepted</t>
+  <t hangText='“schema”'><vspace blankLines='0'/>
+  Indicates the schema to use for constructing or interpreting transfer payloads, may be a literal value or a URI pointing to an instance of a schema</t>
+</list></t>
+
+</section>
+<section anchor="link-parameters-used-in-bindings" title="Link Parameters used in Bindings">
+
+<t><list style="hanging">
+  <t hangText='“id”'><vspace blankLines='0'/>
+  The relative URI of this binding in its containing collection</t>
+  <t hangText='“anchor”'><vspace blankLines='0'/>
+  May override the context URI of a binding with any observable resource</t>
+  <t hangText='“rel”'><vspace blankLines='0'/>
+  Link relation indicates that this is a binding using the value “boundto”</t>
+  <t hangText='“target”'><vspace blankLines='0'/>
+  The URI to bind to the context URI, where transfer operations will be sent, similar to “href” in links</t>
+  <t hangText='“method”'><vspace blankLines='0'/>
+  Transfer method to use for notifications</t>
+  <t hangText='“content-type”'><vspace blankLines='0'/>
+  The Content-Type to use in the transfer operation</t>
+  <t hangText='“ct”'><vspace blankLines='0'/>
+  the CoAP content-format number to use in the transfer operation</t>
+  <t hangText='“schema”'><vspace blankLines='0'/>
+  Schema to use in constructing the notification transfer payload</t>
+  <t hangText='“pmin”'><vspace blankLines='0'/>
+  Minimum time between notification from a binding</t>
+  <t hangText='“pmax”'><vspace blankLines='0'/>
+  Maximum time between notifications from a binding</t>
+  <t hangText='“gt”'><vspace blankLines='0'/>
+  value to match or exceed to determine notification condition</t>
+  <t hangText='“lt”'><vspace blankLines='0'/>
+  value to match or be less than to determine notification condition</t>
+  <t hangText='“st”'><vspace blankLines='0'/>
+  value change +/- from last report to determine notification condition</t>
+  <t hangText='“eq”'><vspace blankLines='0'/>
+  value to match, or change from, to determine notification condition</t>
+  <t hangText='“nbll”'><vspace blankLines='0'/>
+  Defines a lower limit, at or above which notification is enabled</t>
+  <t hangText='“nbul”'><vspace blankLines='0'/>
+  Defines an upper limit, at or below which notification is enabled</t>
+  <t hangText='“init”'><vspace blankLines='0'/>
+  Starts the notification state machine with an initial value</t>
+</list></t>
+
+</section>
+</section>
+<section anchor="iana-cons" title="IANA Considerations">
+
+<section anchor="new-media-types-for-iana-media-type-registry" title="New Media Types for IANA Media Type registry">
+
+<t>type
+- hsml
+subtypes 
+- collection
+- link
+- item</t>
+
+<t>application/hsml 
+application/hsml.collection
+application/hsml.link
+application/hsml.item</t>
+
+<t>application/hsml+json
+application/hsml.collection+json
+application/hsml.link+json
+application/hsml.item+json</t>
+
+</section>
+<section anchor="new-content-formats-for-the-iana-core-parameters-registry" title="New Content Formats for the IANA CoRE Parameters Registry">
+
+<t>(subject to Structured Syntax encoding rules TBD)
+22000 - application/hsml+json 
+22001 - application/hsml.link+json
+22002 - application/hsml.item+json</t>
+
+</section>
+<section anchor="new-link-parameters" title="New Link Parameters">
+
+<t>method
+schema
+content-type
+ct</t>
+
+<t>(the following should be registered in the CoRE Interfaces spin-off draft on asynchronous notification)</t>
+
+<t>pmin
+pmax
+nbll
+nbul
+init
+lt
+gt
+st
+eq</t>
+
+</section>
+<section anchor="new-link-relation-types-rel" title="New Link Relation Types (rel=)">
+
+<t>sub
+grp</t>
+
+<t>(the following should be registered in the CoRE Interfaces spin-off draft on asynchronous notification)</t>
+
+<t>boundto</t>
+
+</section>
+<section anchor="new-interface-types-if-for-the-iana-core-parameters-registry" title="New Interface types (if=) for the IANA CoRE Parameters Registry">
+
+<t>hsml.collection
+hsml.item
+hsml.link</t>
+
+</section>
+</section>
+<section anchor="security-considerations" title="Security Considerations">
+
+<section anchor="object-signing" title="Object Signing">
+<t>Collection representations are resource state encapsulations and may be transmitted and stored as signed objects in order to protect the integrity of data and metadata, including time and embedded access control information.</t>
+
+</section>
+<section anchor="signed-embedded-time-stamps" title="Signed Embedded Time Stamps">
+<t>The collection may include time stamps (bt and t) that are signed with the object data and metadata.</t>
+
+</section>
+<section anchor="signed-embedded-access-control" title="Signed Embedded Access Control">
+<t>The collection representation may include embedded access control information, also signed with the metadata, that can instruct the server to enforce a particular access policy for transfer requests.</t>
+
+</section>
+<section anchor="secure-state-updates" title="Secure State Updates">
+<t>Representations submitted to a server to update the state of a resource (UPDATE, CREATE, DELETE) may also contain embedded signed assertions which may be used by the server to decide whether to apply or reject the update.</t>
+
+</section>
+<section anchor="object-signing-and-encryption" title="Object Signing and Encryption">
+<t>Object signing and encryption SHOULD use the mechanisms specified in IETF documents for secure JSON Objects <xref target=""/> and CBOR Objects <xref target=""/>.</t>
+
+</section>
+</section>
+<section anchor="design-patterns" title="Design Patterns">
+
+<section anchor="restful-actuation-using-collections" title="RESTful Actuation using collections">
+
+</section>
+<section anchor="restful-events-and-alerts-using-collections" title="RESTful Events and Alerts using collections">
 
 </section>
 </section>
@@ -337,15 +605,15 @@
     <organization />
 </author>
 
-<date month='November' day='1' year='2015' />
+<date month='April' day='27' year='2016' />
 
 <abstract><t>JavaScript Object Notation, JSON (RFC7159) is a text-based data format which is popular for Web based data exchange.  Concise Binary Object Representation, CBOR (RFC7049) is a binary data format which has been optimized for data exchange for the Internet of Things (IoT).  For many IoT scenarios, CBOR formats will be preferred since it can help decrease transmission payload sizes as well as implementation code sizes compared to other data formats.  Web Linking (RFC5988) provides a way to represent links between Web resources as well as the relations expressed by them and attributes of such a link.  In constrained networks, a collection of Web links can be exchanged in the CoRE link format (RFC6690).  Outside of constrained environments, it may be useful to represent these collections of Web links in JSON, and similarly, inside constrained environments, in CBOR.  This specification defines a common format for this.  Group Communication for the Constrained Application Protocol (RFC7390) defines a number of JSON formats for controlling communication between groups of nodes employing the Constrained Application Protocol (CoAP).  In a similar vein, this specification defines CBOR variants of these formats.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-links-json-04' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-links-json-05' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-links-json-04.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-links-json-05.txt' />
 </reference>
 
 
@@ -445,24 +713,22 @@
     <organization />
 </author>
 
-<date month='October' day='19' year='2015' />
+<date month='March' day='21' year='2016' />
 
 <abstract><t>In many M2M applications, direct discovery of resources is not practical due to sleeping nodes, disperse networks, or networks where multicast traffic is inefficient.  These problems can be solved by employing an entity called a Resource Directory (RD), which hosts descriptions of resources held on other servers, allowing lookups to be performed for those resources.  This document specifies the web interfaces that a Resource Directory supports in order for web servers to discover the RD and to register, maintain, lookup and remove resources descriptions.  Furthermore, new link attributes useful in conjunction with an RD are defined.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-resource-directory-05' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-resource-directory-07' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-resource-directory-05.txt' />
-<format type='PDF'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-resource-directory-05.pdf' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-resource-directory-07.txt' />
 </reference>
 
 
 
-<reference anchor='I-D.jennings-core-senml'>
+<reference anchor='I-D.ietf-core-senml'>
 <front>
-<title>Media Types for Sensor Markup Language (SENML)</title>
+<title>Media Types for Sensor Markup Language (SenML)</title>
 
 <author initials='C' surname='Jennings' fullname='Cullen Jennings'>
     <organization />
@@ -476,19 +742,19 @@
     <organization />
 </author>
 
-<author initials='A' surname='Keranen' fullname='Ari Keranen'>
+<author initials='A' surname='Keränen' fullname='Ari Keränen'>
     <organization />
 </author>
 
-<date month='January' day='13' year='2016' />
+<date month='April' day='19' year='2016' />
 
 <abstract><t>This specification defines media types for representing simple sensor measurements and device parameters in the Sensor Markup Language (SenML).  Representations are defined in JavaScript Object Notation (JSON), Concise Binary Object Representation (CBOR), eXtensible Markup Language (XML), and Efficient XML Interchange (EXI), which share the common SenML data model.  A simple sensor, such as a temperature sensor, could use this media type in protocols such as HTTP or CoAP to transport the measurements of the sensor or to be configured.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-jennings-core-senml-04' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-senml-00' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-jennings-core-senml-04.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-senml-00.txt' />
 </reference>
 
 
@@ -502,15 +768,6 @@
   </front>
   <seriesInfo name="Ph.D." value="Dissertation, University of California, Irvine"/>
   <format type="PDF" target="http://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf"/>
-</reference>
-<reference anchor="HypermediaDemonstrator" target="https://github.com/connectIOT/HypermediaDemo">
-  <front>
-    <title>Demonstration of a HATEOAS based system architecture for the Web of Things</title>
-    <author initials="M." surname="Koster">
-      <organization></organization>
-    </author>
-    <date year="2016"/>
-  </front>
 </reference>
 <reference anchor="W3C-WoT" target="https://www.w3.org/WoT/IG/">
   <front>
