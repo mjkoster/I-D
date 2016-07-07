@@ -411,40 +411,42 @@ directories, if it can ensure that a loop does not form.  The protocol used
 between directories to ensure loop-free operation is outside the scope of
 this document.</t>
 
-<section anchor="simple_publishing" title="Simple publishing to Directory Server">
+<section anchor="simple_publishing" title="Simple publishing to Resource Directory Server">
 
 <t>An endpoint that wants to make itself discoverable occasionally
 sends a POST request to the <spanx style="verb">/.well-known/core</spanx> URI of any candidate directory
-server that it finds. The body of the POST request is either</t>
+server that it finds. The body of the POST request is empty, which triggers the resource directory server to perform GET requests at the requesting server’s default discovery
+URI to obtain the link-format payload to register.</t>
 
-<t><list style="symbols">
-  <t>empty, in which case the directory server is encouraged by this POST
-request to perform GET requests at the requesting server’s default discovery
-URI.</t>
-</list></t>
-
-<t>or</t>
-
-<t><list style="symbols">
-  <t>a non-empty link-format document, which indicates the specific services
-that the requesting server wants to make known to the directory server.</t>
-</list></t>
+<t>The endpoint MAY include registration parameters in the POST request as per <xref target="registration"/></t>
 
 <t>The following example shows an endpoint using simple resource discovery,
-by simply sending a POST with its links in the body to a directory.</t>
+by simply sending an empty POST to a resource directory.</t>
 
 <figure align="left"><artwork><![CDATA[
-Req: POST coap://rd.example.com/.well-known/core
+Req:(to RD server from [ff02::1]) 
+POST coap://rd.example.com/.well-known/core?lt=6000
 
 Content-Format: 40
 
 payload:
 
+(empty payload)
+
+Res: 2.04 Changed
+
+(later)
+
+Req: (from RD server to [ff02::1]) 
+GET coap://[ff02::1]/.well-known/core
+
+Accept: 40
+
+Res: 2.05 Content
+
+payload:
+
 </sen/temp>
-
-Res: 2.01 Created
-
-Location: /rd/4521
 ]]></artwork></figure>
 
 </section>
@@ -1627,7 +1629,9 @@ registry is created (e.g. in RFC5988bis).</t>
 
 <t>This document registers one new ND option type under the subregistry “IPv6 Neighbor Discovery Option Formats”:</t>
 
-<t>Resource Directory address Option (38)</t>
+<t><list style="symbols">
+  <t>Resource Directory address Option (38)</t>
+</list></t>
 
 </section>
 <section anchor="iana-registry" title="RD Parameter Registry">
@@ -2131,6 +2135,8 @@ originally developed.</t>
 <t>changes from -07 to -08</t>
 
 <t><list style="symbols">
+  <t>removed option for simple POST of link data, don’t require a .well-known/core resource to accept POST data and handle it in a special way; we already have /rd for that</t>
+  <t>add IPv6 ND Option for discovery of an RD</t>
   <t>clarify group configuration section 6.1 that endpoints must be registered before including them in a group</t>
   <t>removed all superfluous client-server diagrams</t>
   <t>simplified lighting example</t>
