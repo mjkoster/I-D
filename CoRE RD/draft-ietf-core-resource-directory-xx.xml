@@ -68,7 +68,7 @@
       </address>
     </author>
 
-    <date year="2016" month="May" day="30"/>
+    <date year="2016" month="July" day="07"/>
 
     <area>Internet</area>
     <workgroup>CoRE</workgroup>
@@ -579,8 +579,8 @@ Res: 2.05 Content
 ]]></artwork></figure>
 
 <t>The following example shows the way of indicating multiple values for
-Content-Format codes.  Content-Format code attribute MAY include a
-space-separated sequence of Content-Format codes as specify in
+Content-Format codes.  The Content-Format code attribute “ct” MAY include a
+space-separated sequence of Content-Format codes as specified in
 <xref target="RFC7252"></xref>, indicating that multiple content-formats are available.
 The example below shows the required ct=40 (application/link-format) 
 as well as a vendor-specific content format.</t>
@@ -768,7 +768,7 @@ third party such as a commissioning tool.</t>
       </list>
   </t>
   <t hangText='Content-Format:'>
-  application/link-format (optional)</t>
+  application/link-format (mandatory)</t>
   <t hangText='Content-Format:'>
   application/link-format+json (optional)</t>
   <t hangText='Content-Format:'>

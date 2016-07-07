@@ -1,7 +1,7 @@
 ---
 title: CoRE Resource Directory
 docname: draft-ietf-core-resource-directory-08
-date: 2016-05-30
+date: 2016-07-07
 stand_alone: true
 ipr: trust200902
 cat: std
@@ -576,8 +576,8 @@ Res: 2.05 Content
 {: align="left"}
 
 The following example shows the way of indicating multiple values for
-Content-Format codes.  Content-Format code attribute MAY include a
-space-separated sequence of Content-Format codes as specify in
+Content-Format codes.  The Content-Format code attribute "ct" MAY include a
+space-separated sequence of Content-Format codes as specified in
 [RFC7252], indicating that multiple content-formats are available.
 The example below shows the required ct=40 (application/link-format) 
 as well as a vendor-specific content format.
@@ -783,7 +783,7 @@ URI Template Variables:
     third party such as a commissioning tool.
 
 Content-Format:
-: application/link-format (optional)
+: application/link-format (mandatory)
 
 Content-Format:
 : application/link-format+json (optional)
