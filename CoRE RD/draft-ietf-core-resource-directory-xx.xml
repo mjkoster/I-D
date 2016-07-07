@@ -313,6 +313,81 @@ groups may defined to allow batched reads from multiple resources.</t>
 
 </section>
 </section>
+<section anchor="simple_finding" title="Finding a Directory Server">
+
+<t>Endpoints that want to contact a directory server can obtain candidate IP
+addresses for such servers in a number of ways.</t>
+
+<t>In a 6LoWPAN, good candidates can be taken from:</t>
+
+<t><list style="symbols">
+  <t>specific static configuration (e.g., anycast addresses), if any,</t>
+  <t>the ABRO option of 6LoWPAN-ND <xref target="RFC6775"/>,</t>
+  <t>other ND options that happen to point to servers (such as RDNSS),</t>
+  <t>DHCPv6 options that might be defined later.</t>
+  <t>The IPv6 Neighbor Discovery Resource Directory Address Option <xref target="rdao"/></t>
+</list></t>
+
+<t>In networks with more inexpensive use of multicast, the candidate IP
+address may be a well-known multicast address, i.e. directory servers are
+found by simply sending GET requests to that well-known multicast address
+(see <xref target="discovery"/>).</t>
+
+<t>As some of these sources are just (more or less educated) guesses, endpoints
+MUST make use of any error messages to very strictly rate-limit requests to
+candidate IP addresses that don’t work out.  For example, an ICMP Destination
+Unreachable message (and, in particular, the port unreachable code for this
+message) may indicate the lack of a CoAP server on the candidate host, or a
+CoAP error response code such as 4.05 “Method Not Allowed” may indicate
+unwillingness of a CoAP server to act as a directory server.</t>
+
+<section anchor="rdao" title="Resource Directory Address Option (RDAO)">
+<t>The Resource Directory Option (RDAO) carries information on the address of the Resource Directory (RD). This information is needed when 6LRs cannot discover the Resource Directory with link-local multicast address because the 6LR and the RD are separated by a border Router (6LBR). In many circumstances the availability of DHCP cannot be guaranteed either during commissioning of the network. The presence and the use of the RD is essential during commissioning.</t>
+
+<t>The RDAO format is:</t>
+
+<figure title="Resource Directory Address Option" align="left" anchor="fig-rdao"><artwork><![CDATA[
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|     Type      |  Length = 3   |       Valid Lifetime          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                           Reserved                            |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
++                                                               +
+|                                                               |
++                          RD Address                           +
+|                                                               |
++                                                               +
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Fields:
+
+Type:                   38
+
+Length:                 8-bit unsigned integer.  The length of
+                        the option in units of 8 bytes.
+                        Always 3.
+
+Valid Lifetime:         16-bit unsigned integer.  The length of
+                        time in units of 60 seconds (relative to
+                        the time the packet is received) that
+                        this set of border router information is
+                        valid.  A value of all zero bits (0x0)
+                        assumes a default value of 10,000
+                        (~one week).
+
+Reserved:               This field is unused.  It MUST be
+                        initialized to zero by the sender and
+                        MUST be ignored by the receiver.
+
+RD Address:             IPv6 address of the RD.
+]]></artwork></figure>
+
+</section>
+</section>
 <section anchor="simple" title="Simple Directory Discovery">
 
 <t>Not all endpoints hosting resources are expected to know how to implement the
@@ -336,34 +411,6 @@ directories, if it can ensure that a loop does not form.  The protocol used
 between directories to ensure loop-free operation is outside the scope of
 this document.</t>
 
-<section anchor="simple_finding" title="Finding a Directory Server">
-
-<t>Endpoints that want to contact a directory server can obtain candidate IP
-addresses for such servers in a number of ways.</t>
-
-<t>In a 6LoWPAN, good candidates can be taken from:</t>
-
-<t><list style="symbols">
-  <t>specific static configuration (e.g., anycast addresses), if any,</t>
-  <t>the ABRO option of 6LoWPAN-ND <xref target="RFC6775"/>,</t>
-  <t>other ND options that happen to point to servers (such as RDNSS),</t>
-  <t>DHCPv6 options that might be defined later.</t>
-</list></t>
-
-<t>In networks with more inexpensive use of multicast, the candidate IP
-address may be a well-known multicast address, i.e. directory servers are
-found by simply sending GET requests to that well-known multicast address
-(see <xref target="discovery"/>).</t>
-
-<t>As some of these sources are just (more or less educated) guesses, endpoints
-MUST make use of any error messages to very strictly rate-limit requests to
-candidate IP addresses that don’t work out.  For example, an ICMP Destination
-Unreachable message (and, in particular, the port unreachable code for this
-message) may indicate the lack of a CoAP server on the candidate host, or a
-CoAP error response code such as 4.05 “Method Not Allowed” may indicate
-unwillingness of a CoAP server to act as a directory server.</t>
-
-</section>
 <section anchor="simple_publishing" title="Simple publishing to Directory Server">
 
 <t>An endpoint that wants to make itself discoverable occasionally
@@ -1576,6 +1623,13 @@ registered with the resource type registry defined by <xref target="RFC6690"/>.<
 registry is created (e.g. in RFC5988bis).</t>
 
 </section>
+<section anchor="ipv6-nd-resource-directory-address-option" title="IPv6 ND Resource Directory Address Option">
+
+<t>This document registers one new ND option type under the subregistry “IPv6 Neighbor Discovery Option Formats”:</t>
+
+<t>Resource Directory address Option (38)</t>
+
+</section>
 <section anchor="iana-registry" title="RD Parameter Registry">
 
 <t>This specification defines a new sub-registry for registration and lookup
@@ -2354,7 +2408,7 @@ the PATCH method</t>
     <organization />
 </author>
 
-<author initials='C' surname='Bormann' fullname='Carsten Bormann'>
+<author initials='D' surname='Bormann' fullname='Dr. Carsten Bormann'>
     <organization />
 </author>
 
