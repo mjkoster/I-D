@@ -420,7 +420,7 @@ URI to obtain the link-format payload to register.</t>
 
 <t>The endpoint MAY include registration parameters in the POST request as per <xref target="registration"/></t>
 
-<t>The following example shows an endpoint using simple resource discovery,
+<t>The following example shows an endpoint using simple publishing,
 by simply sending an empty POST to a resource directory.</t>
 
 <figure align="left"><artwork><![CDATA[
@@ -598,7 +598,7 @@ resources in the RD are kept active for the period indicated by the lifetime
 parameter. The endpoint is responsible for refreshing the entry within this
 period using either the registration or update interface. The registration
 interface MUST be implemented to be idempotent, so that registering twice
-with the same endpoint parameter does not create multiple RD entries.</t>
+with the same endpoint parameter does not create multiple RD entries. A new registration may be created at any time to supercede an existing registration, replacing the registration parameters and links.</t>
 
 <t>The registration request interface is specified as follows:</t>
 
@@ -622,19 +622,19 @@ that MUST be unique within a domain.  The maximum length of this
 parameter is 63 bytes.</t>
         <t hangText='d :='>
         Domain (optional). The domain to which this endpoint belongs. This parameter
-SHOULD be less than 63 bytes. Optional. When this parameter is elided, the
+SHOULD be less than 63 bytes. When this parameter is elided, the
 RD MAY associate the endpoint with a configured default domain. The domain
 value is needed to export the endpoint to DNS-SD (see <xref target="dns-sd"/>).</t>
         <t hangText='et :='>
         Endpoint Type (optional). The semantic type of the endpoint. This parameter
-SHOULD be less than 63 bytes. Optional.</t>
+SHOULD be less than 63 bytes.</t>
         <t hangText='lt :='>
         Lifetime (optional). Lifetime of the registration in seconds. Range of 60-4294967295.
 If no lifetime is included, a default value of 86400 (24 hours) SHOULD be
 assumed.</t>
         <t hangText='con :='>
         Context (optional). This parameter sets the scheme, address and port at
-which this server is available in the form scheme://host:port. Optional. In
+which this server is available in the form scheme://host:port. In
 the absence of this parameter the scheme of the protocol, source IP address
 and source port of the register request are assumed. This parameter is
 mandatory when the directory is filled by a third party such as an
@@ -697,7 +697,7 @@ Location: /rd/4521
 ]]></artwork></figure>
 
 </section>
-<section anchor="update" title="Update">
+<section anchor="update" title="Registration Update">
 
 <t>The update interface is used by an endpoint to refresh or update its
 registration with an RD. To use the interface, the endpoint sends a POST
@@ -707,8 +707,10 @@ the first registration.</t>
 <t>An update MAY update the lifetime or context registration parameters 
 “lt”, “con” as in <xref target="registration"/> ) if they have changed since the 
 last registration or update. Parameters that have not changed SHOULD NOT 
-be included in an update. Parameters MUST be included as query parameters 
-in an update operation as in {registration}.</t>
+be included in an update. Adding parameters that have not changed increases 
+the size of the message but does not have any other implications. 
+Parameters MUST be included as query parameters in an update operation as
+in {registration}.</t>
 
 <t>Upon receiving an update request, an RD MUST reset the timeout for that
 endpoint and update the scheme, IP address and port of the endpoint, using
@@ -719,14 +721,13 @@ to the new lifetime.</t>
 
 <t>An update MAY optionally add or replace links for the endpoint by including
 those links in the payload of the update as a CoRE Link Format
-document. Including links in an update message greatly increases the load on
-an RD and SHOULD be done infrequently. A link is replaced only if both the
-target URI and relation type match.</t>
+document. A link is replaced only if both the target URI and relation type match.</t>
 
-<t>Links may be added, modified, and deleted using Update Endpoint Links as 
-described in <xref target="link-up"/>.</t>
+<t>In addition to the use of POST, as described in this section, there is an
+alternate way to add, replace, and delete links using PATCH as described 
+in <xref target="link-up"/>.</t>
 
-<t>The update request interface is specified as follows:</t>
+<t>The update registration request interface is specified as follows:</t>
 
 <t><list style="hanging">
   <t hangText='Interaction:'>
@@ -785,7 +786,14 @@ Req: POST /rd/4521
 Res: 2.04 Changed
 ]]></artwork></figure>
 
-<t>The following example shows an endpoint updating its registration with a new lifetime and context, changing an existing link, and adding a new link using this interface.</t>
+<t>The following example shows an endpoint updating its registration with a new lifetime and context, changing an existing link, and adding a new link using this interface.
+With the initial registration the client set the following values:</t>
+
+<t><list style="symbols">
+  <t>lifetime (lt)=500</t>
+  <t>context (con)=coap://local-proxy-old.example.com:5683</t>
+  <t>resource= &lt;/sensors/temp&gt;;ct=41;rt=”foobar”;if=”sensor”</t>
+</list></t>
 
 <figure align="left"><artwork><![CDATA[
 Req: POST /rd/4521?lt=600&con="coap://local-proxy.example.com:5683"
@@ -798,7 +806,7 @@ Res: 2.04 Changed
 ]]></artwork></figure>
 
 </section>
-<section anchor="removal" title="Removal">
+<section anchor="removal" title="Registration Removal">
 
 <t>Although RD entries have soft state and will eventually timeout after their
 lifetime, an endpoint SHOULD explicitly remove its entry from the RD if it
