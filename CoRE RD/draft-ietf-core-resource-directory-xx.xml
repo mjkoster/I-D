@@ -469,9 +469,9 @@ indicated in the Context parameter of the registration.</t>
 <t>This section defines the REST interfaces between an RD and endpoints, which
 is called the Resource Directory Function Set. Although the examples
 throughout this section assume the use of CoAP <xref target="RFC7252"/>, these REST
-interfaces can also be realized using HTTP <xref target="RFC7230"/>. In all definitions in this section, both CoAP response codes (with dot notation) and HTTP response codes (without dot notation) are shown. An RD implementing
-this specification MUST support the discovery, registration, update, lookup,
-and removal interfaces defined in this section.</t>
+interfaces can also be realized using HTTP <xref target="RFC7230"/>. In all definitions in this section, both CoAP response codes (with dot notation) and HTTP response codes 
+(without dot notation) are shown. An RD implementing this specification MUST support 
+the discovery, registration, update, lookup, and removal interfaces defined in this section.</t>
 
 <t>Resource directory entries are designed to be easily exported to other
 discovery mechanisms such as DNS-SD. For that reason, parameters that would
@@ -479,6 +479,17 @@ meaningfully be mapped to DNS SHOULD be limited to a maximum length of 63
 bytes.<!-- TODO: Is there maybe also a need to further restrict the set of
 characters available?  --></t>
 
+<section anchor="content-formats" title="Content Formats">
+
+<t>Resource Directory implementations using this specification MUST support the application/link-format content format (ct=40).</t>
+
+<t>Resource Directories implementing this specification MAY support additional content formats.</t>
+
+<t>Any additional content format supported by a Resource Directory implementing this
+specification MUST have an equivalent serialization in the application/link-format
+content format.</t>
+
+</section>
 <section anchor="discovery" title="Discovery">
 
 <t>Before an endpoint can make use of an RD, it must first know the RD’s IP
@@ -570,15 +581,17 @@ Res: 2.05 Content
 <t>The following example shows the way of indicating multiple values for
 Content-Format codes.  Content-Format code attribute MAY include a
 space-separated sequence of Content-Format codes as specify in
-<xref target="RFC7252"></xref>, indicating that multiple content-formats are available.</t>
+<xref target="RFC7252"></xref>, indicating that multiple content-formats are available.
+The example below shows the required ct=40 (application/link-format) 
+as well as a vendor-specific content format.</t>
 
 <figure align="left"><artwork><![CDATA[
 Req: GET coap://[ff02::1]/.well-known/core?rt=core.rd*
 
 Res: 2.05 Content
-</rd>;rt="core.rd";ct="40 60",
-</rd-lookup>;rt="core.rd-lookup";ct="40 50",
-</rd-group>;rt="core.rd-group";ct="40 50"
+</rd>;rt="core.rd";ct="40 21225",
+</rd-lookup>;rt="core.rd-lookup";ct="40 21225",
+</rd-group>;rt="core.rd-group";ct="40 21225"
 ]]></artwork></figure>
 
 </section>
@@ -621,8 +634,8 @@ the RD Function Set, as obtained from discovery. An RD SHOULD use the value
 that MUST be unique within a domain.  The maximum length of this
 parameter is 63 bytes.</t>
         <t hangText='d :='>
-        Domain (optional). The domain to which this endpoint belongs. This parameter
-SHOULD be less than 63 bytes. When this parameter is elided, the
+        Domain (optional). The domain to which this endpoint belongs. The maximum 
+length of this parameter is 63 bytes. When this parameter is elided, the
 RD MAY associate the endpoint with a configured default domain. The domain
 value is needed to export the endpoint to DNS-SD (see <xref target="dns-sd"/>).</t>
         <t hangText='et :='>
@@ -1260,8 +1273,9 @@ value SHOULD be used.</t>
   YES</t>
 </list></t>
 
-<t>The examples in this section assume a CoAP host with IP address FDFD::123 and a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.
-The following example shows a client performing a resource lookup:</t>
+<t>The examples in this section assume a CoAP host with IP address FDFD::123 and a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.\</t>
+
+<t>The following example shows a client performing a resource lookup:</t>
 
 <figure align="left"><artwork><![CDATA[
 Req: GET /rd-lookup/res?rt=temperature
@@ -1283,41 +1297,21 @@ Res: 2.05 Content
 <t>The following example shows a client performing a domain lookup:</t>
 
 <figure align="left"><artwork><![CDATA[
-   Client                                                          RD
-     |                                                             |
-     | ----- GET /rd-lookup/d ---------------------------------->  |
-     |                                                             |
-     |                                                             |
-     | <-- 2.05 Content </rd>;d=domain1,</rd>;d=domain2 ---------- |
-     |                                                             |
-]]></artwork></figure>
-
-<figure align="left"><artwork><![CDATA[
 Req: GET /rd-lookup/d
 
 Res: 2.05 Content
-</rd>;d="domain1",
-</rd>;d="domain2"
+<>;d="domain1",
+<>;d="domain2"
 ]]></artwork></figure>
 
 <t>The following example shows a client performing a group lookup for all groups:</t>
 
 <figure align="left"><artwork><![CDATA[
-   Client                                                          RD
-     |                                                             |
-     | ----- GET /rd-lookup/gp --------------------------------->  |
-     |                                                             |
-     |                                                             |
-     | <-- 2.05 Content </rd-group/12>;gp="lights1"; ------------- |
-     |                               d="example.com" ------------- |
-     |                                                             |
-]]></artwork></figure>
-
-<figure align="left"><artwork><![CDATA[
 Req: GET /rd-lookup/gp
 
 Res: 2.05 Content
-</rd-group/12>;gp="lights1";d="example.com"
+<>;gp="lights1";d="example.com"
+<>;gp="lights2";d="ecample.com"
 ]]></artwork></figure>
 
 <t>The following example shows a client performing a lookup for all endpoints
@@ -1328,7 +1322,7 @@ Req: GET /rd-lookup/ep?gp=lights1
 
 Res: 2.05 Content
 <coap://[FDFD::123]:61616>;ep="node1",
-<coap://[FDFD::123]:61616>;ep="node2",
+<coap://[FDFD::123]:61616>;ep="node2"
 ]]></artwork></figure>
 
 <t>The following example shows a client performing a lookup for all groups an
@@ -1338,7 +1332,7 @@ endpoint belongs to:</t>
 Req: GET /rd-lookup/gp?ep=node1
 
 Res: 2.05 Content
-</rd-group/12>;gp="lights1";ep="node1",
+<>;gp="lights1"
 ]]></artwork></figure>
 
 </section>
@@ -2143,6 +2137,8 @@ originally developed.</t>
 <t>changes from -07 to -08</t>
 
 <t><list style="symbols">
+  <t>removed link target value returned from domain and group lookup types</t>
+  <t>Maximum length of domain parameter 63 bytes for consistency with group</t>
   <t>removed option for simple POST of link data, don’t require a .well-known/core resource to accept POST data and handle it in a special way; we already have /rd for that</t>
   <t>add IPv6 ND Option for discovery of an RD</t>
   <t>clarify group configuration section 6.1 that endpoints must be registered before including them in a group</t>
