@@ -13,7 +13,7 @@
 <?rfc compact="no"?>
 <?rfc subcompact="no"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-04">
+<rfc category="std" ipr="trust200902" docName="draft-koster-core-coap-pubsub-05">
 
   <front>
   <title abbrev="Publish-Subscribe Broker for CoAP">Publish-Subscribe Broker for the Constrained Application Protocol (CoAP)</title>
