@@ -141,10 +141,34 @@ Clients        pubsub         Broker
 
 </section> 
 
-
 <section title="CoAP pubsub Topic">
 <t>The clients and broker use topics to identify a particular resource or object in a publish-subscribe system. Topics are conventionally formed as a hierarchy, e.g. "/sensors/weather/barometer/pressure" or "EP-33543/sen/3303/0/5700". The topics are hosted at the broker and all the clients using the broker share the same namespace for topics. A CoAP pubsub topic has a reference path using URI path <xref target="RFC3986"/> construction, link attributes <xref target="RFC6690"/>, and a representation of a value with specified content-formats. A CoAP pubsub topic value may alternatively be a collection of one or more sub-topics, consisting of links to the sub-topic URIs and indicated by a link-format content-format.</t>
 
+</section>
+
+<section title="Brokerless pubsub">
+
+<t><xref target="brokerless"/> shows an arrangement for using CoAP pubsub in a "brokerless" configuration between peer nodes. Nodes in a brokerless system act as both broker and client. Brokerless peer nodes can be mixed with client and broker nodes in a system and interoperate.
+</t>
+
+<t>
+<figure title="Brokerless pubsub" anchor="brokerless">
+<artwork align="center">
+<![CDATA[
+  Peer         pubsub          Peer
++-------+         |         +-------+
+| CoAP  |         |         | CoAP  |
+|pubsub |---------|---------|pubsub |
+|Client |         |         |Broker |
++-------+         |         +-------+
+| CoAP  |         |         | CoAP  |
+|pubsub |---------|---------|pubsub |
+|Broker |         |         |Client |
++-------+         |         +-------+
+]]>
+</artwork>
+</figure>
+</t>
 </section>
 
 </section>
