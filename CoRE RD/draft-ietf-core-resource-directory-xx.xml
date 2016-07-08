@@ -325,7 +325,7 @@ addresses for such servers in a number of ways.</t>
   <t>the ABRO option of 6LoWPAN-ND <xref target="RFC6775"/>,</t>
   <t>other ND options that happen to point to servers (such as RDNSS),</t>
   <t>DHCPv6 options that might be defined later.</t>
-  <t>The IPv6 Neighbor Discovery Resource Directory Address Option <xref target="rdao"/></t>
+  <t>The IPv6 Neighbor Discovery Resource Directory Address Option described in <xref target="rdao"/></t>
 </list></t>
 
 <t>In networks with more inexpensive use of multicast, the candidate IP
@@ -342,7 +342,13 @@ CoAP error response code such as 4.05 “Method Not Allowed” may indicate
 unwillingness of a CoAP server to act as a directory server.</t>
 
 <section anchor="rdao" title="Resource Directory Address Option (RDAO)">
-<t>The Resource Directory Option (RDAO) carries information on the address of the Resource Directory (RD). This information is needed when 6LRs cannot discover the Resource Directory with link-local multicast address because the 6LR and the RD are separated by a border Router (6LBR). In many circumstances the availability of DHCP cannot be guaranteed either during commissioning of the network. The presence and the use of the RD is essential during commissioning.</t>
+<t>The Resource Directory Option (RDAO) using IPv6 neighbor Discovery (ND) carries
+information about the address of the Resource Directory (RD). This information is 
+needed when endpoints cannot discover the Resource Directory with link-local 
+multicast address because the endpoint and the RD are separated by a border Router 
+(6LBR). In many circumstances the availability of DHCP cannot be guaranteed either 
+during commissioning of the network. The presence and the use of the RD is 
+essential during commissioning.</t>
 
 <t>The RDAO format is:</t>
 
@@ -388,20 +394,19 @@ RD Address:             IPv6 address of the RD.
 
 </section>
 </section>
-<section anchor="simple" title="Simple Directory Discovery">
+<section anchor="simple" title="Simple Registration">
 
 <t>Not all endpoints hosting resources are expected to know how to implement the
-Resource Directory Function Set (see <xref target="rd"/>) hence cannot register with a Resource Directory. Instead, simple
-endpoints can implement the generic Simple Directory Discovery approach
-described in this section. An RD implementing this specification MUST
-implement Simple Directory Discovery. However, there may be security reasons
-why this form of directory discovery would be disabled.</t>
+Resource Directory Function Set (see <xref target="rd"/>) hence cannot register with a Resource Directory. Instead, simple endpoints can implement the generic Simple Directory 
+Discovery approach described in this section. An RD implementing this 
+specification MUST implement Simple Directory Discovery. However, there may 
+be security reasons why this form of directory discovery would be disabled.</t>
 
 <t>This approach requires that the endpoint makes available the hosted resources
 that it wants to be discovered, as links on its <spanx style="verb">/.well-known/core</spanx> interface as
 specified in <xref target="RFC6690"/>.</t>
 
-<t>The endpoint then finds one or more IP addresses of the directory server as described in <xref target="simple_finding"/>.</t>
+<t>The endpoint then finds one or more addresses of the directory server as described in <xref target="simple_finding"/>.</t>
 
 <t>An endpoint can send (a selection of) hosted resources to a directory server for publication as described in <xref target="simple_publishing"/>.</t>
 
@@ -413,10 +418,11 @@ this document.</t>
 
 <section anchor="simple_publishing" title="Simple publishing to Resource Directory Server">
 
-<t>An endpoint that wants to make itself discoverable occasionally
-sends a POST request to the <spanx style="verb">/.well-known/core</spanx> URI of any candidate directory
-server that it finds. The body of the POST request is empty, which triggers the resource directory server to perform GET requests at the requesting server’s default discovery
-URI to obtain the link-format payload to register.</t>
+<t>An endpoint that wants to make itself discoverable occasionally sends a POST 
+request to the <spanx style="verb">/.well-known/core</spanx> URI of any candidate directory server that 
+it finds. The body of the POST request is empty, which triggers the resource 
+directory server to perform GET requests at the requesting server’s default 
+discovery URI to obtain the link-format payload to register.</t>
 
 <t>The endpoint MAY include registration parameters in the POST request as per <xref target="registration"/></t>
 
@@ -460,7 +466,7 @@ become too onerous.</t>
 can be filled by a third device, called a commissioning tool. The commissioning
 tool can fill the Resource Directory from a database or other means. For
 that purpose the scheme, IP address and port of the registered device is
-indicated in the Context parameter of the registration.</t>
+indicated in the Context parameter of the registration described in <xref target="registration"/>.</t>
 
 </section>
 </section>
@@ -492,8 +498,8 @@ content format.</t>
 </section>
 <section anchor="discovery" title="Discovery">
 
-<t>Before an endpoint can make use of an RD, it must first know the RD’s IP
-address, port and the path of its RD Function Set. There can be several
+<t>Before an endpoint can make use of an RD, it must first know the RD’s
+address and port, and the path of its RD Function Set. There can be several
 mechanisms for discovering the RD including assuming a default location
 (e.g. on an Edge Router in a LoWPAN), by assigning an anycast address to the
 RD, using DHCP, or by discovering the RD using the CoRE Link Format (see also
@@ -502,9 +508,9 @@ well-known interface of the CoRE Link Format <xref target="RFC6690"/> as the req
 mechanism. It is however expected that RDs will also be discoverable via
 other methods depending on the deployment.</t>
 
-<t>Discovery is performed by sending either a multicast or unicast GET request
-to <spanx style="verb">/.well-known/core</spanx> and including a Resource Type (rt) parameter
-<xref target="RFC6690"/> with the value “core.rd” in the query string. Likewise, a
+<t>Discovery of the RD function set is performed by sending either a multicast or 
+unicast GET request to <spanx style="verb">/.well-known/core</spanx> and including a Resource Type (rt) 
+parameter <xref target="RFC6690"/> with the value “core.rd” in the query string. Likewise, a
 Resource Type parameter value of “core.rd-lookup” is used to discover the RD
 Lookup Function Set.  Upon success, the response will contain a payload with
 a link format entry for each RD discovered, with the URL indicating the root
@@ -578,12 +584,12 @@ Res: 2.05 Content
 </rd-group>;rt="core.rd-group";ct=40
 ]]></artwork></figure>
 
-<t>The following example shows the way of indicating multiple values for
-Content-Format codes.  The Content-Format code attribute “ct” MAY include a
+<t>The following example shows the way of indicating that a client may request 
+alternate content-formats. The Content-Format code attribute “ct” MAY include a
 space-separated sequence of Content-Format codes as specified in
 <xref target="RFC7252"></xref>, indicating that multiple content-formats are available.
 The example below shows the required ct=40 (application/link-format) 
-as well as a vendor-specific content format.</t>
+indicated as well as a vendor-specific content format (21225).</t>
 
 <figure align="left"><artwork><![CDATA[
 Req: GET coap://[ff02::1]/.well-known/core?rt=core.rd*
@@ -700,7 +706,7 @@ Location: /rd/4521
 <figure align="left"><artwork><![CDATA[
 Req: POST /rd?ep=node1 HTTP/1.1
 Host : example.com
-Content-Format: application/link-format
+Content-Type: application/link-format
 Payload:
 </sensors/temp>;ct=41;rt="temperature-c";if="sensor",
 </sensors/light>;ct=41;rt="light-lux";if="sensor"
@@ -1104,7 +1110,7 @@ is just an example of an RD generated group location.</t>
 
 <figure align="left"><artwork><![CDATA[
 Req: POST coap://rd.example.com/rd-group?gp=lights
-ct: 40
+Content-Format: 40
 Payload:
 <>;ep="node1",
 <>;ep="node2"
@@ -1116,7 +1122,7 @@ Location: /rd-group/12
 <figure align="left"><artwork><![CDATA[
 Req: POST /rd-group?gp=lights HTTP/1.1
 Host: example.com
-Accept: application/link-format
+Content-Type: application/link-format
 Payload:
 <>;ep="node1",
 <>;ep="node2"
@@ -1199,6 +1205,8 @@ corresponding to the type of lookup.  Thus, a domain lookup MUST return a list o
 
 <t>Using the Accept Option, the requester can control whether this list is returned in CoRE Link Format (<spanx style="verb">application/link-format</spanx>, default) or its alternate content-formats (<spanx style="verb">application/link-format+json</spanx> or <spanx style="verb">application/link-format+cbor</spanx>).</t>
 
+<t>The page and count parameters are used to obtain lookup results in specified increments using pagination, where count specifies how many links to return and page specifies which subset of links organized in sequential pages , each containing ‘count’ links, starting with link zero and page zero. Thus, specifying count of 10 and page of 0 will return the first 10 links in the result set (links 0-9). Count = 10 and page = 1 will return the next ‘page’ containing links 10-19, and so on.</t>
+
 <t>Multiple query parameters MAY be included in a lookup, all included parameters MUST match for a resource to be returned.  The character’*’ MAY be included at the end of a parameter value as a wildcard operator.</t>
 
 <t>The rd-lookup interface MAY use any set of query parameters to match the registered attributes and relations.  In addition, this interface MAY be used with queries that specify domains, endpoints, and groups.  For example, a domain lookup filtering on groups would return a list of domains that contain the specified groups.  An endpoint lookup filtering on groups would return a list of endpoints that are in the specified groups.</t>
@@ -1233,12 +1241,15 @@ gp :=  Group name (optional).  Used for endpoint, group and resource lookups.
       <list style="hanging">
         <t hangText='page :='>
         Page (optional). Parameter can not be used without the count
-parameter. Results are returned from result set in pages that contains
-‘count’ results starting from index (page * count).</t>
+parameter. Results are returned from result set in pages that contain
+‘count’ links starting from index (page * count). Page numbering starts 
+with zero.</t>
         <t hangText='count :='>
         Count (optional). Number of results is limited to this parameter value. If
-the parameter is not present, then an RD implementation specific default
-value SHOULD be used.</t>
+the page parameter is also present, the response MUST only include ‘count’
+links starting with the (page * count) link in the result set from the query. If
+the count parameter is not present, then the response MUST return all matching 
+links in the result set. Link numbering starts with zero.</t>
         <t hangText='rt :='>
         Resource type (optional). Used for group, endpoint and resource lookups.</t>
         <t hangText='et :='>
@@ -1333,6 +1344,28 @@ Req: GET /rd-lookup/gp?ep=node1
 
 Res: 2.05 Content
 <>;gp="lights1"
+]]></artwork></figure>
+
+<t>The following example shows a client performing a paginated lookup</t>
+
+<figure align="left"><artwork><![CDATA[
+Req: GET /rd-lookup/res?page=0&count=5
+
+Res: 2.05 Content
+<coap://[FDFD::123]:61616/res/0>;rt=sensor;ct=60
+<coap://[FDFD::123]:61616/res/1>;rt=sensor;ct=60
+<coap://[FDFD::123]:61616/res/2>;rt=sensor;ct=60
+<coap://[FDFD::123]:61616/res/3>;rt=sensor;ct=60
+<coap://[FDFD::123]:61616/res/4>;rt=sensor;ct=60
+
+Req: GET /rd-lookup/res?page=1&count=5
+
+Res: 2.05 Content
+<coap://[FDFD::123]:61616/res/5>;rt=sensor;ct=60
+<coap://[FDFD::123]:61616/res/6>;rt=sensor;ct=60
+<coap://[FDFD::123]:61616/res/7>;rt=sensor;ct=60
+<coap://[FDFD::123]:61616/res/8>;rt=sensor;ct=60
+<coap://[FDFD::123]:61616/res/9>;rt=sensor;ct=60
 ]]></artwork></figure>
 
 </section>
