@@ -148,7 +148,7 @@ Clients        pubsub         Broker
 
 <section title="Brokerless pubsub">
 
-<t><xref target="brokerless"/> shows an arrangement for using CoAP pubsub in a "brokerless" configuration between peer nodes. Nodes in a brokerless system act as both broker and client. Brokerless peer nodes can be mixed with client and broker nodes in a system and interoperate.
+<t><xref target="brokerless"/> shows an arrangement for using CoAP pubsub in a "brokerless" configuration between peer nodes. Nodes in a brokerless system act as both broker and client. The Broker interface in a brokerless node may be pre-configured with topics that expose services and resources. Brokerless peer nodes can be mixed with client and broker nodes in a system with full interoperability.
 </t>
 
 <t>
