@@ -289,9 +289,9 @@
 <t>Forms are hypermedia controls used to construct transfer operations that change the state of resources. The vocabulary and semantics roughly follows the use of forms in HTML <xref target="RFC1866"/>.</t>
 
 </section>
-<section anchor="bindings" title="Bindings">
+<section anchor="monitors" title="Monitors">
 
-<t>Bindings are hypermedia controls used to construct transfer operations that expose state changes of resources. A binding invokes an outbound transfer operation on a target resource.</t>
+<t>Monitors are hypermedia controls used to construct transfer operations that expose state changes of resources. A monitor invokes an outbound transfer operation on a target resource. Monitors use the IANA registered link relation “monitor”, defined in <xref target="RFC5989"/>.</t>
 
 </section>
 </section>
@@ -409,36 +409,40 @@
   Additional indicator of the action being exposed, can be used with “rel”</t>
   <t hangText='“method”'><vspace blankLines='0'/>
   Transfer method to use on a particular action</t>
-  <t hangText='“accepts”'><vspace blankLines='0'/>
-  The Content-Types that are accepted on create and update methods</t>
+  <t hangText='“accept”'><vspace blankLines='0'/>
+  The Content-Types or CoAP content-formats that are accepted on create and update methods</t>
   <t hangText='“content-type”'><vspace blankLines='0'/>
   The Content-Types that are exposed by retrieve and observe methods</t>
   <t hangText='“ct”'><vspace blankLines='0'/>
-  the CoAP content-format number(s) exposed or accepted</t>
+  the CoAP content-format number(s) exposed</t>
   <t hangText='“schema”'><vspace blankLines='0'/>
   Indicates the schema to use for constructing or interpreting transfer payloads, may be a literal value or a URI pointing to an instance of a schema</t>
 </list></t>
 
 </section>
-<section anchor="link-parameters-used-in-bindings" title="Link Parameters used in Bindings">
+<section anchor="link-parameters-used-in-monitors" title="Link Parameters used in Monitors">
 
 <t><list style="hanging">
-  <t hangText='“id”'><vspace blankLines='0'/>
-  The relative URI of this binding in its containing collection</t>
   <t hangText='“anchor”'><vspace blankLines='0'/>
   May override the context URI of a binding with any observable resource</t>
   <t hangText='“rel”'><vspace blankLines='0'/>
-  Link relation indicates that this is a binding using the value “boundto”</t>
-  <t hangText='“target”'><vspace blankLines='0'/>
-  The URI to bind to the context URI, where transfer operations will be sent, similar to “href” in links</t>
-  <t hangText='“method”'><vspace blankLines='0'/>
-  Transfer method to use for notifications</t>
+  Link relation indicates that this is a monitor using the value “monitor”</t>
+  <t hangText='“href”'><vspace blankLines='0'/>
+  The URI of the resource used to bmonitor context URI, where transfer operations will be sent.</t>
+  <t hangText='“accept”'><vspace blankLines='0'/>
+  The media type string or CoAP content-format to request from the observed resource</t>
   <t hangText='“content-type”'><vspace blankLines='0'/>
-  The Content-Type to use in the transfer operation</t>
+  The media type string to use in the transfer operation</t>
   <t hangText='“ct”'><vspace blankLines='0'/>
   the CoAP content-format number to use in the transfer operation</t>
-  <t hangText='“schema”'><vspace blankLines='0'/>
-  Schema to use in constructing the notification transfer payload</t>
+  <t hangText='“accept-method”'><vspace blankLines='0'/>
+  Transfer method to use in request from the observed resource, default is OBSERVE</t>
+  <t hangText='“target-method”'><vspace blankLines='0'/>
+  Transfer method to use for notifications, default is UPDATE</t>
+  <t hangText='“accept-schema”'><vspace blankLines='0'/>
+  Schema to use in interpreting the observed resource payload, required if target-schema is used.</t>
+  <t hangText='“target-schema”'><vspace blankLines='0'/>
+  Schema to use in constructing the notification transfer payload, default is to transfer the accepted payload unmodified to the target resource.</t>
   <t hangText='“pmin”'><vspace blankLines='0'/>
   Minimum time between notification from a binding</t>
   <t hangText='“pmax”'><vspace blankLines='0'/>
@@ -465,67 +469,85 @@
 
 <section anchor="new-media-types-for-iana-media-type-registry" title="New Media Types for IANA Media Type registry">
 
-<t>type
-- hsml
-subtypes 
-- collection
-- link
-- item</t>
+<t>Type</t>
 
-<t>application/hsml 
-application/hsml.collection
-application/hsml.link
-application/hsml.item</t>
+<t><list style="symbols">
+  <t>application</t>
+</list></t>
 
-<t>application/hsml+json
-application/hsml.collection+json
-application/hsml.link+json
-application/hsml.item+json</t>
+<t>Subtypes</t>
+
+<t><list style="symbols">
+  <t>hsml</t>
+  <t>hsml.collection</t>
+  <t>hsml.link</t>
+  <t>hsml.item</t>
+</list></t>
+
+<t>Media type strings</t>
+
+<t><list style="symbols">
+  <t>application/hsml</t>
+  <t>application/hsml.collection</t>
+  <t>application/hsml.link</t>
+  <t>application/hsml.item</t>
+  <t>application/hsml+json</t>
+  <t>application/hsml.collection+json</t>
+  <t>application/hsml.link+json</t>
+  <t>application/hsml.item+json</t>
+</list></t>
 
 </section>
 <section anchor="new-content-formats-for-the-iana-core-parameters-registry" title="New Content Formats for the IANA CoRE Parameters Registry">
 
-<t>(subject to Structured Syntax encoding rules TBD)
-22000 - application/hsml+json 
-22001 - application/hsml.link+json
-22002 - application/hsml.item+json</t>
+<t>(subject to Structured Syntax encoding rules TBD)</t>
+
+<t><list style="symbols">
+  <t>22000 - application/hsml+json</t>
+  <t>22001 - application/hsml.link+json</t>
+  <t>22002 - application/hsml.item+json</t>
+</list></t>
 
 </section>
 <section anchor="new-link-parameters" title="New Link Parameters">
 
-<t>method
-schema
-content-type
-ct</t>
+<t><list style="symbols">
+  <t>method</t>
+  <t>schema</t>
+  <t>content-type</t>
+  <t>ct</t>
+</list></t>
 
-<t>(the following should be registered in the CoRE Interfaces spin-off draft on asynchronous notification)</t>
+<t>The following should be registered in the CoRE dynamic linking draft <xref target="I-D.groves-core-dynlink"/>.</t>
 
-<t>pmin
-pmax
-nbll
-nbul
-init
-lt
-gt
-st
-eq</t>
+<t><list style="symbols">
+  <t>pmin</t>
+  <t>pmax</t>
+  <t>nbll</t>
+  <t>nbul</t>
+  <t>init</t>
+  <t>lt</t>
+  <t>gt</t>
+  <t>st</t>
+  <t>eq</t>
+</list></t>
 
 </section>
 <section anchor="new-link-relation-types-rel" title="New Link Relation Types (rel=)">
 
-<t>sub
-grp</t>
-
-<t>(the following should be registered in the CoRE Interfaces spin-off draft on asynchronous notification)</t>
-
-<t>boundto</t>
+<t><list style="symbols">
+  <t>sub</t>
+  <t>grp</t>
+</list></t>
 
 </section>
 <section anchor="new-interface-types-if-for-the-iana-core-parameters-registry" title="New Interface types (if=) for the IANA CoRE Parameters Registry">
 
-<t>hsml.collection
-hsml.item
-hsml.link</t>
+<t><list style="symbols">
+  <t>hsml.collection</t>
+  <t>hsml.item</t>
+  <t>hsml.link</t>
+</list></t>
 
 </section>
 </section>
@@ -641,6 +663,19 @@ hsml.link</t>
 </front>
 <seriesInfo name='RFC' value='5988'/>
 <seriesInfo name='DOI' value='10.17487/RFC5988'/>
+</reference>
+
+
+
+<reference  anchor='RFC5989' target='http://www.rfc-editor.org/info/rfc5989'>
+<front>
+<title>A SIP Event Package for Subscribing to Changes to an HTTP Resource</title>
+<author initials='A.B.' surname='Roach' fullname='A.B. Roach'><organization /></author>
+<date year='2010' month='October' />
+<abstract><t>The Session Initiation Protocol (SIP) is increasingly being used in systems that are tightly coupled with Hypertext Transport Protocol (HTTP) servers for a variety of reasons.  In many of these cases, applications can benefit from being able to discover, in near real- time, when a specific HTTP resource is created, changed, or deleted. This document proposes a mechanism, based on the SIP Event Framework, for doing so.  [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='RFC' value='5989'/>
+<seriesInfo name='DOI' value='10.17487/RFC5989'/>
 </reference>
 
 
@@ -808,6 +843,39 @@ hsml.link</t>
 <seriesInfo name='Internet-Draft' value='draft-ietf-cose-msg-14' />
 <format type='TXT'
         target='http://www.ietf.org/internet-drafts/draft-ietf-cose-msg-14.txt' />
+</reference>
+
+
+
+<reference anchor='I-D.groves-core-dynlink'>
+<front>
+<title>Dynamic Resource Linking for Constrained RESTful Environments</title>
+
+<author initials='Z' surname='Shelby' fullname='Zach Shelby'>
+    <organization />
+</author>
+
+<author initials='M' surname='Vial' fullname='Matthieu Vial'>
+    <organization />
+</author>
+
+<author initials='M' surname='Koster' fullname='Michael Koster'>
+    <organization />
+</author>
+
+<author initials='C' surname='Groves' fullname='Christian Groves'>
+    <organization />
+</author>
+
+<date month='July' day='6' year='2016' />
+
+<abstract><t>For CoAP [RFC7252] Dynamic linking of state updates between resources, either on an endpoint or between endpoints, is defined with the concept of Link Bindings.  This document defines conditional observation attributes that work with Link Bindings or with simple CoAP Observe [RFC7641].</t></abstract>
+
+</front>
+
+<seriesInfo name='Internet-Draft' value='draft-groves-core-dynlink-00' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-groves-core-dynlink-00.txt' />
 </reference>
 
 
