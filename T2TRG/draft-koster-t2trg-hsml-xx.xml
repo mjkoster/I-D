@@ -57,7 +57,7 @@
 
 <section anchor="scope" title="Scope of this document">
 
-<t>As with HTML, this is a broadly scoped document which specifies representation formats, data models, interaction models, transfer mapping, URI processing, and some extensions including forms and bindings.</t>
+<t>This is a broadly scoped document which specifies representation formats, data models, interaction models, transfer mapping, URI processing, and some extensions including forms and bindings.</t>
 
 <t>The features listed above and new features may be specified and extended as needed in other documents which refer to this document.</t>
 
@@ -138,7 +138,7 @@
 </list></t>
 
 </section>
-<section anchor="collections" title="Collections">
+<section anchor="collection-description" title="Collections">
 
 <section anchor="base-element" title="Base element">
 <t>A base element describe the context under which to interpret values in items within the representation of a colection.</t>
@@ -276,7 +276,7 @@
 
 <t>URI Parameters may be used to select a particular subset of target resources within the group in the collection.</t>
 
-<t>Responses from the selected group resources are aggregated and by default returned as a single response using the response aggregation method specified in <xref target=""/>.</t>
+<t>Responses from the selected group resources are aggregated and by default returned as a single response. The group response SHOULD be returned as an outer array where such representation is available, for example a JSON array which contains elements consisting of SenML responses.</t>
 
 <t>Optionally, a chunked response may be specified, if allowed by the transfer implementation, in which the response from each group member is returned individually as a sequence of responses.</t>
 
@@ -286,7 +286,7 @@
 
 <section anchor="forms" title="Forms">
 
-<t>Forms are hypermedia controls used to construct transfer operations that change the state of resources. The vocabulary and semantics roughly follows the use of forms in HTML <xref target=""/>.</t>
+<t>Forms are hypermedia controls used to construct transfer operations that change the state of resources. The vocabulary and semantics roughly follows the use of forms in HTML <xref target="RFC1866"/>.</t>
 
 </section>
 <section anchor="bindings" title="Bindings">
@@ -309,10 +309,8 @@
 
 <t>For example, if the identifier “method” is encountered and it doesn’t resolve to an IANA registered parameter (reg-parameter in <xref target="RFC5988"/>) resolution should be attempted using “hsml:method”.</t>
 
-<t>This document defines an ad-hoc registry of identifiers defined in the HSML namespace in <xref target=""/>.</t>
-
 </section>
-<section anchor="uri-parameters-uriparams" title="URI Parameters {#uri=params}">
+<section anchor="uri-params" title="URI Parameters">
 
 <t>The following URI Parameters are used to filter representations according to specific processing rules and should not be used to attempt to match link parameters.</t>
 
@@ -359,22 +357,22 @@
 <t>The following keywords are reserved for use in a HSML serialization to indicate types of link attributes</t>
 
 <t><list style="hanging">
-  <t hangText='“rt”'>
+  <t hangText='“rt”'><vspace blankLines='0'/>
   the resource type(s) of the item</t>
-  <t hangText='“u”'>
+  <t hangText='“u”'><vspace blankLines='0'/>
   units of measure</t>
-  <t hangText='“ct”'>
+  <t hangText='“ct”'><vspace blankLines='0'/>
   the CoAP content-format number(s) associated with the item</t>
-  <t hangText='“content-type”'>
+  <t hangText='“content-type”'><vspace blankLines='0'/>
   the media type string(s) associated with the item</t>
-  <t hangText='“obs”'>
+  <t hangText='“obs”'><vspace blankLines='0'/>
   presence of this attribute indicates that the associated resource is observable</t>
 </list></t>
 
 </section>
 </section>
-<section vspace="0" anchor="item-keywords" title="Item Keywords">
-<t>The following keywords are reserved for use in a HSML serialization to indicate elements within the serialization. These are defined in <xref target="I_D.ietf-core-senml"/>.</t>
+<section anchor="item-keywords" title="Item Keywords">
+<t>The following keywords are reserved for use in a HSML serialization to indicate elements within the serialization. These are defined in <xref target="I-D.ietf-core-senml"/>.</t>
 
 <t><list style="hanging">
   <t hangText='“bn”'><vspace blankLines='0'/>
@@ -391,8 +389,8 @@
   number value</t>
   <t hangText='“vb”'><vspace blankLines='0'/>
   boolean value</t>
-  <t hangText='“vo”'><vspace blankLines='0'/>
-  object value, an extension to the senml value types to enable embedded objects</t>
+  <t hangText='“vd”'><vspace blankLines='0'/>
+  data value, an extension to the senml value types to enable embedded data objects</t>
   <t hangText='“vs”'><vspace blankLines='0'/>
   string value</t>
 </list></t>
@@ -550,7 +548,7 @@ hsml.link</t>
 
 </section>
 <section anchor="object-signing-and-encryption" title="Object Signing and Encryption">
-<t>Object signing and encryption SHOULD use the mechanisms specified in IETF documents for secure JSON Objects <xref target=""/> and CBOR Objects <xref target=""/>.</t>
+<t>Object signing and encryption SHOULD use the mechanisms specified in IETF documents for secure JSON Objects <xref target="RFC7516"/> and CBOR Objects <xref target="I-D.ietf-cose-msg"/>.</t>
 
 </section>
 </section>
@@ -605,15 +603,15 @@ hsml.link</t>
     <organization />
 </author>
 
-<date month='April' day='27' year='2016' />
+<date month='July' day='8' year='2016' />
 
-<abstract><t>JavaScript Object Notation, JSON (RFC7159) is a text-based data format which is popular for Web based data exchange.  Concise Binary Object Representation, CBOR (RFC7049) is a binary data format which has been optimized for data exchange for the Internet of Things (IoT).  For many IoT scenarios, CBOR formats will be preferred since it can help decrease transmission payload sizes as well as implementation code sizes compared to other data formats.  Web Linking (RFC5988) provides a way to represent links between Web resources as well as the relations expressed by them and attributes of such a link.  In constrained networks, a collection of Web links can be exchanged in the CoRE link format (RFC6690).  Outside of constrained environments, it may be useful to represent these collections of Web links in JSON, and similarly, inside constrained environments, in CBOR.  This specification defines a common format for this.  Group Communication for the Constrained Application Protocol (RFC7390) defines a number of JSON formats for controlling communication between groups of nodes employing the Constrained Application Protocol (CoAP).  In a similar vein, this specification defines CBOR variants of these formats.</t></abstract>
+<abstract><t>JavaScript Object Notation, JSON (RFC7159) is a text-based data format which is popular for Web based data exchange.  Concise Binary Object Representation, CBOR (RFC7049) is a binary data format which has been optimized for data exchange for the Internet of Things (IoT).  For many IoT scenarios, CBOR formats will be preferred since it can help decrease transmission payload sizes as well as implementation code sizes compared to other data formats.  Web Linking (RFC5988) provides a way to represent links between Web resources as well as the relations expressed by them and attributes of such a link.  In constrained networks, a collection of Web links can be exchanged in the CoRE link format (RFC6690).  Outside of constrained environments, it may be useful to represent these collections of Web links in JSON, and similarly, inside constrained environments, in CBOR.  This specification defines a common format for this.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-links-json-05' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-links-json-06' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-links-json-05.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-links-json-06.txt' />
 </reference>
 
 
@@ -662,6 +660,34 @@ hsml.link</t>
 
 
 
+<reference  anchor='RFC7516' target='http://www.rfc-editor.org/info/rfc7516'>
+<front>
+<title>JSON Web Encryption (JWE)</title>
+<author initials='M.' surname='Jones' fullname='M. Jones'><organization /></author>
+<author initials='J.' surname='Hildebrand' fullname='J. Hildebrand'><organization /></author>
+<date year='2015' month='May' />
+<abstract><t>JSON Web Encryption (JWE) represents encrypted content using JSON-based data structures.  Cryptographic algorithms and identifiers for use with this specification are described in the separate JSON Web Algorithms (JWA) specification and IANA registries defined by that specification.  Related digital signature and Message Authentication Code (MAC) capabilities are described in the separate JSON Web Signature (JWS) specification.</t></abstract>
+</front>
+<seriesInfo name='RFC' value='7516'/>
+<seriesInfo name='DOI' value='10.17487/RFC7516'/>
+</reference>
+
+
+
+<reference  anchor='RFC1866' target='http://www.rfc-editor.org/info/rfc1866'>
+<front>
+<title>Hypertext Markup Language - 2.0</title>
+<author initials='T.' surname='Berners-Lee' fullname='T. Berners-Lee'><organization /></author>
+<author initials='D.' surname='Connolly' fullname='D. Connolly'><organization /></author>
+<date year='1995' month='November' />
+<abstract><t>This document defines a HTML 2.0 (to distinguish it from the previous informal specifications).  [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='RFC' value='1866'/>
+<seriesInfo name='DOI' value='10.17487/RFC1866'/>
+</reference>
+
+
+
 <reference anchor='I-D.ietf-core-interfaces'>
 <front>
 <title>Reusable Interface Definitions for Constrained RESTful Environments</title>
@@ -678,17 +704,19 @@ hsml.link</t>
     <organization />
 </author>
 
-<date month='October' day='19' year='2015' />
+<author initials='C' surname='Groves' fullname='Christian Groves'>
+    <organization />
+</author>
 
-<abstract><t>This document defines a set of reusable REST resource design patterns suitable for use in constrained environments, based on IETF CoRE standards for information representation and information exchange.  Interface types for Sensors, Actuators, Parameters, and resource Collections are defined using the "if" link attribute defined by CoRE Link Format [RFC6690].  Clients may use the "if" attribute to determine how to consume resources.  Dynamic linking of state updates between resources, either on an endpoint or between endpoints, is defined with the concept of Link Bindings.  We also define conditional observation attributes that work with Link Bindings or with simple CoAP Observe [RFC7641].</t></abstract>
+<date month='July' day='8' year='2016' />
+
+<abstract><t>This document defines a set of reusable REST resource design patterns suitable for use in constrained environments, based on IETF CoRE standards for information representation and information exchange.  Interface types for Sensors, Actuators, Parameters, and resource Collections are defined using the "if" link attribute defined by CoRE Link Format [RFC6690].  Clients may use the "if" attribute to determine how to consume resources.  Editor's note: This version removes the observe notify functionality. Further work is needed on this draft to</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-interfaces-04' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-interfaces-05' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-04.txt' />
-<format type='PDF'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-04.pdf' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-05.txt' />
 </reference>
 
 
@@ -713,15 +741,15 @@ hsml.link</t>
     <organization />
 </author>
 
-<date month='March' day='21' year='2016' />
+<date month='July' day='8' year='2016' />
 
 <abstract><t>In many M2M applications, direct discovery of resources is not practical due to sleeping nodes, disperse networks, or networks where multicast traffic is inefficient.  These problems can be solved by employing an entity called a Resource Directory (RD), which hosts descriptions of resources held on other servers, allowing lookups to be performed for those resources.  This document specifies the web interfaces that a Resource Directory supports in order for web servers to discover the RD and to register, maintain, lookup and remove resources descriptions.  Furthermore, new link attributes useful in conjunction with an RD are defined.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-resource-directory-07' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-resource-directory-08' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-resource-directory-07.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-resource-directory-08.txt' />
 </reference>
 
 
@@ -742,19 +770,44 @@ hsml.link</t>
     <organization />
 </author>
 
-<author initials='A' surname='Keränen' fullname='Ari Keränen'>
+<author initials='A' surname='Keranen' fullname='Ari Keranen'>
     <organization />
 </author>
 
-<date month='April' day='19' year='2016' />
+<author initials='C' surname='Bormann' fullname='Carsten Bormann'>
+    <organization />
+</author>
+
+<date month='July' day='8' year='2016' />
 
 <abstract><t>This specification defines media types for representing simple sensor measurements and device parameters in the Sensor Markup Language (SenML).  Representations are defined in JavaScript Object Notation (JSON), Concise Binary Object Representation (CBOR), eXtensible Markup Language (XML), and Efficient XML Interchange (EXI), which share the common SenML data model.  A simple sensor, such as a temperature sensor, could use this media type in protocols such as HTTP or CoAP to transport the measurements of the sensor or to be configured.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-senml-00' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-senml-02' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-senml-00.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-senml-02.txt' />
+</reference>
+
+
+
+<reference anchor='I-D.ietf-cose-msg'>
+<front>
+<title>CBOR Object Signing and Encryption (COSE)</title>
+
+<author initials='J' surname='Schaad' fullname='Jim Schaad'>
+    <organization />
+</author>
+
+<date month='June' day='23' year='2016' />
+
+<abstract><t>Concise Binary Object Representation (CBOR) is data format designed for small code size and small message size.  There is a need for the ability to have the basic security services defined for this data format.  This document defines the CBOR Object Signing and Encyption (COSE) specification.  This specification describes how to create and process signature, message authentication codes and encryption using CBOR for serialization.  This specifiction additionally specifies how to representat cryptographic keys using CBOR.</t></abstract>
+
+</front>
+
+<seriesInfo name='Internet-Draft' value='draft-ietf-cose-msg-14' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-cose-msg-14.txt' />
 </reference>
 
 
