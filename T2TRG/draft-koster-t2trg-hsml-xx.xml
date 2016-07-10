@@ -34,7 +34,7 @@
       </address>
     </author>
 
-    <date year="2016" month="June" day="24"/>
+    <date year="2016" month="July" day="10"/>
 
     <area>Internet</area>
     <workgroup>Thing-to-Thing Research Group</workgroup>
@@ -309,6 +309,8 @@
 
 <t>For example, if the identifier “method” is encountered and it doesn’t resolve to an IANA registered parameter (reg-parameter in <xref target="RFC5988"/>) resolution should be attempted using “hsml:method”.</t>
 
+<t>The default CURIE “hsml” identifies a namespace defined by the identifiers in <xref target="reserved-identifiers"/> of this document.</t>
+
 </section>
 <section anchor="uri-params" title="URI Parameters">
 
@@ -389,8 +391,8 @@
   number value</t>
   <t hangText='“vb”'><vspace blankLines='0'/>
   boolean value</t>
-  <t hangText='“vd”'><vspace blankLines='0'/>
-  data value, an extension to the senml value types to enable embedded data objects</t>
+  <t hangText='“vo”'><vspace blankLines='0'/>
+  object value, an extension to the senml value types to enable embedded data objects</t>
   <t hangText='“vs”'><vspace blankLines='0'/>
   string value</t>
 </list></t>
@@ -402,9 +404,9 @@
   <t hangText='“anchor”'><vspace blankLines='0'/>
   May override the default context of a form and store it in a different location from the subject resource</t>
   <t hangText='“rel”'><vspace blankLines='0'/>
-  Indicates the action being exposed by the form</t>
-  <t hangText='“action”'><vspace blankLines='0'/>
-  URI for mapping an action specified in a form, similar to “href” in links</t>
+  Indicates that this control is a form; MUST contain the value “action”</t>
+  <t hangText='“href”'><vspace blankLines='0'/>
+  URI for mapping the action specified in the form</t>
   <t hangText='“type”'><vspace blankLines='0'/>
   Additional indicator of the action being exposed, can be used with “rel”</t>
   <t hangText='“method”'><vspace blankLines='0'/>
@@ -426,9 +428,9 @@
   <t hangText='“anchor”'><vspace blankLines='0'/>
   May override the context URI of a binding with any observable resource</t>
   <t hangText='“rel”'><vspace blankLines='0'/>
-  Link relation indicates that this is a monitor using the value “monitor”</t>
+  Indicates that this control is a monitor; MUST contain the value “monitor”</t>
   <t hangText='“href”'><vspace blankLines='0'/>
-  The URI of the resource used to bmonitor context URI, where transfer operations will be sent.</t>
+  The URI of the resource used to monitor context URI, where transfer operations will be sent.</t>
   <t hangText='“accept”'><vspace blankLines='0'/>
   The media type string or CoAP content-format to request from the observed resource</t>
   <t hangText='“content-type”'><vspace blankLines='0'/>
@@ -443,6 +445,12 @@
   Schema to use in interpreting the observed resource payload, required if target-schema is used.</t>
   <t hangText='“target-schema”'><vspace blankLines='0'/>
   Schema to use in constructing the notification transfer payload, default is to transfer the accepted payload unmodified to the target resource.</t>
+</list></t>
+
+</section>
+<section anchor="conditional-observe-parameters-used-in-monitor-links" title="Conditional Observe Parameters used in Monitor links">
+
+<t><list style="hanging">
   <t hangText='“pmin”'><vspace blankLines='0'/>
   Minimum time between notification from a binding</t>
   <t hangText='“pmax”'><vspace blankLines='0'/>
