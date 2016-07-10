@@ -57,7 +57,7 @@
 
 <section anchor="scope" title="Scope of this document">
 
-<t>This is a broadly scoped document which specifies representation formats, data models, interaction models, transfer mapping, URI processing, and some extensions including forms and bindings.</t>
+<t>This is a broadly scoped document which specifies representation formats, data models, interaction models, transfer mapping, URI processing, and some extensions including actions and bindings.</t>
 
 <t>The features listed above and new features may be specified and extended as needed in other documents which refer to this document.</t>
 
@@ -94,7 +94,7 @@
 </section>
 <section anchor="links" title="Links">
 
-<t>Links follow the specifications in <xref target="RFC5988"/> and <xref target="RFC6690"/> with extensions to implement forms and bindings as described in this document and any referencing extension documents.</t>
+<t>Links follow the specifications in <xref target="RFC5988"/> and <xref target="RFC6690"/> with extensions to implement actions and monitors as described in this document and any referencing extension documents.</t>
 
 </section>
 <section anchor="collections" title="Collections">
@@ -141,42 +141,70 @@
 <section anchor="collection-description" title="Collections">
 
 <section anchor="base-element" title="Base element">
-<t>A base element describe the context under which to interpret values in items within the representation of a colection.</t>
+<t>A base element describes the context under which to interpret values in items within the representation of a collection.</t>
 
-<t>The base name element (bn) indicates the base URI or an absolute reference from which to base relative references found in the links. It functions as an embedded base URI reference as per <xref target="RFC3986"/> Section 5.1.1</t>
+<t>The base name value (bn) indicates the base URI or an absolute reference from which to base relative references found in the links. It functions as an embedded base URI reference as per <xref target="RFC3986"/> Section 5.1.1</t>
 
-<t>The format of the base elements are specified in <xref target="I-D.ietf-core-senml"/>. <xref target="fig-example-basename"/> is an example of a base name element.</t>
+<t>The format of the base elements are specified in <xref target="I-D.ietf-core-senml"/>. <xref target="fig-example-base-element"/> is an example of a base  element.</t>
 
-<figure title="SenML Base Name Example" align="left" anchor="fig-example-basename"><artwork><![CDATA[
-    "bn": "/dev/sen/temp/"
+<figure title="Example Base Element" align="left" anchor="fig-example-base-element"><artwork><![CDATA[
+    {
+      "bn": "/dev/sen/"
+    }
 ]]></artwork></figure>
 
 <t>Other base items from SenML are permissible, including base time (bt) and base value(bv). If additional senml base element are present, the client MUST interpret the items in the collection in the context of the applicable base elements. For example, if there is a “bv” or base value elment, all of the returned values from items in the collection MUST be added to the base value as per <xref target="I-D.ietf-core-senml"/>.</t>
 
 </section>
 <section anchor="link-element" title="Link element">
-<t>A link element is a hyperlinks based on the structure and syntax of <xref target="RFC6690"/>. An example of link elements</t>
+<t>A link element is a hyperlink based on the structure and syntax of <xref target="RFC6690"/> and <xref target="I-D.ietf-core-links-json"/>. An example link element is shown in <xref target="fig-link-element"/>.</t>
+
+<figure title="Example Link Element" align="left" anchor="fig-link-element"><artwork><![CDATA[
+    {
+      "href": "temp",
+      "rt": "some.sensor"
+    }
+]]></artwork></figure>
 
 </section>
 <section anchor="item-element" title="Item element">
-<t>An item element in a collection is a data element that is referenced by a URI in the collection. THe URI reference to an item in a collection must use the collection URI as context or specify a link anchor property to override the default context.</t>
+<t>An item element in a collection is a data element that is referenced by a link in the collection.</t>
 
-<t>Items may be embedded in the collection, they may be subresources of the collection, or they may be items in other collections referenced by links in the collection.</t>
+<t>Items in the collection are indicated by a references (href) that serve as a selection variables for matching to URI parameters and resource names in multi-resource representataions. Reference resolution should use the rules defined in <xref target="RFC3986"/>.</t>
 
-<t>Items in the collection must be indicated by a relative references (href) that serve as a selection variables for matching to URI parameters and resource names in multi-resource representataions.</t>
+<t>Items may be embedded in the collection, they may be subresources of the collection, or they may be items in other collections referenced by links in the collection. An example item element is shown in <xref target="fig-item-element"/></t>
+
+<figure title="Example Item Element" align="left" anchor="fig-item-element"><artwork><![CDATA[
+    {
+      "n": "temp",
+      "v": "77"
+    }
+]]></artwork></figure>
 
 </section>
 </section>
 <section anchor="representation-formats" title="Representation Formats">
 
-<t>Example Serialization Formats {#example-formats}
-<xref target="fig-example-hsml"/> shows an example document in hsml+json format</t>
+<section anchor="example-formats" title="Example Serialization Formats">
+<t><xref target="fig-example-hsml"/> shows an example document in hsml+json format. This example contains a base element, a link element, and an item element.</t>
 
 <figure title="application/hsml+json Example" align="left" anchor="fig-example-hsml"><artwork><![CDATA[
-{
-}
+    [
+      {
+        "bn": "/dev/sen/"
+      },
+      {
+        "href": "temp",
+        "rt": "some.sensor"
+      },
+      {
+        "n": "temp",
+        "v": "77"
+      }
+    ]
 ]]></artwork></figure>
 
+</section>
 </section>
 <section anchor="uri-and-parameter-processing" title="URI and Parameter Processing">
 
@@ -213,11 +241,11 @@
 <section anchor="collection" title="Collection">
 
 <section anchor="retrieve" title="RETRIEVE">
-<t>List Collection Links and Items</t>
+<t>List Collection Elements</t>
 
 </section>
 <section anchor="create" title="CREATE">
-<t>Add Items and Links</t>
+<t>Add Elements to Collection</t>
 
 </section>
 <section anchor="update" title="UPDATE">
@@ -267,6 +295,10 @@
 <t>Remove Items</t>
 
 </section>
+<section anchor="create-2" title="CREATE">
+<t>Create Items with default links</t>
+
+</section>
 </section>
 <section anchor="groups" title="Groups">
 
@@ -284,14 +316,43 @@
 </section>
 <section anchor="link-extensions" title="Link extensions">
 
-<section anchor="forms" title="Forms">
+<section anchor="actions" title="Actions">
 
-<t>Forms are hypermedia controls used to construct transfer operations that change the state of resources. The vocabulary and semantics roughly follows the use of forms in HTML <xref target="RFC1866"/>.</t>
+<t>Actions are hypermedia controls used to construct transfer operations that change the state of resources. The use roughly follows the use of forms in HTML <xref target="RFC1866"/>, with semantics more consistent with links.</t>
+
+<t>An example action element is shown in <xref target="fig-action-element"/></t>
+
+<figure title="Example action Element" align="left" anchor="fig-action-element"><artwork><![CDATA[
+    {
+      "rel": "action"
+      "type": "st.on"
+      "href": "commands",
+      "rt": "st.command",
+      "method": "create",
+      "accept": "text/plain",
+      "schema": {"value": "on"}
+    }
+]]></artwork></figure>
 
 </section>
 <section anchor="monitors" title="Monitors">
 
 <t>Monitors are hypermedia controls used to construct transfer operations that expose state changes of resources. A monitor invokes an outbound transfer operation on a target resource. Monitors use the IANA registered link relation “monitor”, defined in <xref target="RFC5989"/>.</t>
+
+<t>An example item element is shown in <xref target="fig-monitor-element"/></t>
+
+<figure title="Example Monitor Element" align="left" anchor="fig-monitor-element"><artwork><![CDATA[
+    {
+      "rel": "monitor",
+      "href": "tank-level-events",
+      "content-type": "application/senml+json",
+      "target-method": "create",
+      "pmin": 600,
+      "pmax": 3600,
+      "nbul": 80,
+      "nbll": 20
+    }
+]]></artwork></figure>
 
 </section>
 </section>
@@ -396,15 +457,15 @@
 </list></t>
 
 </section>
-<section anchor="link-parameters-used-in-forms" title="Link Parameters used in Forms">
+<section anchor="link-parameters-used-in-actions" title="Link Parameters used in Actions">
 
 <t><list style="hanging">
   <t hangText='“anchor”'><vspace blankLines='0'/>
-  May override the default context of a form and store it in a different location from the subject resource</t>
+  May override the default context of an action and store it in a different location from the subject resource</t>
   <t hangText='“rel”'><vspace blankLines='0'/>
-  Indicates that this control is a form; MUST contain the value “action”</t>
+  Indicates that this control is an action; MUST contain the value “action”</t>
   <t hangText='“href”'><vspace blankLines='0'/>
-  URI for mapping the action specified in the form</t>
+  URI for mapping the action specified in the action</t>
   <t hangText='“type”'><vspace blankLines='0'/>
   Additional indicator of the action being exposed, can be used with “rel”</t>
   <t hangText='“method”'><vspace blankLines='0'/>
