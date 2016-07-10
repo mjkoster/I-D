@@ -348,8 +348,6 @@
   refers to the collection that contains the link</t>
   <t hangText='“item”'><vspace blankLines='0'/>
   the link points to an item in the collection</t>
-  <t hangText='“sub”'><vspace blankLines='0'/>
-  the link points to a subresource item of the collection</t>
   <t hangText='“grp”'><vspace blankLines='0'/>
   the item the link points to is available for collective interaction through the collection URI according to group semantics described in {}</t>
 </list></t>
@@ -544,7 +542,6 @@
 <section anchor="new-link-relation-types-rel" title="New Link Relation Types (rel=)">
 
 <t><list style="symbols">
-  <t>sub</t>
   <t>grp</t>
 </list></t>
 

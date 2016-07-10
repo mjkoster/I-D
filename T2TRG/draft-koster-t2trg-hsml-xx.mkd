@@ -344,9 +344,6 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 "item"
 :    the link points to an item in the collection
 
-"sub"
-:    the link points to a subresource item of the collection
-
 "grp"
 :    the item the link points to is available for collective interaction through the collection URI according to group semantics described in {}
 {: vspace='0'}
@@ -552,7 +549,6 @@ The following should be registered in the CoRE dynamic linking draft {{I-D.grove
 
 ## New Link Relation Types (rel=)
 
-* sub
 * grp
 
 ## New Interface types (if=) for the IANA CoRE Parameters Registry
