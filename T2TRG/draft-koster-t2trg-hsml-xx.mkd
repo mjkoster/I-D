@@ -321,7 +321,7 @@ Optionally, a chunked response may be specified, if allowed by the transfer impl
 
 Actions are hypermedia controls used to construct transfer operations that change the state of resources. The use roughly follows the use of forms in HTML {{RFC1866}}, with semantics more consistent with links.
 
-An example action element is shown in {{fig-action-element}}
+An example Action element is shown in {{fig-action-element}}
 
 ~~~~
     {
@@ -334,14 +334,14 @@ An example action element is shown in {{fig-action-element}}
       "schema": {"value": "on"}
     }
 ~~~~
-{: #fig-action-element title='Example action Element' align="left"}
+{: #fig-action-element title='Example Action Element' align="left"}
 
 
 ## Monitors
 
 Monitors are hypermedia controls used to construct transfer operations that expose state changes of resources. A monitor invokes an outbound transfer operation on a target resource. Monitors use the IANA registered link relation "monitor", defined in {{RFC5989}}.
 
-An example item element is shown in {{fig-monitor-element}}
+An example Monitor element is shown in {{fig-monitor-element}}
 
 ~~~~
     {
@@ -374,7 +374,7 @@ For example, if the identifier "method" is encountered and it doesn't resolve to
 
 The default CURIE "hsml" identifies a namespace defined by the identifiers in {{reserved-identifiers}} of this document.
 
-## URI Parameters {#uri-params}
+## URI Processing Parameters {#uri-params}
 
 The following URI Parameters are used to filter representations according to specific processing rules and should not be used to attempt to match link parameters.
 

@@ -320,9 +320,9 @@
 
 <t>Actions are hypermedia controls used to construct transfer operations that change the state of resources. The use roughly follows the use of forms in HTML <xref target="RFC1866"/>, with semantics more consistent with links.</t>
 
-<t>An example action element is shown in <xref target="fig-action-element"/></t>
+<t>An example Action element is shown in <xref target="fig-action-element"/></t>
 
-<figure title="Example action Element" align="left" anchor="fig-action-element"><artwork><![CDATA[
+<figure title="Example Action Element" align="left" anchor="fig-action-element"><artwork><![CDATA[
     {
       "rel": "action"
       "type": "st.on"
@@ -339,7 +339,7 @@
 
 <t>Monitors are hypermedia controls used to construct transfer operations that expose state changes of resources. A monitor invokes an outbound transfer operation on a target resource. Monitors use the IANA registered link relation “monitor”, defined in <xref target="RFC5989"/>.</t>
 
-<t>An example item element is shown in <xref target="fig-monitor-element"/></t>
+<t>An example Monitor element is shown in <xref target="fig-monitor-element"/></t>
 
 <figure title="Example Monitor Element" align="left" anchor="fig-monitor-element"><artwork><![CDATA[
     {
@@ -373,7 +373,7 @@
 <t>The default CURIE “hsml” identifies a namespace defined by the identifiers in <xref target="reserved-identifiers"/> of this document.</t>
 
 </section>
-<section anchor="uri-params" title="URI Parameters">
+<section anchor="uri-params" title="URI Processing Parameters">
 
 <t>The following URI Parameters are used to filter representations according to specific processing rules and should not be used to attempt to match link parameters.</t>
 
