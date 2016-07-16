@@ -181,7 +181,7 @@ Clients        pubsub         Broker
 </t>
 
 <section anchor="discover" title="DISCOVER">
-<t> CoAP pubsub Clients discover CoAP pubsub Brokers by using CoAP Simple Discovery or through a Resource Directory (RD) <xref target="I-D.ietf-core-resource-directory"/>. A CoAP pubsub Broker SHOULD indicate its presence and availability on a network by exposing a link to its pubsub function set at its .well-known/core location <xref target="RFC6690"/>. A CoAP pubsub broker MAY register its pubsub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local pubsub Function Set using CoAP Simple Discovery. A broker wishing to advertise the CoAP pubsub Function Set for Simple Discovery or through a Resource Directory MUST use the link relation rt="core.ps". A broker MAY advertise it's supported content formats and other attributes in the link to it's pubsub function set.
+<t> CoAP pubsub Clients discover CoAP pubsub Brokers by using CoAP Simple Discovery or through a Resource Directory (RD) <xref target="I-D.ietf-core-resource-directory"/>. A CoAP pubsub Broker SHOULD indicate its presence and availability on a network by exposing a link to its pubsub function set at its .well-known/core location <xref target="RFC6690"/>. A CoAP pubsub broker MAY register its pubsub function set location with a Resource Directory. <xref target="discover-fig"/> shows an example of a client discovering a local pubsub Function Set using CoAP Simple Discovery. A broker wishing to advertise the CoAP pubsub Function Set for Simple Discovery or through a Resource Directory MUST use the link relation rt="core.ps". A broker MAY advertise its supported content formats and other attributes in the link to its pubsub function set.
 </t>
 
 <t> A CoAP pubsub Broker MAY offer the Discover interface to enable Clients to find topics of interest, either by topic name or by link attributes which may be registered when the topic is created. <xref target="discover-topic-fig"/> shows an example of a client looking for a topic with a resource type (rt) of "temperature" in the pubsub function set /ps using the Discover interface. The client then receives the URI of the resource and its content-format.
@@ -225,9 +225,9 @@ application/link-format payload containing one or more matching entries for the 
 Client                                          Broker
   |                                               |
   | ------ GET /.well-known/core?rt=core.ps ----->|
-  | ---Content-Format: application/link-format----|
+  | -- Content-Format: application/link-format ---|
   |                                               |
-  | <--2.05 Content “</ps/>;rt="core.ps";ct=40----|
+  | <- 2.05 Content “</ps/>;rt="core.ps";ct=40 ---|
   |                                               |
 ]]>
 </artwork>
@@ -243,7 +243,7 @@ Client                                          Broker
   | ---------- GET /ps/?rt="temperature" -------->|
   |    Content-Format: application/link-format    |
   |                                               |
-  | <---2.05 Content                              |
+  | <-- 2.05 Content                              |
   |   </ps/currentTemp>;rt="temperature";ct=50 ---|
   |                                               |
 ]]>
@@ -260,7 +260,7 @@ Client                                          Broker
   | -------- GET /.well-known/core?ct=50 -------->|
   |    Content-Format: application/link-format    |
   |                                               |
-  | <---2.05 Content                              |
+  | <-- 2.05 Content                              |
   |   </ps/currentTemp>;rt="temperature";ct=50 ---|
   |                                               |
 ]]>
@@ -446,7 +446,7 @@ Client1   Client2                                          Broker
   |          |                    Publish                    |
   | ---------|----------- PUT /ps/topic1 "1033.3"  --------> |
   |          |                    Notify                     |
-  |          | <---------- 2.05 Content Observe:11---------- |
+  |          | <---------- 2.05 Content Observe:11 --------- |
   |          |                                               |
 ]]>
 </artwork>
@@ -554,7 +554,7 @@ Client1   Client2                                          Broker
   |          |                     Read                      |
   |          | --------------- GET /ps/topic1 -------------> | 
   |          |                                               |
-  |          | <----------- 2.05 Content "1033.3"----------- |
+  |          | <----------- 2.05 Content "1033.3" ---------- |
   |          |                                               |
 ]]>
 </artwork>
