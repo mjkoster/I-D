@@ -38,7 +38,7 @@
 
     <area>Internet</area>
     <workgroup>Thing-to-Thing Research Group</workgroup>
-    <keyword>T2TRG, Web of Things, Hypermedia, Semantic Interoperability</keyword>
+    <keyword>IoT, T2TRG, Web of Things, Hypermedia, Semantic Interoperability</keyword>
 
     <abstract>
 
@@ -57,7 +57,7 @@
 
 <section anchor="scope" title="Scope of this document">
 
-<t>This is a broadly scoped document which specifies representation formats, data models, interaction models, transfer mapping, URI processing, and some extensions including actions and bindings.</t>
+<t>This is a broadly scoped document which specifies representation formats, data models, interaction models, transfer mapping, URI processing, and design pattern extensions including actions and bindings.</t>
 
 <t>The features listed above and new features may be specified and extended as needed in other documents which refer to this document.</t>
 
@@ -66,9 +66,9 @@
 
 <t>Use case requirements include the following.</t>
 
-<t>A standardized way to expose self-describing resource representations using embedded links and link annotations.</t>
+<t>A standardized way to expose self-describing resource representations using embedded hyperlinks and link annotations.</t>
 
-<t>A standardized way of organizing and interacting with resource instances using hyperlinks.</t>
+<t>A standardized way of organizing and interacting with resource instances using hyperlmedia controls such as links and forms.</t>
 
 <t>A standardized encapsulation of resources for modeling things, capabilities, groups, indices, and other common structures.</t>
 
@@ -99,7 +99,7 @@
 </section>
 <section anchor="collections" title="Collections">
 
-<t>Collections contain one or more links and extended links, and may contain data items referred to by the links. A representation of a collection may contain both links and data items.</t>
+<t>Collections contain one or more links and extended links, and may contain data items referred to by the links. A representation of a collection may contain both links and data items, plus any extended links such as action forms.</t>
 
 </section>
 <section anchor="link-embedding" title="Link Embedding">
@@ -140,16 +140,18 @@
 </section>
 <section anchor="collection-description" title="Collections">
 
-<section anchor="base-element" title="Base element">
-<t>A base element describes the context under which to interpret values in items within the representation of a collection.</t>
+<section anchor="base-elements" title="Base elements">
+<t>Base elements describe the context under which to interpret values embedded in subsequent items within the representation of a collection.</t>
 
-<t>The base name value (bn) indicates the base URI or an absolute reference from which to base relative references found in the links. It functions as an embedded base URI reference as per <xref target="RFC3986"/> Section 5.1.1</t>
+<t>The base identifier element (bi) may contain an absolute URI or an absolute path reference from which to base relative references found in the links. It functions as a base URI embedded in content as per <xref target="RFC3986"/> Section 5.1.1</t>
 
-<t>The format of the base elements are specified in <xref target="I-D.ietf-core-senml"/>. <xref target="fig-example-base-element"/> is an example of a base  element.</t>
+<t>URI reference follows the definition in <xref target="RFC3986"/> Section 5.</t>
 
-<figure title="Example Base Element" align="left" anchor="fig-example-base-element"><artwork><![CDATA[
+<t>The format of base elements are specified in <xref target="I-D.ietf-core-senml"/>. <xref target="fig-example-base-identifier"/> is an example of a base  element.</t>
+
+<figure title="Example Base URI" align="left" anchor="fig-example-base-identifier"><artwork><![CDATA[
     {
-      "bn": "/dev/sen/"
+      "bi": "/dev/sen/"
     }
 ]]></artwork></figure>
 
@@ -162,7 +164,7 @@
 <figure title="Example Link Element" align="left" anchor="fig-link-element"><artwork><![CDATA[
     {
       "href": "temp",
-      "rt": "some.sensor"
+      "rt": "some.sensortype"
     }
 ]]></artwork></figure>
 
@@ -188,10 +190,14 @@
 <section anchor="example-formats" title="Example Serialization Formats">
 <t><xref target="fig-example-hsml"/> shows an example document in hsml+json format. This example contains a base element, a link element, and an item element.</t>
 
+<t>GET /dev/sen/ accept=application/hsml+json</t>
+
+<t>(response)</t>
+
 <figure title="application/hsml+json Example" align="left" anchor="fig-example-hsml"><artwork><![CDATA[
     [
       {
-        "bn": "/dev/sen/"
+        "bi": "/dev/sen/"
       },
       {
         "href": "temp",
@@ -204,6 +210,60 @@
     ]
 ]]></artwork></figure>
 
+<t>The HSML media type defines content formats and corresponding CoRE Interface Types that may select partial representations of the resource for interaction.</t>
+
+<section anchor="collection-formats" title="Collection Formats">
+
+<t>Collection formats as shown in <xref target="fig-example-hsml"/> expose all of the elements of a resource, including items, links, and link extensions.</t>
+
+</section>
+<section anchor="links-formats" title="Links Formats">
+
+<t>Links content formats, when used in an “accept” option or “content-type” option in a transfer header, will select the link elements in the collection for interaction as in <xref target="fig-example-hsml-links"/>.</t>
+
+<t>GET /dev/sen/ accept=application/hsml.links+json
+or
+GET /dev/sen/ accept=application/hsml+json?if=hsml.links</t>
+
+<t>(response)</t>
+
+<figure title="application/hsml.links+json Example" align="left" anchor="fig-example-hsml-links"><artwork><![CDATA[
+    [
+      {
+        "href": "temp",
+        "rt": "some.sensor"
+      }
+    ]
+]]></artwork></figure>
+
+<t>CoRE link-format content formats select RFC6690 compliant links, and do not return representations of extended links (rel=action, rel=monitor).</t>
+
+</section>
+<section anchor="items-formats" title="Items Formats">
+
+<t>Items content formats, when used in an “accept” option or “content-type” option in a transfer header, will select the item elements in the collection for interaction as in <xref target="fig-example-hsml-items"/>.</t>
+
+<t>GET /dev/sen/ accept=application/hsml.items+json
+or
+GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
+
+<t>(response)</t>
+
+<figure title="application/hsml.items+json Example" align="left" anchor="fig-example-hsml-items"><artwork><![CDATA[
+    [
+      {
+        "bi": "/dev/sen/"
+      },
+      {
+        "n": "temp",
+        "v": "77"
+      }
+    ]
+]]></artwork></figure>
+
+<t>SenML content formats select data records containing SenML compliant resource names. “bn” will be returned only when  compliant resource names “n” may be resolved through simple string concatenation as per <xref target="I-D.ietf-core-senml"/>.</t>
+
+</section>
 </section>
 </section>
 <section anchor="uri-and-parameter-processing" title="URI and Parameter Processing">
@@ -233,15 +293,23 @@
 
 <t>Resource selection is performed based on matching URI Parameters with Link Parameters of all links in the collection which are exposed by the indicated media type and interface type. URI Parameters listed in <xref target="uri-params"/> are excluded from the matching process.</t>
 
+<t>The target resource selection depends on the content-format specified in the request or the interface type specified in the URI parameters.</t>
+
+<t>The collection content-formats or interface types select all links and items in the collection, including link extensions.</t>
+
+<t>The links content formats or interface types select all links in the collection.</t>
+
+<t>The items content formats or interface types select all items in the collection.</t>
+
 </section>
 </section>
 </section>
 <section anchor="transfer-model-mapping" title="Transfer Model Mapping">
 
-<section anchor="collection" title="Collection">
+<section anchor="target-resource-is-collection" title="Target Resource is Collection">
 
 <section anchor="retrieve" title="RETRIEVE">
-<t>List Collection Elements</t>
+<t>List Selected Elements</t>
 
 </section>
 <section anchor="create" title="CREATE">
@@ -249,34 +317,34 @@
 
 </section>
 <section anchor="update" title="UPDATE">
-<t>Replace Entire Collection</t>
+<t>UPDATE Selected Elements</t>
 
 </section>
 <section anchor="delete" title="DELETE">
-<t>Remove Entire Collection</t>
+<t>Remove Selected Elements</t>
 
 </section>
 </section>
-<section anchor="links-1" title="Links">
+<section anchor="target-resource-is-links" title="Target Resource is Links">
 
 <section anchor="retrieve-1" title="RETRIEVE">
-<t>List Links</t>
+<t>List Selected Links</t>
 
 </section>
 <section anchor="create-1" title="CREATE">
-<t>Add Links only</t>
+<t>Add Links to the collection</t>
 
 </section>
 <section anchor="update-including-partial-update" title="UPDATE (including partial update)">
-<t>Modify Links</t>
+<t>Modify Selected Links</t>
 
 </section>
 <section anchor="delete-1" title="DELETE">
-<t>Remove Links</t>
+<t>Remove Selected Links</t>
 
 </section>
 </section>
-<section anchor="items" title="Items">
+<section anchor="target-resource-is-items" title="Target Resource is Items">
 
 <section anchor="link-embedding-items" title="Link Embedding Items">
 
@@ -284,19 +352,19 @@
 
 </section>
 <section anchor="retrieve-2" title="RETRIEVE">
-<t>Retrieve Items</t>
+<t>Retrieve Selected Items</t>
 
 </section>
 <section anchor="update-1" title="UPDATE">
-<t>Modify Items</t>
+<t>Modify Selected Items</t>
 
 </section>
 <section anchor="delete-2" title="DELETE">
-<t>Remove Items</t>
+<t>Remove Selected Items and corresponding links</t>
 
 </section>
 <section anchor="create-2" title="CREATE">
-<t>Create Items with default links</t>
+<t>Create Items and add them to the collection with default links</t>
 
 </section>
 </section>
@@ -410,7 +478,7 @@
   <t hangText='“item”'><vspace blankLines='0'/>
   the link points to an item in the collection</t>
   <t hangText='“grp”'><vspace blankLines='0'/>
-  the item the link points to is available for collective interaction through the collection URI according to group semantics described in {}</t>
+  the item the link points to is available for collective interaction through the collection URI according to group semantics described in <xref target="groups"/>.</t>
 </list></t>
 
 </section>
@@ -436,22 +504,20 @@
 <t>The following keywords are reserved for use in a HSML serialization to indicate elements within the serialization. These are defined in <xref target="I-D.ietf-core-senml"/>.</t>
 
 <t><list style="hanging">
-  <t hangText='“bn”'><vspace blankLines='0'/>
-  the base name or base URI of the collection, relative to the service location e.g. “/sensors/temp/”</t>
+  <t hangText='“bi”'><vspace blankLines='0'/>
+  the base URI of the collection, relative to the service location e.g. “/sensors/temp/”</t>
   <t hangText='“bt”'><vspace blankLines='0'/>
   the base time that corresponds to the encapsulated state of the collection</t>
   <t hangText='“t”'><vspace blankLines='0'/>
   the time stamp that corresponds to the encapsulated state of the item in the collection, relative to the base time “bt”</t>
   <t hangText='“n”'><vspace blankLines='0'/>
-  the name or URI of the resource, relative to the base name of the collection e.g. “currentValue”.</t>
+  the name or URI of the resource, relative to the base URI of the collection e.g. “currentValue”.</t>
   <t hangText='“u”'><vspace blankLines='0'/>
   units of measure</t>
   <t hangText='“v”'><vspace blankLines='0'/>
   number value</t>
   <t hangText='“vb”'><vspace blankLines='0'/>
   boolean value</t>
-  <t hangText='“vo”'><vspace blankLines='0'/>
-  object value, an extension to the senml value types to enable embedded data objects</t>
   <t hangText='“vs”'><vspace blankLines='0'/>
   string value</t>
 </list></t>
@@ -507,7 +573,7 @@
 </list></t>
 
 </section>
-<section anchor="conditional-observe-parameters-used-in-monitor-links" title="Conditional Observe Parameters used in Monitor links">
+<section anchor="conditional-observe-parameters-used-in-monitors" title="Conditional Observe Parameters used in Monitors">
 
 <t><list style="hanging">
   <t hangText='“pmin”'><vspace blankLines='0'/>
@@ -636,7 +702,7 @@
 
 </section>
 <section anchor="object-signing-and-encryption" title="Object Signing and Encryption">
-<t>Object signing and encryption SHOULD use the mechanisms specified in IETF documents for secure JSON Objects <xref target="RFC7516"/> and CBOR Objects <xref target="I-D.ietf-cose-msg"/>.</t>
+<t>Object signing and encryption SHOULD use the mechanisms specified in IETF documents for secure JSON Objects <xref target="RFC7516"/> and CBOR Objects <xref target="I-D.ietf-cose-msg"/> <xref target="I-D.selander-ace-object-security"/>.</t>
 
 </section>
 </section>
@@ -900,15 +966,15 @@
     <organization />
 </author>
 
-<date month='June' day='23' year='2016' />
+<date month='July' day='25' year='2016' />
 
-<abstract><t>Concise Binary Object Representation (CBOR) is data format designed for small code size and small message size.  There is a need for the ability to have the basic security services defined for this data format.  This document defines the CBOR Object Signing and Encyption (COSE) specification.  This specification describes how to create and process signature, message authentication codes and encryption using CBOR for serialization.  This specifiction additionally specifies how to representat cryptographic keys using CBOR.</t></abstract>
+<abstract><t>Concise Binary Object Representation (CBOR) is data format designed for small code size and small message size.  There is a need for the ability to have the basic security services defined for this data format.  This document defines the CBOR Object Signing and Encryption (COSE) specification.  This specification describes how to create and process signature, message authentication codes and encryption using CBOR for serialization.  This specification additionally specifies how to represent cryptographic keys using CBOR.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-cose-msg-14' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-cose-msg-15' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-cose-msg-14.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-cose-msg-15.txt' />
 </reference>
 
 
@@ -942,6 +1008,39 @@
 <seriesInfo name='Internet-Draft' value='draft-groves-core-dynlink-00' />
 <format type='TXT'
         target='http://www.ietf.org/internet-drafts/draft-groves-core-dynlink-00.txt' />
+</reference>
+
+
+
+<reference anchor='I-D.selander-ace-object-security'>
+<front>
+<title>Object Security of CoAP (OSCOAP)</title>
+
+<author initials='G' surname='Selander' fullname='Goeran Selander'>
+    <organization />
+</author>
+
+<author initials='J' surname='Mattsson' fullname='John Mattsson'>
+    <organization />
+</author>
+
+<author initials='F' surname='Palombini' fullname='Francesca Palombini'>
+    <organization />
+</author>
+
+<author initials='L' surname='Seitz' fullname='Ludwig Seitz'>
+    <organization />
+</author>
+
+<date month='July' day='7' year='2016' />
+
+<abstract><t>This memo defines Object Security of CoAP (OSCOAP), a method for application layer protection of message exchanges with the Constrained Application Protocol (CoAP), using the CBOR Object Signing and Encryption (COSE) format.  OSCOAP provides end-to-end encryption, integrity and replay protection to CoAP payload, options, and header fields, as well as a secure binding between CoAP request and response messages.  The use of OSCOAP is signaled with the CoAP option Object-Security, also defined in this memo.</t></abstract>
+
+</front>
+
+<seriesInfo name='Internet-Draft' value='draft-selander-ace-object-security-05' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-selander-ace-object-security-05.txt' />
 </reference>
 
 
