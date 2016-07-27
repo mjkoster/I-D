@@ -76,7 +76,9 @@ informative:
 
     
 --- abstract
-The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. Machine optimized content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{I-D.ietf-core-senml}}. Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A common data model is described with a representation format that uses a common set of reserved keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.
+The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group {{T2TRG}} has a charter to investigate the use of REST design style {{REST}}for machine interactions. The W3C Web of Things Interest Group {{W3C-WoT}} are investigating abstract hypermedia controls and interaction models for machines.
+
+Machine optimized content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{I-D.ietf-core-senml}}. Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A common data model is described with a representation format that uses a common set of reserved keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.
 
 --- middle
 
@@ -119,13 +121,15 @@ JSON formatted examples are used in this document to illustrate normative and in
 
 Links follow the specifications in {{RFC5988}} and {{RFC6690}} with extensions to implement actions and monitors as described in this document and any referencing extension documents.
 
+HSML Links may be stored in Resource Directories for discovery using CoRE Resource Directory {{I-D.ietf-core-resource-directory}}.
+
 ## Collections
 
 Collections contain one or more links and extended links, and may contain data items referred to by the links. A representation of a collection may contain both links and data items, plus any extended links such as action forms. 
 
 ## Link Embedding
 
-Link embedding emnables the transfer of more than one item in a collection using a single transfer operation. This document describes two types of link embedding for items in the collection. Batch link embedding allows multiple resource instances (items) to each contribute part of an aggregate (collection) representation. Group link embedding allows a particular operation to be repeated for each member (item) of a group (collection). 
+Link embedding enables the transfer of more than one item in a collection using a single transfer operation. This document describes two types of link embedding for items in the collection. Batch link embedding allows multiple resource instances (items) to each contribute part of an aggregate (collection) representation. Group link embedding allows a particular operation to be repeated for each member (item) of a group (collection). 
 
 ### Batch operations on multiple items in a collection
 
@@ -142,7 +146,7 @@ Resource links in the collection may specify group transfer semantics, where tra
 The HSML media type assumes a transfer model capable of interacting with representations using a simple CRUD model, allowing for basic life cycle operations on resources and collections.
 
 CREATE
-:    Create an instance of a resource as specified using the payload as a constructor. Optionally return a reference to the created resource. Typically uses POST in CoAP or HTTP, may use PUBLISH in pubsub protocols.
+:    Create an instance of a resource as specified using the payload as a constructor. Optionally return a reference to the created resource. Typically uses POST in CoAP {{RFC7252}} or HTTP, may use PUBLISH in pubsub protocols.
 
 RETRIEVE
 :    Obtain a representation of the selected resource. Typically uses GET in CoAP or HTTP, could use SUBSCRIBE with message retention in pubsub.
@@ -172,7 +176,7 @@ The format of base elements are specified in {{I-D.ietf-core-senml}}. {{fig-exam
 
 ~~~
     {
-      "bi": "/dev/sen/"
+      "bi": "/sensors/"
     }
 ~~~    
 {: #fig-example-base-identifier title='Example Base URI' align="left"}
@@ -185,7 +189,7 @@ A link element is a hyperlink based on the structure and syntax of {{RFC6690}} a
 ~~~~
     {
       "href": "temp",
-      "rt": "some.sensortype"
+      "rt": "some.sensor.temp"
     }
 ~~~~
 {: #fig-link-element title='Example Link Element' align="left"}
@@ -200,7 +204,7 @@ Items may be embedded in the collection, they may be subresources of the collect
 ~~~~
     {
       "n": "temp",
-      "v": "77"
+      "v": "27"
     }
 ~~~~
 {: #fig-item-element title='Example Item Element' align="left"}
@@ -253,29 +257,47 @@ Alternatively, items themselves may be stored as collections, pointed to by link
 
 # Representation Formats {#representation-formats}
 
+The HSML media type includes multiple content types and interface types {{I-D.ietf-core-interfaces}} to enable the client to select representations that optimize communication for the workflow. Representation formats include links and items together (collection formats), links alone (link formats), or items alone (item formats). 
+
+Link formats are useful for discovery workflow, item formats are useful for interaction with resource state machines, and link+item formats are useful for constructing and modifying resource instances.
+
+In addition to HSML native formats, standard CoRE Link-Format {{RFC6690}} and SenML formats {{I-D.ietf-core-senml}} may be exposed.
+
 ## Example Serialization Formats {#example-formats}
 {{fig-example-hsml}} shows an example document in hsml+json format. This example contains a base element, a link element, and an item element.
 
 ~~~~
-    RETRIEVE /dev/sen/ accept=application/hsml.collection+json
+    RETRIEVE /sensors/ accept=application/hsml.collection+json
     or
-    RETRIEVE /dev/sen/ accept=application/(hsml+)json
+    RETRIEVE /sensors/ accept=application/hsml+json
     or
-    RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.collection
+    RETRIEVE /sensors/ accept=application/hsml+json?if=hsml.collection
 
     Response Payload:
     
     [
       {
-        "bi": "/dev/sen/"
+        "bi": "/sensors/"
+      },
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
       },
       {
         "href": "temp",
-        "rt": "some.sensor"
+        "rt": "some.sensor.temp"
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
       },
       {
         "n": "temp",
-        "v": "77"
+        "v": "27"
+      },
+      {
+        "n": "humid",
+        "v":"50"
       }
     ]
 ~~~~
@@ -289,19 +311,27 @@ Collection formats as shown in {{fig-example-hsml}} expose all of the elements o
 
 ### Link Formats
 
-Link content formats, when used in an "accept" option or "content-type" option in a transfer header, or when selected by the "if=hsml.link" URI paramater, will select the link elements in the collection for interaction as in {{fig-example-hsml-link}}.
+Link content formats, when used in an "accept" option or "content-type" option in a transfer header, or when selected by the "if=hsml.link" URI parameter, will select the link elements in the collection for interaction as in {{fig-example-hsml-link}}.
 
 ~~~~
-    RETRIEVE /dev/sen/ accept=application/hsml.link+json
+    RETRIEVE /sensors/ accept=application/hsml.link+json
     or
-    RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.link
+    RETRIEVE /sensors/ accept=application/hsml+json?if=hsml.link
 
     Response Payload:
     
     [
       {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
         "href": "temp",
-        "rt": "some.sensor"
+        "rt": "some.sensor.temp"
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
       }
     ]
 ~~~~
@@ -311,26 +341,49 @@ CoRE link-format content formats select RFC6690 compliant links, and may not ret
 
 ### Item Formats
 
-Item content formats, when used in an "accept" option or "content-type" option in a transfer header, or when selected by the "if=hsml.item" URI paramater, will select the item elements in the collection for interaction as in {{fig-example-hsml-item}}.
+Item content formats, when used in an "accept" option or "content-type" option in a transfer header, or when selected by the "if=hsml.item" URI parameter, will select the item elements in the collection for interaction as in {{fig-example-hsml-item}}.
 
 ~~~~
-    RETRIEVE /dev/sen/ accept=application/hsml.item+json
+    RETRIEVE /sensors/ accept=application/hsml.item+json
     or
-    RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item
+    RETRIEVE /sensors/ accept=application/hsml+json?if=hsml.item
 
     Response Payload:
     
     [
       {
-        "bi": "/dev/sen/"
+        "bi": "/sensors/"
       },
       {
         "n": "temp",
-        "v": "77"
+        "v": "27"
+      },
+      {
+        "n": "humid",
+        "v":"50"
       }
     ]
 ~~~~
 {: #fig-example-hsml-item title='application/hsml.item+json Example' align="left"}
+
+URI Parameters for matching link attributes and relations may be used to select items when item representations are being specified using either content-format (accept) or interface parameters (if=). For example:
+
+~~~~
+    RETRIEVE /sensors/?if=hsml.item&rt=some.sensor.temp
+    
+    Response Payload:
+    
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "n": "temp",
+        "v": "27"
+      }    
+    ]
+~~~~
+{: #fig-example-hsml-item-rt title='Example link parameter selecting item' align="left"}
 
 SenML content formats select data records and return SenML compliant resource names. "bn" may optionally be returned when  compliant resource names "n" may be resolved through simple string concatenation as per {{I-D.ietf-core-senml}}.
 
@@ -376,13 +429,13 @@ The item content formats or interface types select all items in the collection.
 List Selected Elements. Return a list of elements in the collection, including links and optionally representations of items, for example {{fig-example-hsml}}. Elements may include link extenstions, for example action links and monitor links.
 
 ### CREATE 
-Add Elements to Collection, where the elements are specified by representations included in the payload. Hints and directives about the created resource may be included in the payload as link parameters, for example a value for href, specifying the location of the created resource. The server is expected to return the location of created resource instances to the client in a header or other response parameter.
+Add Elements to Collection, where the elements are specified by representations included in the payload. Hints and directives about the created resource may be included in the payload as link parameters, for example a value for href, specifying the location of the created resource. The server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the "Location" option in CoAP or "Location" header in HTTP should be used to identify the created resource. THe server response should indicate that a resource was Created.
 
 ### UPDATE 
-UPDATE Selected Elements, replacing all selected elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.
+UPDATE Selected Elements, replacing all selected elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
 
 ### DELETE 
-Remove Selected Elements from the collection. If no elements are selected, remove the collection.
+Remove Selected Elements from the collection. If no elements are selected, remove the collection. The server response should indicate that the resource was Deleted.
 
 ## Target URI is Collection, Target Resource is Link
 
@@ -390,13 +443,13 @@ Remove Selected Elements from the collection. If no elements are selected, remov
 List Selected Links, for example {{fig-example-hsml-link}}.
 
 ### CREATE 
-Add Links to the collection, where the links are included in the payload.
+Add Links to the collection, where the links are included in the payload. The server response should indicate that the resource was Changed.
 
 ### UPDATE
-Modify Selected Links, replacing link elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.
+Modify Selected Links, replacing link elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
 
 ### DELETE
-Remove Selected Links from the collection. If links point to items in the context of the collection, either remove the items as well as the links, or leave the collection as is and return a method error (e,g, HTTP 405 Method Not Allowed).
+Remove Selected Links from the collection. The server response should indicate that the resource was Changed. If links point to items in the context of the collection, either remove the items as well as the links, or leave the collection as is and return a method error (Method Not Allowed).
 
 ## Target URI is Collection, Target Resource is Item
 
@@ -410,13 +463,14 @@ Items which are compatible with the HSML item format may be returned with multip
 Retrieve Selected Items, and return a composite representation of all selected items, for example {{fig-example-hsml-item}}.
 
 ### UPDATE
-Modify Selected Items, replacing all selected items with items included in the payload which match by name "n" value. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.
+Modify Selected Items, replacing all selected items with items included in the payload which match by name "n" value. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
 
 ### DELETE
-Remove Selected Items and corresponding links from the collection. If no items are selected, return a method error (e,g, HTTP 405 Method Not Allowed).
+Remove Selected Items and corresponding links from the collection. The server response should indicate that the resource was Deleted. If no items are selected, return a method error (Method Not Allowed).
 
 ### CREATE
-Create Items and add them to the collection with system-constructed links. Link content is determined by the resource type or traits defined by application semantics. Server is expected to return the location of created resource instances to the client in a header or other response parameter.
+Create Items and add them to the collection with system-constructed links. Link content is determined by the resource type or traits defined by application semantics. Server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the "Location" option in CoAP or "Location" header in HTTP should be used to identify the created resource. THe server response should indicate that a resource was Created.
+
 
 ## Target URI is Item 
 
@@ -427,10 +481,10 @@ Return a representation of the Item in the content type according to the accept 
 Not Defined, application dependent.
 
 ### UPDATE 
-Replace the resource state with the state defined in the supplied representation according to the content-type or ct option. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.
+Replace the resource state with the state defined in the supplied representation according to the content-type or ct option. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
 
 ### DELETE 
-Remove the links to the item from the collection, and remove the item. If the item is stored as a collection, remove the collection.
+Remove the links to the item from the collection, and remove the item. If the item is stored as a collection, remove the collection. The server response should indicate that the resource was Deleted.
 
 ## Groups {#groups}
 
@@ -524,73 +578,73 @@ The following URI Parameters are used to filter representations according to spe
 The following keywords are reserved for use in an HSML serialization to indicate elements of a web link
 
 "anchor"
-:    overrides the default resource context of the link
+:    Overrides the default resource context of the link
 
 "rel"
-:    link relation type as defined in {{RFC5988}} and {{RFC6690}}
+:    Link relation type as defined in {{RFC5988}} and {{RFC6690}}
 
 "href"
-:    target of a link reference. This may be a relative reference in the collection e.g. "currentValue" or a local absolute reference "/sensors/temp/currentValue" or a full reference "https://example.com/sensors/temp/currentValue"
+:    Target of a link reference. This may be a relative reference in the collection e.g. "currentValue" or a local absolute reference "/sensors/temp/currentValue" or a full reference "https://example.com/sensors/temp/currentValue"
 {: vspace='0'}
 
 ### Link Relation Types
 The following keywords are reserved for use in a HSML serialization to indicate types of link relations, and are used for values of "rel". 
 
 "self"
-:    refers to the collection that contains the link
+:    Refers to the collection that contains the link
 
 "item"
-:    the link points to an item in the collection
+:    The link points to an item in the collection
 
 "grp"
-:    the item the link points to is available for collective interaction through the collection URI according to group semantics described in {{groups}}.
+:    The item the link points to is available for collective interaction through the collection URI according to group semantics described in {{groups}}.
 {: vspace='0'}
 
 ### Link Attribute Types 
 The following keywords are reserved for use in a HSML serialization to indicate types of link attributes
 
 "rt"
-:    the resource type(s) of the item
+:    The resource type(s) of the item
 
 "u"
-:    units of measure
+:    Units of measure
 
 "ct"
-:    the CoAP content-format number(s) associated with the item
+:    The CoAP content-format number(s) associated with the item
 
 "content-type"
-:    the media type string(s) associated with the item
+:    The media type string(s) associated with the item
 
 "obs"
-:    presence of this attribute indicates that the associated resource is observable
+:    Presence of this attribute indicates that the associated resource is observable
 {: vspace='0'}
 
 ## Item Keywords {#item-keywords}
 The following keywords are reserved for use in a HSML serialization to indicate elements within the serialization. Some of these are defined in {{I-D.ietf-core-senml}}.
 
 "bi"
-:    the base URI of the collection, relative to the service location e.g. "/sensors/temp/" Thi sis a new definition for HSML
+:    The base URI of the collection, relative to the service location e.g. "/sensors/temp/" Thi sis a new definition for HSML
 
 "bt"
-:    the base time that corresponds to the encapsulated state of the collection
+:    The base time that corresponds to the encapsulated state of the collection
 
 "t"
-:    the time stamp that corresponds to the encapsulated state of the item in the collection, relative to the base time "bt"
+:    The time stamp that corresponds to the encapsulated state of the item in the collection, relative to the base time "bt"
 
 "n"
-:    the name or URI of the resource, relative to the base URI of the collection e.g. "currentValue". 
+:    The name or URI of the resource, relative to the base name or base URI 
 
 "u"
-:    units of measure
+:    Units of measure
 
 "v"
-:    number value
+:    Number value
 
 "vb"
-:    boolean value
+:    Boolean value
 
 "vs"
-:    string value
+:    String value
 {: vspace='0'}
 
 ## Link Parameters used in Actions
@@ -599,10 +653,10 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 :    May override the default context of an action and store it in a different location from the subject resource
 
 "rel"
-:    Indicates that this control is an action; MUST contain the value "action"
+:    Indicates that this control is an action when rel contains the value "action"
 
 "href"
-:    URI for mapping the action specified in the action
+:    URI for mapping or invoking the action specified in the action control.
 
 "type"
 :    Additional indicator of the action being exposed, can be used with "rel"
@@ -614,10 +668,10 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 :    The Content-Types or CoAP content-formats that are accepted on create and update methods
 
 "content-type"
-:    The Content-Types that are exposed by retrieve and observe methods
+:    The media type string(s) that are exposed by retrieve and observe methods
 
 "ct"
-:    the CoAP content-format number(s) exposed 
+:    The CoAP content-format number(s) exposed 
 
 "schema"
 :    Indicates the schema to use for constructing or interpreting transfer payloads, may be a literal value or a URI pointing to an instance of a schema
@@ -626,10 +680,10 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 ## Link Parameters used in Monitors
 
 "anchor"
-:    May override the context URI of a binding with any observable resource
+:    May override the context URI of a monitor with any observable resource
 
 "rel"
-:    Indicates that this control is a monitor; MUST contain the value "monitor"
+:    Indicates that this control is a monitor when rel contains the value "monitor"
 
 "href"
 :    The URI of the resource used to monitor context URI, where transfer operations will be sent.
@@ -659,22 +713,22 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 ## Conditional Observe Parameters used in Monitors
 
 "pmin"
-:    Minimum time between notification from a binding
+:    Minimum time between notifications from a monitor
 
 "pmax"
-:    Maximum time between notifications from a binding
+:    Maximum time between notifications from a monitor
 
 "gt"
-:    value to match or exceed to determine notification condition
+:    Value to match or exceed to determine notification condition
 
 "lt"
-:    value to match or be less than to determine notification condition
+:    Value to match or be less than to determine notification condition
 
 "st"
-:    value change +/- from last report to determine notification condition
+:    Value change +/- from last report to determine notification condition
 
 "eq"
-:    value to match, or change from, to determine notification condition
+:    Value to match, or change from, to determine notification condition
 
 "nbll"
 :    Defines a lower limit, at or above which notification is enabled
@@ -690,19 +744,19 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 The following keywords are reserved for use in a HSML serialization to indicate values of link attributes
 
 "create"
-:    transfer layer CREATE operation, value of "method", "accept-method", or "target-method"
+:    Transfer layer CREATE operation, value of "method" or "target-method"
 
 "retrieve"
-:    transfer layer RETRIEVE operation, value of "method", "accept-method", or "target-method"
+:    Transfer layer RETRIEVE operation, value of "method" or "accept-method"
 
 "update"
-:    transfer layer UPDATE operation, value of "method", "accept-method", or "target-method"
+:    Transfer layer UPDATE operation, value of "method" or "target-method"
 
 "delete"
-:    transfer layer DELETE operation, value of "method", "accept-method", or "target-method"
+:    Transfer layer DELETE operation, value of "method" or "target-method"
 
 "observe"
-:    transfer layer OBSERVE operation, value of "method", "accept-method", or "target-method"
+:    Transfer layer OBSERVE operation, value of "method" or "accept-method"
 {: vspace='0'}
 
 

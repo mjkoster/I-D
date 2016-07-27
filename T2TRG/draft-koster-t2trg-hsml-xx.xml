@@ -43,7 +43,9 @@
     <abstract>
 
 
-<t>The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. Machine optimized content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.ietf-core-senml"/>. Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A common data model is described with a representation format that uses a common set of reserved keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.</t>
+<t>The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group <xref target="T2TRG"/> has a charter to investigate the use of REST design style <xref target="REST"/>for machine interactions. The W3C Web of Things Interest Group <xref target="W3C-WoT"/> are investigating abstract hypermedia controls and interaction models for machines.</t>
+
+<t>Machine optimized content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.ietf-core-senml"/>. Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A common data model is described with a representation format that uses a common set of reserved keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.</t>
 
 
 
@@ -96,6 +98,8 @@
 
 <t>Links follow the specifications in <xref target="RFC5988"/> and <xref target="RFC6690"/> with extensions to implement actions and monitors as described in this document and any referencing extension documents.</t>
 
+<t>HSML Links may be stored in Resource Directories for discovery using CoRE Resource Directory <xref target="I-D.ietf-core-resource-directory"/>.</t>
+
 </section>
 <section anchor="collections" title="Collections">
 
@@ -104,7 +108,7 @@
 </section>
 <section anchor="link-embedding" title="Link Embedding">
 
-<t>Link embedding emnables the transfer of more than one item in a collection using a single transfer operation. This document describes two types of link embedding for items in the collection. Batch link embedding allows multiple resource instances (items) to each contribute part of an aggregate (collection) representation. Group link embedding allows a particular operation to be repeated for each member (item) of a group (collection).</t>
+<t>Link embedding enables the transfer of more than one item in a collection using a single transfer operation. This document describes two types of link embedding for items in the collection. Batch link embedding allows multiple resource instances (items) to each contribute part of an aggregate (collection) representation. Group link embedding allows a particular operation to be repeated for each member (item) of a group (collection).</t>
 
 <section anchor="batch-operations-on-multiple-items-in-a-collection" title="Batch operations on multiple items in a collection">
 
@@ -126,7 +130,7 @@
 
 <t><list style="hanging">
   <t hangText='CREATE'><vspace blankLines='0'/>
-  Create an instance of a resource as specified using the payload as a constructor. Optionally return a reference to the created resource. Typically uses POST in CoAP or HTTP, may use PUBLISH in pubsub protocols.</t>
+  Create an instance of a resource as specified using the payload as a constructor. Optionally return a reference to the created resource. Typically uses POST in CoAP <xref target="RFC7252"/> or HTTP, may use PUBLISH in pubsub protocols.</t>
   <t hangText='RETRIEVE'><vspace blankLines='0'/>
   Obtain a representation of the selected resource. Typically uses GET in CoAP or HTTP, could use SUBSCRIBE with message retention in pubsub.</t>
   <t hangText='UPDATE'><vspace blankLines='0'/>
@@ -152,7 +156,7 @@
 
 <figure title="Example Base URI" align="left" anchor="fig-example-base-identifier"><artwork><![CDATA[
     {
-      "bi": "/dev/sen/"
+      "bi": "/sensors/"
     }
 ]]></artwork></figure>
 
@@ -165,7 +169,7 @@
 <figure title="Example Link Element" align="left" anchor="fig-link-element"><artwork><![CDATA[
     {
       "href": "temp",
-      "rt": "some.sensortype"
+      "rt": "some.sensor.temp"
     }
 ]]></artwork></figure>
 
@@ -180,7 +184,7 @@
 <figure title="Example Item Element" align="left" anchor="fig-item-element"><artwork><![CDATA[
     {
       "n": "temp",
-      "v": "77"
+      "v": "27"
     }
 ]]></artwork></figure>
 
@@ -234,29 +238,47 @@
 </section>
 <section anchor="representation-formats" title="Representation Formats">
 
+<t>The HSML media type includes multiple content types and interface types <xref target="I-D.ietf-core-interfaces"/> to enable the client to select representations that optimize communication for the workflow. Representation formats include links and items together (collection formats), links alone (link formats), or items alone (item formats).</t>
+
+<t>Link formats are useful for discovery workflow, item formats are useful for interaction with resource state machines, and link+item formats are useful for constructing and modifying resource instances.</t>
+
+<t>In addition to HSML native formats, standard CoRE Link-Format <xref target="RFC6690"/> and SenML formats <xref target="I-D.ietf-core-senml"/> may be exposed.</t>
+
 <section anchor="example-formats" title="Example Serialization Formats">
 <t><xref target="fig-example-hsml"/> shows an example document in hsml+json format. This example contains a base element, a link element, and an item element.</t>
 
 <figure title="application/hsml+json Example" align="left" anchor="fig-example-hsml"><artwork><![CDATA[
-    RETRIEVE /dev/sen/ accept=application/hsml.collection+json
+    RETRIEVE /sensors/ accept=application/hsml.collection+json
     or
-    RETRIEVE /dev/sen/ accept=application/(hsml+)json
+    RETRIEVE /sensors/ accept=application/hsml+json
     or
-    RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.collection
+    RETRIEVE /sensors/ accept=application/hsml+json?if=hsml.collection
 
     Response Payload:
     
     [
       {
-        "bi": "/dev/sen/"
+        "bi": "/sensors/"
+      },
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
       },
       {
         "href": "temp",
-        "rt": "some.sensor"
+        "rt": "some.sensor.temp"
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
       },
       {
         "n": "temp",
-        "v": "77"
+        "v": "27"
+      },
+      {
+        "n": "humid",
+        "v":"50"
       }
     ]
 ]]></artwork></figure>
@@ -270,19 +292,27 @@
 </section>
 <section anchor="link-formats" title="Link Formats">
 
-<t>Link content formats, when used in an “accept” option or “content-type” option in a transfer header, or when selected by the “if=hsml.link” URI paramater, will select the link elements in the collection for interaction as in <xref target="fig-example-hsml-link"/>.</t>
+<t>Link content formats, when used in an “accept” option or “content-type” option in a transfer header, or when selected by the “if=hsml.link” URI parameter, will select the link elements in the collection for interaction as in <xref target="fig-example-hsml-link"/>.</t>
 
 <figure title="application/hsml.link+json Example" align="left" anchor="fig-example-hsml-link"><artwork><![CDATA[
-    RETRIEVE /dev/sen/ accept=application/hsml.link+json
+    RETRIEVE /sensors/ accept=application/hsml.link+json
     or
-    RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.link
+    RETRIEVE /sensors/ accept=application/hsml+json?if=hsml.link
 
     Response Payload:
     
     [
       {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
         "href": "temp",
-        "rt": "some.sensor"
+        "rt": "some.sensor.temp"
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
       }
     ]
 ]]></artwork></figure>
@@ -292,23 +322,45 @@
 </section>
 <section anchor="item-formats" title="Item Formats">
 
-<t>Item content formats, when used in an “accept” option or “content-type” option in a transfer header, or when selected by the “if=hsml.item” URI paramater, will select the item elements in the collection for interaction as in <xref target="fig-example-hsml-item"/>.</t>
+<t>Item content formats, when used in an “accept” option or “content-type” option in a transfer header, or when selected by the “if=hsml.item” URI parameter, will select the item elements in the collection for interaction as in <xref target="fig-example-hsml-item"/>.</t>
 
 <figure title="application/hsml.item+json Example" align="left" anchor="fig-example-hsml-item"><artwork><![CDATA[
-    RETRIEVE /dev/sen/ accept=application/hsml.item+json
+    RETRIEVE /sensors/ accept=application/hsml.item+json
     or
-    RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item
+    RETRIEVE /sensors/ accept=application/hsml+json?if=hsml.item
 
     Response Payload:
     
     [
       {
-        "bi": "/dev/sen/"
+        "bi": "/sensors/"
       },
       {
         "n": "temp",
-        "v": "77"
+        "v": "27"
+      },
+      {
+        "n": "humid",
+        "v":"50"
       }
+    ]
+]]></artwork></figure>
+
+<t>URI Parameters for matching link attributes and relations may be used to select items when item representations are being specified using either content-format (accept) or interface parameters (if=). For example:</t>
+
+<figure title="Example link parameter selecting item" align="left" anchor="fig-example-hsml-item-rt"><artwork><![CDATA[
+    RETRIEVE /sensors/?if=hsml.item&rt=some.sensor.temp
+    
+    Response Payload:
+    
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "n": "temp",
+        "v": "27"
+      }    
     ]
 ]]></artwork></figure>
 
@@ -364,15 +416,15 @@
 
 </section>
 <section anchor="create" title="CREATE">
-<t>Add Elements to Collection, where the elements are specified by representations included in the payload. Hints and directives about the created resource may be included in the payload as link parameters, for example a value for href, specifying the location of the created resource. The server is expected to return the location of created resource instances to the client in a header or other response parameter.</t>
+<t>Add Elements to Collection, where the elements are specified by representations included in the payload. Hints and directives about the created resource may be included in the payload as link parameters, for example a value for href, specifying the location of the created resource. The server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the “Location” option in CoAP or “Location” header in HTTP should be used to identify the created resource. THe server response should indicate that a resource was Created.</t>
 
 </section>
 <section anchor="update" title="UPDATE">
-<t>UPDATE Selected Elements, replacing all selected elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.</t>
+<t>UPDATE Selected Elements, replacing all selected elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.</t>
 
 </section>
 <section anchor="delete" title="DELETE">
-<t>Remove Selected Elements from the collection. If no elements are selected, remove the collection.</t>
+<t>Remove Selected Elements from the collection. If no elements are selected, remove the collection. The server response should indicate that the resource was Deleted.</t>
 
 </section>
 </section>
@@ -383,15 +435,15 @@
 
 </section>
 <section anchor="create-1" title="CREATE">
-<t>Add Links to the collection, where the links are included in the payload.</t>
+<t>Add Links to the collection, where the links are included in the payload. The server response should indicate that the resource was Changed.</t>
 
 </section>
 <section anchor="update-1" title="UPDATE">
-<t>Modify Selected Links, replacing link elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.</t>
+<t>Modify Selected Links, replacing link elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.</t>
 
 </section>
 <section anchor="delete-1" title="DELETE">
-<t>Remove Selected Links from the collection. If links point to items in the context of the collection, either remove the items as well as the links, or leave the collection as is and return a method error (e,g, HTTP 405 Method Not Allowed).</t>
+<t>Remove Selected Links from the collection. The server response should indicate that the resource was Changed. If links point to items in the context of the collection, either remove the items as well as the links, or leave the collection as is and return a method error (Method Not Allowed).</t>
 
 </section>
 </section>
@@ -409,15 +461,15 @@
 
 </section>
 <section anchor="update-2" title="UPDATE">
-<t>Modify Selected Items, replacing all selected items with items included in the payload which match by name “n” value. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.</t>
+<t>Modify Selected Items, replacing all selected items with items included in the payload which match by name “n” value. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.</t>
 
 </section>
 <section anchor="delete-2" title="DELETE">
-<t>Remove Selected Items and corresponding links from the collection. If no items are selected, return a method error (e,g, HTTP 405 Method Not Allowed).</t>
+<t>Remove Selected Items and corresponding links from the collection. The server response should indicate that the resource was Deleted. If no items are selected, return a method error (Method Not Allowed).</t>
 
 </section>
 <section anchor="create-2" title="CREATE">
-<t>Create Items and add them to the collection with system-constructed links. Link content is determined by the resource type or traits defined by application semantics. Server is expected to return the location of created resource instances to the client in a header or other response parameter.</t>
+<t>Create Items and add them to the collection with system-constructed links. Link content is determined by the resource type or traits defined by application semantics. Server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the “Location” option in CoAP or “Location” header in HTTP should be used to identify the created resource. THe server response should indicate that a resource was Created.</t>
 
 </section>
 </section>
@@ -432,11 +484,11 @@
 
 </section>
 <section anchor="update-3" title="UPDATE">
-<t>Replace the resource state with the state defined in the supplied representation according to the content-type or ct option. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.</t>
+<t>Replace the resource state with the state defined in the supplied representation according to the content-type or ct option. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.</t>
 
 </section>
 <section anchor="delete-3" title="DELETE">
-<t>Remove the links to the item from the collection, and remove the item. If the item is stored as a collection, remove the collection.</t>
+<t>Remove the links to the item from the collection, and remove the item. If the item is stored as a collection, remove the collection. The server response should indicate that the resource was Deleted.</t>
 
 </section>
 </section>
@@ -537,11 +589,11 @@
 
 <t><list style="hanging">
   <t hangText='“anchor”'><vspace blankLines='0'/>
-  overrides the default resource context of the link</t>
+  Overrides the default resource context of the link</t>
   <t hangText='“rel”'><vspace blankLines='0'/>
-  link relation type as defined in <xref target="RFC5988"/> and <xref target="RFC6690"/></t>
+  Link relation type as defined in <xref target="RFC5988"/> and <xref target="RFC6690"/></t>
   <t hangText='“href”'><vspace blankLines='0'/>
-  target of a link reference. This may be a relative reference in the collection e.g. “currentValue” or a local absolute reference “/sensors/temp/currentValue” or a full reference “https://example.com/sensors/temp/currentValue”</t>
+  Target of a link reference. This may be a relative reference in the collection e.g. “currentValue” or a local absolute reference “/sensors/temp/currentValue” or a full reference “https://example.com/sensors/temp/currentValue”</t>
 </list></t>
 
 <section anchor="link-relation-types" title="Link Relation Types">
@@ -549,11 +601,11 @@
 
 <t><list style="hanging">
   <t hangText='“self”'><vspace blankLines='0'/>
-  refers to the collection that contains the link</t>
+  Refers to the collection that contains the link</t>
   <t hangText='“item”'><vspace blankLines='0'/>
-  the link points to an item in the collection</t>
+  The link points to an item in the collection</t>
   <t hangText='“grp”'><vspace blankLines='0'/>
-  the item the link points to is available for collective interaction through the collection URI according to group semantics described in <xref target="groups"/>.</t>
+  The item the link points to is available for collective interaction through the collection URI according to group semantics described in <xref target="groups"/>.</t>
 </list></t>
 
 </section>
@@ -562,15 +614,15 @@
 
 <t><list style="hanging">
   <t hangText='“rt”'><vspace blankLines='0'/>
-  the resource type(s) of the item</t>
+  The resource type(s) of the item</t>
   <t hangText='“u”'><vspace blankLines='0'/>
-  units of measure</t>
+  Units of measure</t>
   <t hangText='“ct”'><vspace blankLines='0'/>
-  the CoAP content-format number(s) associated with the item</t>
+  The CoAP content-format number(s) associated with the item</t>
   <t hangText='“content-type”'><vspace blankLines='0'/>
-  the media type string(s) associated with the item</t>
+  The media type string(s) associated with the item</t>
   <t hangText='“obs”'><vspace blankLines='0'/>
-  presence of this attribute indicates that the associated resource is observable</t>
+  Presence of this attribute indicates that the associated resource is observable</t>
 </list></t>
 
 </section>
@@ -580,21 +632,21 @@
 
 <t><list style="hanging">
   <t hangText='“bi”'><vspace blankLines='0'/>
-  the base URI of the collection, relative to the service location e.g. “/sensors/temp/” Thi sis a new definition for HSML</t>
+  The base URI of the collection, relative to the service location e.g. “/sensors/temp/” Thi sis a new definition for HSML</t>
   <t hangText='“bt”'><vspace blankLines='0'/>
-  the base time that corresponds to the encapsulated state of the collection</t>
+  The base time that corresponds to the encapsulated state of the collection</t>
   <t hangText='“t”'><vspace blankLines='0'/>
-  the time stamp that corresponds to the encapsulated state of the item in the collection, relative to the base time “bt”</t>
+  The time stamp that corresponds to the encapsulated state of the item in the collection, relative to the base time “bt”</t>
   <t hangText='“n”'><vspace blankLines='0'/>
-  the name or URI of the resource, relative to the base URI of the collection e.g. “currentValue”.</t>
+  The name or URI of the resource, relative to the base name or base URI</t>
   <t hangText='“u”'><vspace blankLines='0'/>
-  units of measure</t>
+  Units of measure</t>
   <t hangText='“v”'><vspace blankLines='0'/>
-  number value</t>
+  Number value</t>
   <t hangText='“vb”'><vspace blankLines='0'/>
-  boolean value</t>
+  Boolean value</t>
   <t hangText='“vs”'><vspace blankLines='0'/>
-  string value</t>
+  String value</t>
 </list></t>
 
 </section>
@@ -604,9 +656,9 @@
   <t hangText='“anchor”'><vspace blankLines='0'/>
   May override the default context of an action and store it in a different location from the subject resource</t>
   <t hangText='“rel”'><vspace blankLines='0'/>
-  Indicates that this control is an action; MUST contain the value “action”</t>
+  Indicates that this control is an action when rel contains the value “action”</t>
   <t hangText='“href”'><vspace blankLines='0'/>
-  URI for mapping the action specified in the action</t>
+  URI for mapping or invoking the action specified in the action control.</t>
   <t hangText='“type”'><vspace blankLines='0'/>
   Additional indicator of the action being exposed, can be used with “rel”</t>
   <t hangText='“method”'><vspace blankLines='0'/>
@@ -614,9 +666,9 @@
   <t hangText='“accept”'><vspace blankLines='0'/>
   The Content-Types or CoAP content-formats that are accepted on create and update methods</t>
   <t hangText='“content-type”'><vspace blankLines='0'/>
-  The Content-Types that are exposed by retrieve and observe methods</t>
+  The media type string(s) that are exposed by retrieve and observe methods</t>
   <t hangText='“ct”'><vspace blankLines='0'/>
-  the CoAP content-format number(s) exposed</t>
+  The CoAP content-format number(s) exposed</t>
   <t hangText='“schema”'><vspace blankLines='0'/>
   Indicates the schema to use for constructing or interpreting transfer payloads, may be a literal value or a URI pointing to an instance of a schema</t>
 </list></t>
@@ -626,9 +678,9 @@
 
 <t><list style="hanging">
   <t hangText='“anchor”'><vspace blankLines='0'/>
-  May override the context URI of a binding with any observable resource</t>
+  May override the context URI of a monitor with any observable resource</t>
   <t hangText='“rel”'><vspace blankLines='0'/>
-  Indicates that this control is a monitor; MUST contain the value “monitor”</t>
+  Indicates that this control is a monitor when rel contains the value “monitor”</t>
   <t hangText='“href”'><vspace blankLines='0'/>
   The URI of the resource used to monitor context URI, where transfer operations will be sent.</t>
   <t hangText='“accept”'><vspace blankLines='0'/>
@@ -652,17 +704,17 @@
 
 <t><list style="hanging">
   <t hangText='“pmin”'><vspace blankLines='0'/>
-  Minimum time between notification from a binding</t>
+  Minimum time between notifications from a monitor</t>
   <t hangText='“pmax”'><vspace blankLines='0'/>
-  Maximum time between notifications from a binding</t>
+  Maximum time between notifications from a monitor</t>
   <t hangText='“gt”'><vspace blankLines='0'/>
-  value to match or exceed to determine notification condition</t>
+  Value to match or exceed to determine notification condition</t>
   <t hangText='“lt”'><vspace blankLines='0'/>
-  value to match or be less than to determine notification condition</t>
+  Value to match or be less than to determine notification condition</t>
   <t hangText='“st”'><vspace blankLines='0'/>
-  value change +/- from last report to determine notification condition</t>
+  Value change +/- from last report to determine notification condition</t>
   <t hangText='“eq”'><vspace blankLines='0'/>
-  value to match, or change from, to determine notification condition</t>
+  Value to match, or change from, to determine notification condition</t>
   <t hangText='“nbll”'><vspace blankLines='0'/>
   Defines a lower limit, at or above which notification is enabled</t>
   <t hangText='“nbul”'><vspace blankLines='0'/>
@@ -677,15 +729,15 @@
 
 <t><list style="hanging">
   <t hangText='“create”'><vspace blankLines='0'/>
-  transfer layer CREATE operation, value of “method”, “accept-method”, or “target-method”</t>
+  Transfer layer CREATE operation, value of “method” or “target-method”</t>
   <t hangText='“retrieve”'><vspace blankLines='0'/>
-  transfer layer RETRIEVE operation, value of “method”, “accept-method”, or “target-method”</t>
+  Transfer layer RETRIEVE operation, value of “method” or “accept-method”</t>
   <t hangText='“update”'><vspace blankLines='0'/>
-  transfer layer UPDATE operation, value of “method”, “accept-method”, or “target-method”</t>
+  Transfer layer UPDATE operation, value of “method” or “target-method”</t>
   <t hangText='“delete”'><vspace blankLines='0'/>
-  transfer layer DELETE operation, value of “method”, “accept-method”, or “target-method”</t>
+  Transfer layer DELETE operation, value of “method” or “target-method”</t>
   <t hangText='“observe”'><vspace blankLines='0'/>
-  transfer layer OBSERVE operation, value of “method”, “accept-method”, or “target-method”</t>
+  Transfer layer OBSERVE operation, value of “method” or “accept-method”</t>
 </list></t>
 
 </section>
