@@ -34,11 +34,11 @@
       </address>
     </author>
 
-    <date year="2016" month="July" day="10"/>
+    <date year="2016" month="July" day="27"/>
 
     <area>Internet</area>
     <workgroup>Thing-to-Thing Research Group</workgroup>
-    <keyword>IoT, T2TRG, Web of Things, Hypermedia, Semantic Interoperability</keyword>
+    <keyword>IoT, T2TRG, Web of Things, Hypermedia, Semantic Interoperability, HATEOAS, Web Linking, CoRE, Constrained Resources, REST, Hyperlinks</keyword>
 
     <abstract>
 
@@ -57,7 +57,7 @@
 
 <section anchor="scope" title="Scope of this document">
 
-<t>This is a broadly scoped document which specifies representation formats, data models, interaction models, transfer mapping, URI processing, and design pattern extensions including actions and bindings.</t>
+<t>This is a broadly scoped document which specifies representation formats, data models, interaction models, transfer mapping, URI processing, and design pattern extensions including actions and monitors.</t>
 
 <t>The features listed above and new features may be specified and extended as needed in other documents which refer to this document.</t>
 
@@ -68,7 +68,7 @@
 
 <t>A standardized way to expose self-describing resource representations using embedded hyperlinks and link annotations.</t>
 
-<t>A standardized way of organizing and interacting with resource instances using hyperlmedia controls such as links and forms.</t>
+<t>A standardized way of organizing and interacting with resource instances using hypermedia controls such as links and forms.</t>
 
 <t>A standardized encapsulation of resources for modeling things, capabilities, groups, indices, and other common structures.</t>
 
@@ -85,9 +85,9 @@
 
 <t>Links in a collection may point to items within the context of the collection or they may point to items external to the collection, on the same server or on other servers.</t>
 
-<t>Items in the collection that use the SenML data model may be embedded in the collection and transferred either along with the links or separately from links.</t>
+<t>Items in the collection that use an HSML compatible data model, for example SenML, see <xref target="I-D.ietf-core-senml"/>, may be embedded in the collection and transferred either along with the links or separately from links.</t>
 
-<section anchor="normative-representation" title="Normative Representation">
+<section anchor="informative-representation-examples" title="Informative Representation Examples">
 
 <t>JSON formatted examples are used in this document to illustrate normative and informative concepts. Representations in other formats may be derived from the JSON representations.</t>
 
@@ -104,7 +104,7 @@
 </section>
 <section anchor="link-embedding" title="Link Embedding">
 
-<t>Link embedding emnables the transfer of more than one item in a collection using a single transfer operation.</t>
+<t>Link embedding emnables the transfer of more than one item in a collection using a single transfer operation. This document describes two types of link embedding for items in the collection. Batch link embedding allows multiple resource instances (items) to each contribute part of an aggregate (collection) representation. Group link embedding allows a particular operation to be repeated for each member (item) of a group (collection).</t>
 
 <section anchor="batch-operations-on-multiple-items-in-a-collection" title="Batch operations on multiple items in a collection">
 
@@ -115,7 +115,7 @@
 </section>
 <section anchor="collective-operation-on-groups-of-linked-resources" title="Collective operation on groups of linked resources">
 
-<t>Resource links in the collection may specify group transfer semantics, where transfer operations are replicated the resources indicated by the links optionally selected using URI parameters. Group responses are aggregated using the SenML multi-item format.</t>
+<t>Resource links in the collection may specify group transfer semantics, where transfer operations are replicated on the resources indicated by links in the collection, optionally selected using URI parameters. Group responses are aggregated using a multi-item format which identifies each item by URI.</t>
 
 </section>
 </section>
@@ -139,6 +139,7 @@
 
 </section>
 <section anchor="collection-description" title="Collections">
+<t>Collection representations in HSML include Base Elements, Link Elements, and Item Elements.</t>
 
 <section anchor="base-elements" title="Base elements">
 <t>Base elements describe the context under which to interpret values embedded in subsequent items within the representation of a collection.</t>
@@ -172,7 +173,7 @@
 <section anchor="item-element" title="Item element">
 <t>An item element in a collection is a data element that is referenced by a link in the collection.</t>
 
-<t>Items in the collection are indicated by a references (href) that serve as a selection variables for matching to URI parameters and resource names in multi-resource representataions. Reference resolution should use the rules defined in <xref target="RFC3986"/>.</t>
+<t>Items in the collection are indicated by references (“href”) that serve as selection variables for matching to URI parameters and resource names (“n”)in multi-resource representataions. Reference resolution should use the rules defined in <xref target="RFC3986"/>.</t>
 
 <t>Items may be embedded in the collection, they may be subresources of the collection, or they may be items in other collections referenced by links in the collection. An example item element is shown in <xref target="fig-item-element"/></t>
 
@@ -183,6 +184,52 @@
     }
 ]]></artwork></figure>
 
+<section anchor="items-embedded-in-the-collection" title="Items embedded in the collection">
+<t>Items may be stored as simple sets of key-value pairs in the context of the collection. Items stored in this way may only offer item representations. Links about these items may be obtained from the collection that contains them.</t>
+
+<figure title="Example Items in a Collection" align="left" anchor="fig-example-item"><artwork><![CDATA[
+   [ 
+     {
+       "bi": "/sensors/"
+     },
+     {
+       "href": "temp",
+       "rel": "item"
+     },
+     {
+       "href": "humid",
+       "rel": "item"
+     },
+     {
+       "n": "temp",
+       "v": "27"
+     },
+     {
+       "n": "humid",
+       "v":"50"
+     }
+   ]
+]]></artwork></figure>
+
+</section>
+<section anchor="items-stored-as-collections" title="Items stored as collections">
+<t>Alternatively, items themselves may be stored as collections, pointed to by links in other collections. Items stored as collections contain an item with a zero length name, and a self link for the item as shown in <xref target="fig-example-coll-item"/>. Items stored in this way may be augmented by adding additional resources and link content to the collection. Items stored as collections may offer link format and collection format representations.</t>
+
+<figure title="Example Collection as Item" align="left" anchor="fig-example-coll-item"><artwork><![CDATA[
+   [ 
+     {
+       "bi": "/sensors/temp/"
+     },
+     {
+       "rel": ["self","item"]
+     },
+     {
+       "v":"27"
+     }
+   ]
+]]></artwork></figure>
+
+</section>
 </section>
 </section>
 <section anchor="representation-formats" title="Representation Formats">
@@ -190,15 +237,15 @@
 <section anchor="example-formats" title="Example Serialization Formats">
 <t><xref target="fig-example-hsml"/> shows an example document in hsml+json format. This example contains a base element, a link element, and an item element.</t>
 
-<t>RETRIEVE /dev/sen/ accept=application/hsml.collection+json
-or
-RETRIEVE /dev/sen/ accept=application/(hsml+)json
-or
-RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.collection</t>
-
-<t>(response)</t>
-
 <figure title="application/hsml+json Example" align="left" anchor="fig-example-hsml"><artwork><![CDATA[
+    RETRIEVE /dev/sen/ accept=application/hsml.collection+json
+    or
+    RETRIEVE /dev/sen/ accept=application/(hsml+)json
+    or
+    RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.collection
+
+    Response Payload:
+    
     [
       {
         "bi": "/dev/sen/"
@@ -225,13 +272,13 @@ RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.collection</t>
 
 <t>Link content formats, when used in an “accept” option or “content-type” option in a transfer header, or when selected by the “if=hsml.link” URI paramater, will select the link elements in the collection for interaction as in <xref target="fig-example-hsml-link"/>.</t>
 
-<t>RETRIEVE /dev/sen/ accept=application/hsml.link+json
-or
-RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.link</t>
-
-<t>(response)</t>
-
 <figure title="application/hsml.link+json Example" align="left" anchor="fig-example-hsml-link"><artwork><![CDATA[
+    RETRIEVE /dev/sen/ accept=application/hsml.link+json
+    or
+    RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.link
+
+    Response Payload:
+    
     [
       {
         "href": "temp",
@@ -247,13 +294,13 @@ RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.link</t>
 
 <t>Item content formats, when used in an “accept” option or “content-type” option in a transfer header, or when selected by the “if=hsml.item” URI paramater, will select the item elements in the collection for interaction as in <xref target="fig-example-hsml-item"/>.</t>
 
-<t>RETRIEVE /dev/sen/ accept=application/hsml.item+json
-or
-RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item</t>
-
-<t>(response)</t>
-
 <figure title="application/hsml.item+json Example" align="left" anchor="fig-example-hsml-item"><artwork><![CDATA[
+    RETRIEVE /dev/sen/ accept=application/hsml.item+json
+    or
+    RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item
+
+    Response Payload:
+    
     [
       {
         "bi": "/dev/sen/"
@@ -280,7 +327,7 @@ RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item</t>
 
 <t>The path part of the URI reference used to indicate HSML resources may be used as a reference to a collection or to an item in a collection. Collection references should contain the trailing slash character “/” in accordance with <xref target="RFC3986"/>. Server implementations should return links to collections with the trailing “/”, and should attempt to accept references to collections without the trailing “/” if such references can be used to construct unambiguous references.</t>
 
-<t>References to items in a collection should not contain the trailing “/” character. Servers should return item references that do not contain the trailing “/” character, and should should attempt to accept references to items in collections with the trailing “/” if such references can be used to construct unambiguous references.</t>
+<t>References to items in a collection should not contain the trailing “/” character. Servers should return items in response to references that do not contain the trailing “/” character, and should attempt to accept references to items in collections with the trailing “/” if such references can be used to construct unambiguous references.</t>
 
 <t>URI references may be routed to collections in the order in which path segments appear in the reference, from left to right reading the path string, separated by “/” characters.</t>
 
@@ -308,67 +355,88 @@ RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item</t>
 </section>
 </section>
 </section>
-<section anchor="transfer-model-mapping" title="Transfer Model Mapping">
+<section anchor="transfer-model-mapping-to-collections" title="Transfer Model Mapping to Collections">
 
 <section anchor="target-resource-is-collection" title="Target Resource is Collection">
 
 <section anchor="retrieve" title="RETRIEVE">
-<t>List Selected Elements</t>
+<t>List Selected Elements. Return a list of elements in the collection, including links and optionally representations of items, for example <xref target="fig-example-hsml"/>. Elements may include link extenstions, for example action links and monitor links.</t>
 
 </section>
 <section anchor="create" title="CREATE">
-<t>Add Elements to Collection</t>
+<t>Add Elements to Collection, where the elements are specified by representations included in the payload. Hints and directives about the created resource may be included in the payload as link parameters, for example a value for href, specifying the location of the created resource. The server is expected to return the location of created resource instances to the client in a header or other response parameter.</t>
 
 </section>
 <section anchor="update" title="UPDATE">
-<t>UPDATE Selected Elements</t>
+<t>UPDATE Selected Elements, replacing all selected elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.</t>
 
 </section>
 <section anchor="delete" title="DELETE">
-<t>Remove Selected Elements</t>
+<t>Remove Selected Elements from the collection. If no elements are selected, remove the collection.</t>
 
 </section>
 </section>
-<section anchor="target-resource-is-links" title="Target Resource is Links">
+<section anchor="target-uri-is-collection-target-resource-is-link" title="Target URI is Collection, Target Resource is Link">
 
 <section anchor="retrieve-1" title="RETRIEVE">
-<t>List Selected Links</t>
+<t>List Selected Links, for example <xref target="fig-example-hsml-link"/>.</t>
 
 </section>
 <section anchor="create-1" title="CREATE">
-<t>Add Links to the collection</t>
+<t>Add Links to the collection, where the links are included in the payload.</t>
 
 </section>
-<section anchor="update-including-partial-update" title="UPDATE (including partial update)">
-<t>Modify Selected Links</t>
+<section anchor="update-1" title="UPDATE">
+<t>Modify Selected Links, replacing link elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.</t>
 
 </section>
 <section anchor="delete-1" title="DELETE">
-<t>Remove Selected Links</t>
+<t>Remove Selected Links from the collection. If links point to items in the context of the collection, either remove the items as well as the links, or leave the collection as is and return a method error (e,g, HTTP 405 Method Not Allowed).</t>
 
 </section>
 </section>
-<section anchor="target-resource-is-items" title="Target Resource is Items">
+<section anchor="target-uri-is-collection-target-resource-is-item" title="Target URI is Collection, Target Resource is Item">
 
 <section anchor="link-embedding-items" title="Link Embedding Items">
 
 <t>Collective operations on items in collections are invoked by using the URI of the collections, along with URI parameters, to select one or more items in the collection.</t>
 
-</section>
-<section anchor="retrieve-2" title="RETRIEVE">
-<t>Retrieve Selected Items</t>
+<t>Items which are compatible with the HSML item format may be returned with multiple items embedded in a single representation.</t>
 
 </section>
-<section anchor="update-1" title="UPDATE">
-<t>Modify Selected Items</t>
+<section anchor="retrieve-2" title="RETRIEVE">
+<t>Retrieve Selected Items, and return a composite representation of all selected items, for example <xref target="fig-example-hsml-item"/>.</t>
+
+</section>
+<section anchor="update-2" title="UPDATE">
+<t>Modify Selected Items, replacing all selected items with items included in the payload which match by name “n” value. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.</t>
 
 </section>
 <section anchor="delete-2" title="DELETE">
-<t>Remove Selected Items and corresponding links</t>
+<t>Remove Selected Items and corresponding links from the collection. If no items are selected, return a method error (e,g, HTTP 405 Method Not Allowed).</t>
 
 </section>
 <section anchor="create-2" title="CREATE">
-<t>Create Items and add them to the collection with default links</t>
+<t>Create Items and add them to the collection with system-constructed links. Link content is determined by the resource type or traits defined by application semantics. Server is expected to return the location of created resource instances to the client in a header or other response parameter.</t>
+
+</section>
+</section>
+<section anchor="target-uri-is-item" title="Target URI is Item">
+
+<section anchor="retrieve-3" title="RETRIEVE">
+<t>Return a representation of the Item in the content type according to the accept option of the RETRIEVE request, or using a system defined content-format if there is no accept option provided.</t>
+
+</section>
+<section anchor="create-3" title="CREATE">
+<t>Not Defined, application dependent.</t>
+
+</section>
+<section anchor="update-3" title="UPDATE">
+<t>Replace the resource state with the state defined in the supplied representation according to the content-type or ct option. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol.</t>
+
+</section>
+<section anchor="delete-3" title="DELETE">
+<t>Remove the links to the item from the collection, and remove the item. If the item is stored as a collection, remove the collection.</t>
 
 </section>
 </section>
@@ -390,7 +458,7 @@ RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item</t>
 
 <section anchor="actions" title="Actions">
 
-<t>Actions are hypermedia controls used to construct transfer operations that change the state of resources. The use roughly follows the use of forms in HTML <xref target="RFC1866"/>, with semantics more consistent with links.</t>
+<t>Actions are hypermedia controls, indicated by a rel=action value in a link, used to construct transfer operations that change the state of resources. The use roughly follows the use of forms in HTML <xref target="RFC1866"/>, with semantics more consistent with links.</t>
 
 <t>An example Action element is shown in <xref target="fig-action-element"/></t>
 
@@ -405,12 +473,12 @@ RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item</t>
     }
 ]]></artwork></figure>
 
-<t>This Action element informs the client that to perform a type “st.on” action on the context resource, perform a CREATE method on the “commands” URI relative to the context URI, using the application/json content type, with a schema as defined.</t>
+<t>This Action element informs the client that to perform a type “st.on” action on the context resource, perform a CREATE method on the “commands” URI relative to the context URI, using the application/json content type, with a payload as defined by the “Schema” parameter.</t>
 
 </section>
 <section anchor="monitors" title="Monitors">
 
-<t>Monitors are hypermedia controls used to construct transfer operations that expose state changes of resources. A monitor invokes an outbound transfer operation on a target resource. Monitors use the IANA registered link relation “monitor”, defined in <xref target="RFC5989"/>.</t>
+<t>Monitors are hypermedia controls, indicated by a rel=monitor value in a link, used to construct transfer operations that expose state changes of resources. A monitor invokes an outbound transfer operation on a target resource. Monitors use the IANA registered link relation “monitor”, defined in <xref target="RFC5989"/>.</t>
 
 <t>An example Monitor element is shown in <xref target="fig-monitor-element"/></t>
 
@@ -742,15 +810,6 @@ RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item</t>
 </section>
 <section anchor="object-signing-and-encryption" title="Object Signing and Encryption">
 <t>Object signing and encryption SHOULD use the mechanisms specified in IETF documents for secure JSON Objects <xref target="RFC7516"/> and CBOR Objects <xref target="I-D.ietf-cose-msg"/> <xref target="I-D.selander-ace-object-security"/>.</t>
-
-</section>
-</section>
-<section anchor="design-patterns" title="Design Patterns">
-
-<section anchor="restful-actuation-using-collections" title="RESTful Actuation using collections">
-
-</section>
-<section anchor="restful-events-and-alerts-using-collections" title="RESTful Events and Alerts using collections">
 
 </section>
 </section>
