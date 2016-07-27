@@ -213,7 +213,11 @@ Items may be embedded in the collection, they may be subresources of the collect
 ## Example Serialization Formats {#example-formats}
 {{fig-example-hsml}} shows an example document in hsml+json format. This example contains a base element, a link element, and an item element.
 
-GET /dev/sen/ accept=application/hsml+json
+RETRIEVE /dev/sen/ accept=application/hsml.collection+json
+or
+RETRIEVE /dev/sen/ accept=application/(hsml+)json
+or
+RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.collection
 
 (response)
 
@@ -240,13 +244,13 @@ The HSML media type defines content formats and corresponding CoRE Interface Typ
 
 Collection formats as shown in {{fig-example-hsml}} expose all of the elements of a resource, including items, links, and link extensions. 
 
-### Links Formats
+### Link Formats
 
-Links content formats, when used in an "accept" option or "content-type" option in a transfer header, will select the link elements in the collection for interaction as in {{fig-example-hsml-links}}.
+Link content formats, when used in an "accept" option or "content-type" option in a transfer header, or when selected by the "if=hsml.link" URI paramater, will select the link elements in the collection for interaction as in {{fig-example-hsml-link}}.
 
-GET /dev/sen/ accept=application/hsml.links+json
+RETRIEVE /dev/sen/ accept=application/hsml.link+json
 or
-GET /dev/sen/ accept=application/hsml+json?if=hsml.links
+RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.link
 
 (response)
 
@@ -258,17 +262,17 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.links
       }
     ]
 ~~~~
-{: #fig-example-hsml-links title='application/hsml.links+json Example' align="left"}
+{: #fig-example-hsml-link title='application/hsml.link+json Example' align="left"}
 
-CoRE link-format content formats select RFC6690 compliant links, and do not return representations of extended links (rel=action, rel=monitor).
+CoRE link-format content formats select RFC6690 compliant links, and may not return representations of extended links (rel=action, rel=monitor).
 
-### Items Formats
+### Item Formats
 
-Items content formats, when used in an "accept" option or "content-type" option in a transfer header, will select the item elements in the collection for interaction as in {{fig-example-hsml-items}}.
+Item content formats, when used in an "accept" option or "content-type" option in a transfer header, or when selected by the "if=hsml.item" URI paramater, will select the item elements in the collection for interaction as in {{fig-example-hsml-item}}.
 
-GET /dev/sen/ accept=application/hsml.items+json
+RETRIEVE /dev/sen/ accept=application/hsml.item+json
 or
-GET /dev/sen/ accept=application/hsml+json?if=hsml.items
+RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item
 
 (response)
 
@@ -283,11 +287,9 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items
       }
     ]
 ~~~~
-{: #fig-example-hsml-items title='application/hsml.items+json Example' align="left"}
+{: #fig-example-hsml-item title='application/hsml.item+json Example' align="left"}
 
-SenML content formats select data records containing SenML compliant resource names. "bn" will be returned only when  compliant resource names "n" may be resolved through simple string concatenation as per {{I-D.ietf-core-senml}}.
-
-
+SenML content formats select data records and return SenML compliant resource names. "bn" may optionally be returned when  compliant resource names "n" may be resolved through simple string concatenation as per {{I-D.ietf-core-senml}}.
 
 # URI and Parameter Processing
 
@@ -297,7 +299,7 @@ If fragment references are provided in a particular transfer implementation, the
 
 ## URI Path Processing
 
-The path part of the URI reference used to indicate HSML resources may be used as a reference to a collection or to an item in a collection. Collection references should contain the trailing slash character "/" in accordance with BCP. Server implementations should return links to collections with the trailing "/", and should attempt to accept references to collections without the trailing "/" if such references can be used to construct unambiguous references.
+The path part of the URI reference used to indicate HSML resources may be used as a reference to a collection or to an item in a collection. Collection references should contain the trailing slash character "/" in accordance with {{RFC3986}}. Server implementations should return links to collections with the trailing "/", and should attempt to accept references to collections without the trailing "/" if such references can be used to construct unambiguous references.
 
 References to items in a collection should not contain the trailing "/" character. Servers should return item references that do not contain the trailing "/" character, and should should attempt to accept references to items in collections with the trailing "/" if such references can be used to construct unambiguous references.
 
@@ -309,7 +311,6 @@ URI references may alternatively be routed as opaque strings to resources. In th
 
 URI Parameters, typically mapped as query parameters in HTTP and CoAP, are used for selecting resources, selecting partial representations, and otherwise modifying aspects of the expected or included representation. In this way, they may be considered part of the URI, since they help identify a unique representation to be transferred.
 
-
 ### Resource selection
 
 URI Parameters may be used to select resources in a collection for transfer. This is done using the common parameter matching rules specified in {{RFC6690}}.
@@ -320,9 +321,9 @@ The target resource selection depends on the content-format specified in the req
 
 The collection content-formats or interface types select all links and items in the collection, including link extensions.
 
-The links content formats or interface types select all links in the collection. 
+The link content formats or interface types select all links in the collection. 
 
-The items content formats or interface types select all items in the collection.
+The item content formats or interface types select all items in the collection.
 
 # Transfer Model Mapping
 
@@ -394,17 +395,17 @@ An example Action element is shown in {{fig-action-element}}
 
 ~~~~
     {
-      "rel": "action"
-      "type": "st.on"
+      "rel": "action",
+      "type": "st.on",
       "href": "commands",
-      "rt": "st.command",
       "method": "create",
-      "accept": "text/plain",
+      "accept": "application/json",
       "schema": {"value": "on"}
     }
 ~~~~
 {: #fig-action-element title='Example Action Element' align="left"}
 
+This Action element informs the client that to perform a type "st.on" action on the context resource, perform a CREATE method on the "commands" URI relative to the context URI, using the application/json content type, with a payload as defined by the "Schema" parameter.
 
 ## Monitors
 
@@ -420,12 +421,13 @@ An example Monitor element is shown in {{fig-monitor-element}}
       "target-method": "create",
       "pmin": 600,
       "pmax": 3600,
-      "nbul": 80,
-      "nbll": 20
+      "nbul": 20,
+      "nbll": 80
     }
 ~~~~
 {: #fig-monitor-element title='Example Monitor Element' align="left"}
 
+This Monitor element defines a monitor resource at the "tank-level-events" URI relative to the context URI, which OBSERVEs the context URI, and updates the "tank-level-events" resource using the CREATE method to add JSON items to the collection, according to the given conditional parameters no more frequently than once every 600 seconds, at least once every 3600 seconds, when the reading is in the notification band, which has a lower limit of 80 and wraps around zero to an upper limit of 20. This has the effect of defining a low level alert notification and high level alert notification.
 
 # Reserved Identifiers {#reserved-identifiers}
 
@@ -505,10 +507,10 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 {: vspace='0'}
 
 ## Item Keywords {#item-keywords}
-The following keywords are reserved for use in a HSML serialization to indicate elements within the serialization. These are defined in {{I-D.ietf-core-senml}}.
+The following keywords are reserved for use in a HSML serialization to indicate elements within the serialization. Some of these are defined in {{I-D.ietf-core-senml}}.
 
 "bi"
-:    the base URI of the collection, relative to the service location e.g. "/sensors/temp/"
+:    the base URI of the collection, relative to the service location e.g. "/sensors/temp/" Thi sis a new definition for HSML
 
 "bt"
 :    the base time that corresponds to the encapsulated state of the collection
@@ -625,6 +627,25 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 :    Starts the notification state machine with an initial value
 {: vspace='0'}
 
+## Link Attribute Values 
+The following keywords are reserved for use in a HSML serialization to indicate values of link attributes
+
+"create"
+:    transfer layer CREATE operation, value of "method", "accept-method", or "target-method"
+
+"retrieve"
+:    transfer layer RETRIEVE operation, value of "method", "accept-method", or "target-method"
+
+"update"
+:    transfer layer UPDATE operation, value of "method", "accept-method", or "target-method"
+
+"delete"
+:    transfer layer DELETE operation, value of "method", "accept-method", or "target-method"
+
+"observe"
+:    transfer layer OBSERVE operation, value of "method", "accept-method", or "target-method"
+{: vspace='0'}
+
 
 # IANA Considerations {#iana-cons}
 
@@ -668,6 +689,11 @@ Media type strings
 * content-type
 * ct
 
+* accept-method
+* target-method
+* accept-schema
+* target-schema
+
 The following should be registered in the CoRE dynamic linking draft {{I-D.groves-core-dynlink}}.
 
 * pmin
@@ -690,6 +716,14 @@ The following should be registered in the CoRE dynamic linking draft {{I-D.grove
 * hsml.collection
 * hsml.item
 * hsml.link
+
+## Transfer Layer method definitions may use the default CURIE and do not need to be registered with IANA
+
+* hsml:create
+* hsml:retrieve
+* hsml:update
+* hsml:delete
+* hsml:observe
 
 # Security Considerations
 

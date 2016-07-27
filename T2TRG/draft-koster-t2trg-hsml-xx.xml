@@ -190,7 +190,11 @@
 <section anchor="example-formats" title="Example Serialization Formats">
 <t><xref target="fig-example-hsml"/> shows an example document in hsml+json format. This example contains a base element, a link element, and an item element.</t>
 
-<t>GET /dev/sen/ accept=application/hsml+json</t>
+<t>RETRIEVE /dev/sen/ accept=application/hsml.collection+json
+or
+RETRIEVE /dev/sen/ accept=application/(hsml+)json
+or
+RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.collection</t>
 
 <t>(response)</t>
 
@@ -217,17 +221,17 @@
 <t>Collection formats as shown in <xref target="fig-example-hsml"/> expose all of the elements of a resource, including items, links, and link extensions.</t>
 
 </section>
-<section anchor="links-formats" title="Links Formats">
+<section anchor="link-formats" title="Link Formats">
 
-<t>Links content formats, when used in an “accept” option or “content-type” option in a transfer header, will select the link elements in the collection for interaction as in <xref target="fig-example-hsml-links"/>.</t>
+<t>Link content formats, when used in an “accept” option or “content-type” option in a transfer header, or when selected by the “if=hsml.link” URI paramater, will select the link elements in the collection for interaction as in <xref target="fig-example-hsml-link"/>.</t>
 
-<t>GET /dev/sen/ accept=application/hsml.links+json
+<t>RETRIEVE /dev/sen/ accept=application/hsml.link+json
 or
-GET /dev/sen/ accept=application/hsml+json?if=hsml.links</t>
+RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.link</t>
 
 <t>(response)</t>
 
-<figure title="application/hsml.links+json Example" align="left" anchor="fig-example-hsml-links"><artwork><![CDATA[
+<figure title="application/hsml.link+json Example" align="left" anchor="fig-example-hsml-link"><artwork><![CDATA[
     [
       {
         "href": "temp",
@@ -236,20 +240,20 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.links</t>
     ]
 ]]></artwork></figure>
 
-<t>CoRE link-format content formats select RFC6690 compliant links, and do not return representations of extended links (rel=action, rel=monitor).</t>
+<t>CoRE link-format content formats select RFC6690 compliant links, and may not return representations of extended links (rel=action, rel=monitor).</t>
 
 </section>
-<section anchor="items-formats" title="Items Formats">
+<section anchor="item-formats" title="Item Formats">
 
-<t>Items content formats, when used in an “accept” option or “content-type” option in a transfer header, will select the item elements in the collection for interaction as in <xref target="fig-example-hsml-items"/>.</t>
+<t>Item content formats, when used in an “accept” option or “content-type” option in a transfer header, or when selected by the “if=hsml.item” URI paramater, will select the item elements in the collection for interaction as in <xref target="fig-example-hsml-item"/>.</t>
 
-<t>GET /dev/sen/ accept=application/hsml.items+json
+<t>RETRIEVE /dev/sen/ accept=application/hsml.item+json
 or
-GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
+RETRIEVE /dev/sen/ accept=application/(hsml+)json?if=hsml.item</t>
 
 <t>(response)</t>
 
-<figure title="application/hsml.items+json Example" align="left" anchor="fig-example-hsml-items"><artwork><![CDATA[
+<figure title="application/hsml.item+json Example" align="left" anchor="fig-example-hsml-item"><artwork><![CDATA[
     [
       {
         "bi": "/dev/sen/"
@@ -261,7 +265,7 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
     ]
 ]]></artwork></figure>
 
-<t>SenML content formats select data records containing SenML compliant resource names. “bn” will be returned only when  compliant resource names “n” may be resolved through simple string concatenation as per <xref target="I-D.ietf-core-senml"/>.</t>
+<t>SenML content formats select data records and return SenML compliant resource names. “bn” may optionally be returned when  compliant resource names “n” may be resolved through simple string concatenation as per <xref target="I-D.ietf-core-senml"/>.</t>
 
 </section>
 </section>
@@ -274,7 +278,7 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
 
 <section anchor="uri-path-processing" title="URI Path Processing">
 
-<t>The path part of the URI reference used to indicate HSML resources may be used as a reference to a collection or to an item in a collection. Collection references should contain the trailing slash character “/” in accordance with BCP. Server implementations should return links to collections with the trailing “/”, and should attempt to accept references to collections without the trailing “/” if such references can be used to construct unambiguous references.</t>
+<t>The path part of the URI reference used to indicate HSML resources may be used as a reference to a collection or to an item in a collection. Collection references should contain the trailing slash character “/” in accordance with <xref target="RFC3986"/>. Server implementations should return links to collections with the trailing “/”, and should attempt to accept references to collections without the trailing “/” if such references can be used to construct unambiguous references.</t>
 
 <t>References to items in a collection should not contain the trailing “/” character. Servers should return item references that do not contain the trailing “/” character, and should should attempt to accept references to items in collections with the trailing “/” if such references can be used to construct unambiguous references.</t>
 
@@ -297,9 +301,9 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
 
 <t>The collection content-formats or interface types select all links and items in the collection, including link extensions.</t>
 
-<t>The links content formats or interface types select all links in the collection.</t>
+<t>The link content formats or interface types select all links in the collection.</t>
 
-<t>The items content formats or interface types select all items in the collection.</t>
+<t>The item content formats or interface types select all items in the collection.</t>
 
 </section>
 </section>
@@ -392,15 +396,16 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
 
 <figure title="Example Action Element" align="left" anchor="fig-action-element"><artwork><![CDATA[
     {
-      "rel": "action"
-      "type": "st.on"
+      "rel": "action",
+      "type": "st.on",
       "href": "commands",
-      "rt": "st.command",
       "method": "create",
-      "accept": "text/plain",
+      "accept": "application/json",
       "schema": {"value": "on"}
     }
 ]]></artwork></figure>
+
+<t>This Action element informs the client that to perform a type “st.on” action on the context resource, perform a CREATE method on the “commands” URI relative to the context URI, using the application/json content type, with a schema as defined.</t>
 
 </section>
 <section anchor="monitors" title="Monitors">
@@ -417,10 +422,12 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
       "target-method": "create",
       "pmin": 600,
       "pmax": 3600,
-      "nbul": 80,
-      "nbll": 20
+      "nbul": 20,
+      "nbll": 80
     }
 ]]></artwork></figure>
+
+<t>This Monitor element defines a monitor resource at the “tank-level-events” URI relative to the context URI, which OBSERVEs the context URI, and updates the “tank-level-events” resource using the CREATE method to add JSON items to the collection, according to the given conditional parameters no more frequently than once every 600 seconds, at least once every 3600 seconds, when the reading is in the notification band, which has a lower limit of 80 and wraps around zero to an upper limit of 20. This has the effect of defining a low level alert notification and high level alert notification.</t>
 
 </section>
 </section>
@@ -501,11 +508,11 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
 </section>
 </section>
 <section anchor="item-keywords" title="Item Keywords">
-<t>The following keywords are reserved for use in a HSML serialization to indicate elements within the serialization. These are defined in <xref target="I-D.ietf-core-senml"/>.</t>
+<t>The following keywords are reserved for use in a HSML serialization to indicate elements within the serialization. Some of these are defined in <xref target="I-D.ietf-core-senml"/>.</t>
 
 <t><list style="hanging">
   <t hangText='“bi”'><vspace blankLines='0'/>
-  the base URI of the collection, relative to the service location e.g. “/sensors/temp/”</t>
+  the base URI of the collection, relative to the service location e.g. “/sensors/temp/” Thi sis a new definition for HSML</t>
   <t hangText='“bt”'><vspace blankLines='0'/>
   the base time that corresponds to the encapsulated state of the collection</t>
   <t hangText='“t”'><vspace blankLines='0'/>
@@ -597,6 +604,23 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
 </list></t>
 
 </section>
+<section anchor="link-attribute-values" title="Link Attribute Values">
+<t>The following keywords are reserved for use in a HSML serialization to indicate values of link attributes</t>
+
+<t><list style="hanging">
+  <t hangText='“create”'><vspace blankLines='0'/>
+  transfer layer CREATE operation, value of “method”, “accept-method”, or “target-method”</t>
+  <t hangText='“retrieve”'><vspace blankLines='0'/>
+  transfer layer RETRIEVE operation, value of “method”, “accept-method”, or “target-method”</t>
+  <t hangText='“update”'><vspace blankLines='0'/>
+  transfer layer UPDATE operation, value of “method”, “accept-method”, or “target-method”</t>
+  <t hangText='“delete”'><vspace blankLines='0'/>
+  transfer layer DELETE operation, value of “method”, “accept-method”, or “target-method”</t>
+  <t hangText='“observe”'><vspace blankLines='0'/>
+  transfer layer OBSERVE operation, value of “method”, “accept-method”, or “target-method”</t>
+</list></t>
+
+</section>
 </section>
 <section anchor="iana-cons" title="IANA Considerations">
 
@@ -649,6 +673,10 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
   <t>schema</t>
   <t>content-type</t>
   <t>ct</t>
+  <t>accept-method</t>
+  <t>target-method</t>
+  <t>accept-schema</t>
+  <t>target-schema</t>
 </list></t>
 
 <t>The following should be registered in the CoRE dynamic linking draft <xref target="I-D.groves-core-dynlink"/>.</t>
@@ -679,6 +707,17 @@ GET /dev/sen/ accept=application/hsml+json?if=hsml.items</t>
   <t>hsml.collection</t>
   <t>hsml.item</t>
   <t>hsml.link</t>
+</list></t>
+
+</section>
+<section anchor="transfer-layer-method-definitions-may-use-the-default-curie-and-do-not-need-to-be-registered-with-iana" title="Transfer Layer method definitions may use the default CURIE and do not need to be registered with IANA">
+
+<t><list style="symbols">
+  <t>hsml:create</t>
+  <t>hsml:retrieve</t>
+  <t>hsml:update</t>
+  <t>hsml:delete</t>
+  <t>hsml:observe</t>
 </list></t>
 
 </section>
