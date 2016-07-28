@@ -464,6 +464,8 @@ The item content formats or interface types select all items in the collection.
 
 ## Target Resource is Collection 
 
+When the reference of a request targets a collection resource, using a collection format, the representation may contain both links and items. It is implied that operations using this format will interact with both links and items. The collection format is indicated by using a collection content type in the accept or content-type header, or by specifying a collection interface type e.g. if=hsml.collection.
+
 ### RETRIEVE 
 Return a representation of selected elements. Return a list of elements in the collection, including links and optionally representations of items, for example {{fig-example-hsml-retrieve}}. Elements may include link extenstions, for example action links and monitor links.
 
@@ -638,6 +640,8 @@ Remove Selected Elements from the collection. If no elements are selected, remov
 
 ## Target URI is Collection, Target Resource is Link
 
+When a collection is referenced and the link format is indicated, using a link content format in the header or specifying a link interface type, e.g. if=hsml.link, it is expected that the request will interact with the links in the collection. 
+
 ### RETRIEVE 
 List Selected Links, for example {{fig-example-link-retrieve}}.
 
@@ -767,6 +771,10 @@ Remove Selected Links from the collection. The server response should indicate t
 {: #fig-example-link-delete title='Delete Links' align="left"}
 
 ## Target URI is Collection, Target Resource is Item
+
+Whan a collection is referenced and the item format is indicated, either by including an item content type in the request header or using an item interface type, e.g. if=hsml.item, it is expected that the request will interact with the items in a collection. 
+
+Specifying item interaction with a collection invokes the link embedding operations.
 
 ### Link Embedding Items
 
@@ -904,6 +912,8 @@ Remove Selected Items and corresponding links from the collection. The server re
 
 
 ## Target URI is Item 
+
+When the URI of a reference points to an item in a collection, it is expected that the request will interact with a single item.
 
 ### RETRIEVE 
 Return a representation of the Item in the content type according to the accept option of the RETRIEVE request, or using a system defined content-format if there is no accept option provided.

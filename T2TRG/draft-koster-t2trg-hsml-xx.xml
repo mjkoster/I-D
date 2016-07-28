@@ -449,6 +449,8 @@
 
 <section anchor="target-resource-is-collection" title="Target Resource is Collection">
 
+<t>When the reference of a request targets a collection resource, using a collection format, the representation may contain both links and items. It is implied that operations using this format will interact with both links and items. The collection format is indicated by using a collection content type in the accept or content-type header, or by specifying a collection interface type e.g. if=hsml.collection.</t>
+
 <section anchor="retrieve" title="RETRIEVE">
 <t>Return a representation of selected elements. Return a list of elements in the collection, including links and optionally representations of items, for example <xref target="fig-example-hsml-retrieve"/>. Elements may include link extenstions, for example action links and monitor links.</t>
 
@@ -624,6 +626,8 @@
 </section>
 <section anchor="target-uri-is-collection-target-resource-is-link" title="Target URI is Collection, Target Resource is Link">
 
+<t>When a collection is referenced and the link format is indicated, using a link content format in the header or specifying a link interface type, e.g. if=hsml.link, it is expected that the request will interact with the links in the collection.</t>
+
 <section anchor="retrieve-1" title="RETRIEVE">
 <t>List Selected Links, for example <xref target="fig-example-link-retrieve"/>.</t>
 
@@ -754,6 +758,10 @@
 </section>
 </section>
 <section anchor="target-uri-is-collection-target-resource-is-item" title="Target URI is Collection, Target Resource is Item">
+
+<t>Whan a collection is referenced and the item format is indicated, either by including an item content type in the request header or using an item interface type, e.g. if=hsml.item, it is expected that the request will interact with the items in a collection.</t>
+
+<t>Specifying item interaction with a collection invokes the link embedding operations.</t>
 
 <section anchor="link-embedding-items" title="Link Embedding Items">
 
@@ -892,6 +900,8 @@
 </section>
 </section>
 <section anchor="target-uri-is-item" title="Target URI is Item">
+
+<t>When the URI of a reference points to an item in a collection, it is expected that the request will interact with a single item.</t>
 
 <section anchor="retrieve-3" title="RETRIEVE">
 <t>Return a representation of the Item in the content type according to the accept option of the RETRIEVE request, or using a system defined content-format if there is no accept option provided.</t>
