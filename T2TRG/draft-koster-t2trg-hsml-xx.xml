@@ -114,7 +114,7 @@
 
 <t>A collection of items enables operations on more than one item at a time by exposing a structured a representation of multiple resources in the collection.</t>
 
-<t>Applications may select resources by using URI parameters, and transfer representations of multiple named resources using the SenML multi-item format.</t>
+<t>Applications may select resources by using URI parameters, and transfer representations of multiple named resources using the HSML or SenML multi-item formats.</t>
 
 </section>
 <section anchor="collective-operation-on-groups-of-linked-resources" title="Collective operation on groups of linked resources">
@@ -976,7 +976,7 @@
 <section anchor="retrieve-4" title="RETRIEVE">
 <t>Forwards the RETRIEVE request to each link in the collection that contains the “grp” relation. Returns the response from each link target as an element in an array representation.</t>
 
-<figure title="Example Group Retrieve" align="left" anchor="fig-example-hsml-grp-retrieve"><artwork><![CDATA[
+<figure title="Group Retrieve" align="left" anchor="fig-example-hsml-grp-retrieve"><artwork><![CDATA[
     RETRIEVE /sensor-group/ accept=application/hsml.item+json
     Response Payload:
     [
@@ -1003,7 +1003,7 @@
 <section anchor="update-4" title="UPDATE">
 <t>Forward the UPDATE request to each link in the collection that contains the “grp” relation.</t>
 
-<figure title="Example Group Update" align="left" anchor="fig-example-hsml-grp-update"><artwork><![CDATA[
+<figure title="Group Update" align="left" anchor="fig-example-hsml-grp-update"><artwork><![CDATA[
     UPDATE /sensor-group/ content-type=application/hsml.item+json
     Payload:
     [
@@ -1039,7 +1039,7 @@
 <section anchor="create-4" title="CREATE">
 <t>Forward the CREATE request to each link in the collection that contains the “grp” relation. In the example shown in <xref target="fig-example-hsml-grp-create"/>, an additional named resource is being created within each (collection type) item to hold a location value for that item.</t>
 
-<figure title="Example Group Create" align="left" anchor="fig-example-hsml-grp-create"><artwork><![CDATA[
+<figure title="Group Create" align="left" anchor="fig-example-hsml-grp-create"><artwork><![CDATA[
     CREATE /sensor-group/ content-type=application/hsml.item+json
     Payload:
     [
@@ -1085,7 +1085,7 @@
 <section anchor="delete-4" title="DELETE">
 <t>Forward the DELETE request to each link in the collection that contains the “grp” relation. In the example shown in <xref target="fig-example-hsml-grp-delete"/>, the URI parameter ?href=location selects the resource at the relative URI reference “location” at each group link target for delete.</t>
 
-<figure title="Example Group Delete" align="left" anchor="fig-example-hsml-grp-delete"><artwork><![CDATA[
+<figure title="Group Delete" align="left" anchor="fig-example-hsml-grp-delete"><artwork><![CDATA[
     DELETE /sensor-group/?href=location 
     Response: Deleted
     

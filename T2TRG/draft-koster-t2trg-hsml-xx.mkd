@@ -135,7 +135,7 @@ Link embedding enables the transfer of one or more items in a collection using a
 
 A collection of items enables operations on more than one item at a time by exposing a structured a representation of multiple resources in the collection.
 
-Applications may select resources by using URI parameters, and transfer representations of multiple named resources using the SenML multi-item format.
+Applications may select resources by using URI parameters, and transfer representations of multiple named resources using the HSML or SenML multi-item formats.
 
 ### Collective operation on groups of linked resources
 
@@ -1009,7 +1009,7 @@ Forwards the RETRIEVE request to each link in the collection that contains the "
       ]
     ]
 ~~~~
-{: #fig-example-hsml-grp-retrieve title='Example Group Retrieve' align="left"}
+{: #fig-example-hsml-grp-retrieve title='Group Retrieve' align="left"}
 
 ### UPDATE
 Forward the UPDATE request to each link in the collection that contains the "grp" relation. 
@@ -1045,7 +1045,7 @@ Forward the UPDATE request to each link in the collection that contains the "grp
       ]
     ]
 ~~~~
-{: #fig-example-hsml-grp-update title='Example Group Update' align="left"}
+{: #fig-example-hsml-grp-update title='Group Update' align="left"}
 
 ### CREATE
 Forward the CREATE request to each link in the collection that contains the "grp" relation. In the example shown in {{fig-example-hsml-grp-create}}, an additional named resource is being created within each (collection type) item to hold a location value for that item.
@@ -1091,7 +1091,7 @@ Forward the CREATE request to each link in the collection that contains the "grp
       ]
     ]
 ~~~~
-{: #fig-example-hsml-grp-create title='Example Group Create' align="left"}
+{: #fig-example-hsml-grp-create title='Group Create' align="left"}
 
 
 ### DELETE
@@ -1124,7 +1124,7 @@ Forward the DELETE request to each link in the collection that contains the "grp
     ]
 
 ~~~~
-{: #fig-example-hsml-grp-delete title='Example Group Delete' align="left"}
+{: #fig-example-hsml-grp-delete title='Group Delete' align="left"}
 
 # Link extensions
 
