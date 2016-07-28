@@ -34,7 +34,7 @@
       </address>
     </author>
 
-    <date year="2016" month="July" day="27"/>
+    <date year="2016" month="July" day="28"/>
 
     <area>Internet</area>
     <workgroup>Thing-to-Thing Research Group</workgroup>
@@ -43,9 +43,9 @@
     <abstract>
 
 
-<t>The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group <xref target="T2TRG"/> has a charter to investigate the use of REST design style <xref target="REST"/>for machine interactions. The W3C Web of Things Interest Group <xref target="W3C-WoT"/> are investigating abstract hypermedia controls and interaction models for machines.</t>
+<t>The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group <xref target="T2TRG"/> has a charter to investigate the use of REST design style <xref target="REST"/>for machine interactions. The W3C Web of Things Interest Group <xref target="W3C-WoT"/> are investigating abstract hypermedia controls and interaction models for machines. Machine optimized content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.ietf-core-senml"/>.</t>
 
-<t>Machine optimized content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.ietf-core-senml"/>. Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A common data model is described with a representation format that uses a common set of reserved keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.</t>
+<t>Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A common data model is described with a representation format that uses a common set of reserved keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.</t>
 
 
 
@@ -79,13 +79,13 @@
 
 <t>The HSML data model consists of collections containing links and items. An instance of a collection is identified by a URI.</t>
 
-<t>Items are data elements, either within the context the collection, or outide the context of the collection. An instance of an item is identified by a URI.</t>
-
-<t>Links are standard web links as in <xref target="RFC5988"/> or <xref target="RFC6690"/>.</t>
-
-<t>Items are identified by links in a collection. An Item may only be in the context of one collection, but may be identified by any number of links in any number of collections.</t>
+<t>Links are standard web links as in <xref target="RFC5988"/> or <xref target="RFC6690"/>. Items are identified by links in collections.</t>
 
 <t>Links in a collection may point to items within the context of the collection or they may point to items external to the collection, on the same server or on other servers.</t>
+
+<t>Items are data elements, either within the context the collection, or outide the context of the collection. An instance of an item is identified by a URI.</t>
+
+<t>An Item may only be in the context of one collection, but may be identified by any number of links in any number of collections.</t>
 
 <t>Items in the collection that use an HSML compatible data model, for example SenML, see <xref target="I-D.ietf-core-senml"/>, may be embedded in the collection and transferred either along with the links or separately from links.</t>
 
@@ -108,18 +108,18 @@
 </section>
 <section anchor="link-embedding" title="Link Embedding">
 
-<t>Link embedding enables the transfer of more than one item in a collection using a single transfer operation. This document describes two types of link embedding for items in the collection. Batch link embedding allows multiple resource instances (items) to each contribute part of an aggregate (collection) representation. Group link embedding allows a particular operation to be repeated for each member (item) of a group (collection).</t>
+<t>Link embedding enables the transfer of one or more items in a collection using a single transfer operation. This document describes two types of link embedding for items in the collection. Batch link embedding allows one or more resource instances (item) to each contribute part of an aggregate (collection) representation. Group link embedding allows a particular operation to be repeated for each member (item) of a group (collection).</t>
 
 <section anchor="batch-operations-on-multiple-items-in-a-collection" title="Batch operations on multiple items in a collection">
 
 <t>A collection of items enables operations on more than one item at a time by exposing a structured a representation of multiple resources in the collection.</t>
 
-<t>Applications may select resources by using URI parameters, and transfer representations of multiple resources using the SenML multi-item format.</t>
+<t>Applications may select resources by using URI parameters, and transfer representations of multiple named resources using the SenML multi-item format.</t>
 
 </section>
 <section anchor="collective-operation-on-groups-of-linked-resources" title="Collective operation on groups of linked resources">
 
-<t>Resource links in the collection may specify group transfer semantics, where transfer operations are replicated on the resources indicated by links in the collection, optionally selected using URI parameters. Group responses are aggregated using a multi-item format which identifies each item by URI.</t>
+<t>Resource links in the collection may specify group transfer semantics, where transfer operations are replicated on the resources indicated by links in the collection, optionally selected using URI parameters. Group responses may be aggregated using a multi-item format which identifies each item by URI.</t>
 
 </section>
 </section>
@@ -184,14 +184,14 @@
 <figure title="Example Item Element" align="left" anchor="fig-item-element"><artwork><![CDATA[
     {
       "n": "temp",
-      "v": "27"
+      "v": 27
     }
 ]]></artwork></figure>
 
 <section anchor="items-embedded-in-the-collection" title="Items embedded in the collection">
 <t>Items may be stored as simple sets of key-value pairs in the context of the collection. Items stored in this way may only offer item representations. Links about these items may be obtained from the collection that contains them.</t>
 
-<figure title="Example Items in a Collection" align="left" anchor="fig-example-item"><artwork><![CDATA[
+<figure title="Items Embedded in a Collection" align="left" anchor="fig-example-item"><artwork><![CDATA[
    [ 
      {
        "bi": "/sensors/"
@@ -206,20 +206,34 @@
      },
      {
        "n": "temp",
-       "v": "27"
+       "v": 27
      },
      {
        "n": "humid",
-       "v":"50"
+       "v": 50
      }
    ]
 ]]></artwork></figure>
 
 </section>
 <section anchor="items-stored-as-collections" title="Items stored as collections">
-<t>Alternatively, items themselves may be stored as collections, pointed to by links in other collections. Items stored as collections contain an item with a zero length name, and a self link for the item as shown in <xref target="fig-example-coll-item"/>. Items stored in this way may be augmented by adding additional resources and link content to the collection. Items stored as collections may offer link format and collection format representations.</t>
+<t>Alternatively, items themselves may be stored as single-item collections, pointed to by links in another collection. Items stored as collections may contain an item with a zero length name, and a self link for the item as shown in the collection representation of the item in <xref target="fig-example-coll-item"/>. Items stored in this way may be augmented by adding additional resources and link content to the collection. Items stored as collections may offer link format and collection format representations.</t>
 
-<figure title="Example Collection as Item" align="left" anchor="fig-example-coll-item"><artwork><![CDATA[
+<figure title="Items as Separate Collections" align="left" anchor="fig-example-coll-item"><artwork><![CDATA[
+   base collection:
+   [ 
+     {
+       "bi": "/sensors/"
+     },
+     {
+       "href": "temp/"
+     },
+     {
+       "href": "humid/"
+     }   
+   ]
+   
+   "temp" item:
    [ 
      {
        "bi": "/sensors/temp/"
@@ -228,9 +242,40 @@
        "rel": ["self","item"]
      },
      {
-       "v":"27"
+       "v": 27
      }
    ]
+   
+   "humid" item:
+   [ 
+     {
+       "bi": "/sensors/humid/"
+     },
+     {
+       "rel": ["self","item"]
+     },
+     {
+       "v": 50
+     }
+   ]
+]]></artwork></figure>
+
+<t>Items embedded in collections, and items linked and stored as separate collections, will all be returned using the item representation format as shown in <xref target="fig-example-senml-item"/>. A client interacting with the items representation of the example collection at /sensors/ would not need to understand the difference between embedded items and linked items that exposed similar content.</t>
+
+<figure title="Example Items Representation" align="left" anchor="fig-example-senml-item"><artwork><![CDATA[
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "n": "temp",
+        "v": 27
+      },
+      {
+        "n": "humid",
+        "v": 50 
+      }
+    ]
 ]]></artwork></figure>
 
 </section>
@@ -248,14 +293,13 @@
 <t><xref target="fig-example-hsml"/> shows an example document in hsml+json format. This example contains a base element, a link element, and an item element.</t>
 
 <figure title="application/hsml+json Example" align="left" anchor="fig-example-hsml"><artwork><![CDATA[
-    RETRIEVE /sensors/ accept=application/hsml.collection+json
-    or
     RETRIEVE /sensors/ accept=application/hsml+json
     or
-    RETRIEVE /sensors/ accept=application/hsml+json?if=hsml.collection
-
+    RETRIEVE /sensors/ accept=application/hsml.collection+json
+    or
+    RETRIEVE /sensors/ 
+      accept=application/hsml+json?if=hsml.collection
     Response Payload:
-    
     [
       {
         "bi": "/sensors/"
@@ -274,11 +318,11 @@
       },
       {
         "n": "temp",
-        "v": "27"
+        "v": 27
       },
       {
         "n": "humid",
-        "v":"50"
+        "v": 50
       }
     ]
 ]]></artwork></figure>
@@ -298,9 +342,7 @@
     RETRIEVE /sensors/ accept=application/hsml.link+json
     or
     RETRIEVE /sensors/ accept=application/hsml+json?if=hsml.link
-
     Response Payload:
-    
     [
       {
         "anchor": "/sensors/",
@@ -328,20 +370,18 @@
     RETRIEVE /sensors/ accept=application/hsml.item+json
     or
     RETRIEVE /sensors/ accept=application/hsml+json?if=hsml.item
-
     Response Payload:
-    
     [
       {
         "bi": "/sensors/"
       },
       {
         "n": "temp",
-        "v": "27"
+        "v": 27
       },
       {
         "n": "humid",
-        "v":"50"
+        "v": 50
       }
     ]
 ]]></artwork></figure>
@@ -350,16 +390,14 @@
 
 <figure title="Example link parameter selecting item" align="left" anchor="fig-example-hsml-item-rt"><artwork><![CDATA[
     RETRIEVE /sensors/?if=hsml.item&rt=some.sensor.temp
-    
     Response Payload:
-    
     [
       {
         "bi": "/sensors/"
       },
       {
         "n": "temp",
-        "v": "27"
+        "v": 27
       }    
     ]
 ]]></artwork></figure>
@@ -412,38 +450,306 @@
 <section anchor="target-resource-is-collection" title="Target Resource is Collection">
 
 <section anchor="retrieve" title="RETRIEVE">
-<t>List Selected Elements. Return a list of elements in the collection, including links and optionally representations of items, for example <xref target="fig-example-hsml"/>. Elements may include link extenstions, for example action links and monitor links.</t>
+<t>Return a representation of selected elements. Return a list of elements in the collection, including links and optionally representations of items, for example <xref target="fig-example-hsml-retrieve"/>. Elements may include link extenstions, for example action links and monitor links.</t>
 
-</section>
-<section anchor="create" title="CREATE">
-<t>Add Elements to Collection, where the elements are specified by representations included in the payload. Hints and directives about the created resource may be included in the payload as link parameters, for example a value for href, specifying the location of the created resource. The server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the “Location” option in CoAP or “Location” header in HTTP should be used to identify the created resource. THe server response should indicate that a resource was Created.</t>
+<figure title="Retrieve Collection" align="left" anchor="fig-example-hsml-retrieve"><artwork><![CDATA[
+    RETRIEVE /sensors/ accept=application/hsml.collection+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
+        "href": "temp",
+        "rt": "some.sensor.temp"
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
+      },
+      {
+        "n": "temp",
+        "v": 27
+      },
+      {
+        "n": "humid",
+        "v": 50
+      }
+    ]
+]]></artwork></figure>
 
 </section>
 <section anchor="update" title="UPDATE">
 <t>UPDATE Selected Elements, replacing all selected elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.</t>
 
+<figure title="Update Item in Collection" align="left" anchor="fig-example-hsml-update"><artwork><![CDATA[
+    UPDATE /sensors/?href=temp 
+      content-type=application/hsml.collection+json
+    Payload:
+    [
+      {
+        "rt": ["some.sensor.temp", "some.other.type"]
+      }
+    ]
+    Response: Changed
+    
+    RETRIEVE /sensors/ accept=application/hsml.collection+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
+        "href": "temp",
+        "rt": ["some.sensor.temp", "some.other.type"]
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
+      },
+      {
+        "n": "temp",
+        "v": 27
+      },
+      {
+        "n": "humid",
+        "v": 50
+      }
+    ]
+]]></artwork></figure>
+
+</section>
+<section anchor="create" title="CREATE">
+<t>Add Elements to Collection, including links and items, where the elements are specified by representations included in the payload. Hints and directives about the created resource may be included in the payload as link parameters, for example a value for href, specifying the location of the created resource. The server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the “Location” option in CoAP or “Location” header in HTTP should be used to identify the created resource. The server response should indicate that a resource was Created.</t>
+
+<figure title="Create Item in Collection" align="left" anchor="fig-example-hsml-create"><artwork><![CDATA[
+    CREATE /sensors/ content-type=application/hsml.collection+json
+    Payload:
+    [
+      {
+        "href": "barometer",
+        "rt": "some.sensor.mbar"
+      },
+      {
+        "n": "barometer",
+        "v": 993
+      }
+    ]
+    Response: Created
+    Location: "barometer"
+    
+    RETRIEVE /sensors/ accept=application/hsml.collection+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
+        "href": "barometer",
+        "rt": "some.sensor.mbar"
+      },
+      {
+        "href": "temp",
+        "rt": ["some.sensor.temp", "some.other.type"]
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
+      },
+      {
+        "n": "barometer",
+        "v": 993
+      },
+      {
+        "n": "temp",
+        "v": 27
+      },
+      {
+        "n": "humid",
+        "v": 50
+      }
+    ]
+]]></artwork></figure>
+
 </section>
 <section anchor="delete" title="DELETE">
 <t>Remove Selected Elements from the collection. If no elements are selected, remove the collection. The server response should indicate that the resource was Deleted.</t>
+
+<figure title="Delete Item in Collection" align="left" anchor="fig-example-hsml-delete"><artwork><![CDATA[
+    DELETE /sensors/?href=barometer
+    Response: Deleted
+    
+    RETRIEVE /sensors/ accept=application/hsml.collection+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
+        "href": "temp",
+        "rt": ["some.sensor.temp", "some.other.type"]
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
+      },
+      {
+        "n": "temp",
+        "v": 27
+      },
+      {
+        "n": "humid",
+        "v": 50
+      }
+    ]
+]]></artwork></figure>
 
 </section>
 </section>
 <section anchor="target-uri-is-collection-target-resource-is-link" title="Target URI is Collection, Target Resource is Link">
 
 <section anchor="retrieve-1" title="RETRIEVE">
-<t>List Selected Links, for example <xref target="fig-example-hsml-link"/>.</t>
+<t>List Selected Links, for example <xref target="fig-example-link-retrieve"/>.</t>
 
-</section>
-<section anchor="create-1" title="CREATE">
-<t>Add Links to the collection, where the links are included in the payload. The server response should indicate that the resource was Changed.</t>
+<figure title="Retrieve Links" align="left" anchor="fig-example-link-retrieve"><artwork><![CDATA[
+    RETRIEVE /sensors/ accept=application/hsml.link+json
+    Response Payload:
+    [
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
+        "href": "temp",
+        "rt": ["some.sensor.temp", "some.other.type"]
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
+      }
+    ]
+    
+    RETRIEVE /sensors/?rt=some.sensor.temp 
+    accept=application/hsml.link+json
+    Response Payload:
+    [
+      {
+        "href": "temp",
+        "rt": ["some.sensor.temp", "some.other.type"]
+      }
+    ]
+     
+]]></artwork></figure>
 
 </section>
 <section anchor="update-1" title="UPDATE">
 <t>Modify Selected Links, replacing link elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.</t>
 
+<figure title="Update Links" align="left" anchor="fig-example-link-update"><artwork><![CDATA[
+    UPDATE /sensors/?href=temp 
+    content-type=application/hsml.link+json
+    Payload:
+    [
+      {
+        "rt": "some.sensor.temp"
+      }
+    ]
+    
+    RETRIEVE /sensors/ accept=application/hsml.link+json
+    Response Payload:
+    [
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
+        "href": "temp",
+        "rt": "some.sensor.temp",
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
+      }
+    ]
+]]></artwork></figure>
+
+</section>
+<section anchor="create-1" title="CREATE">
+<t>Add Links to the collection, where the links are included in the payload. The server response should indicate that the resource was Changed.</t>
+
+<figure title="Create Links" align="left" anchor="fig-example-link-create"><artwork><![CDATA[
+    CREATE /sensors/ content-type=application/hsml.link+json
+    Payload:
+    [
+      {
+        "href": "/sensor-group/"
+      }
+    ]
+    Response: Changed
+    
+    RETRIEVE /sensors/ accept=application/hsml.link+json
+    Response Payload:
+    [
+      {
+        "href": "/sensor-group/"
+      },
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
+        "href": "temp",
+        "rt": "some.sensor.temp",
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
+      }
+    ]
+
+]]></artwork></figure>
+
 </section>
 <section anchor="delete-1" title="DELETE">
 <t>Remove Selected Links from the collection. The server response should indicate that the resource was Changed. If links point to items in the context of the collection, either remove the items as well as the links, or leave the collection as is and return a method error (Method Not Allowed).</t>
+
+<figure title="Delete Links" align="left" anchor="fig-example-link-delete"><artwork><![CDATA[
+    DELETE /sensors/?href=sensor-group 
+    Response: Changed
+   
+    RETRIEVE /sensors/ accept=application/hsml.link+json
+    Response Payload:
+    [
+      {
+        "anchor": "/sensors/",
+        "rel": ["self", "index"]
+      },
+      {
+        "href": "temp",
+        "rt": "some.sensor.temp",
+      },
+      {
+        "href": "humid",
+        "rt": "some.sensor.humid"
+      }
+    ]
+]]></artwork></figure>
 
 </section>
 </section>
@@ -457,19 +763,131 @@
 
 </section>
 <section anchor="retrieve-2" title="RETRIEVE">
-<t>Retrieve Selected Items, and return a composite representation of all selected items, for example <xref target="fig-example-hsml-item"/>.</t>
+<t>Retrieve Selected Items, and return a composite representation of all selected items, for example <xref target="fig-example-item-retrieve"/>.</t>
+
+<figure title="Retrieve Items" align="left" anchor="fig-example-item-retrieve"><artwork><![CDATA[
+    RETRIEVE /sensors/ accept=application/hsml.item+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "n": "temp",
+        "v": 27
+      },
+      {
+        "n": "humid",
+        "v": 50
+      }
+    ]
+    
+    RETRIEVE /sensors/?href=temp 
+    accept=application/hsml.item+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "n": "temp",
+        "v": 27
+      }
+    ]
+]]></artwork></figure>
 
 </section>
 <section anchor="update-2" title="UPDATE">
 <t>Modify Selected Items, replacing all selected items with items included in the payload which match by name “n” value. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.</t>
 
-</section>
-<section anchor="delete-2" title="DELETE">
-<t>Remove Selected Items and corresponding links from the collection. The server response should indicate that the resource was Deleted. If no items are selected, return a method error (Method Not Allowed).</t>
+<figure title="Update Items" align="left" anchor="fig-example-item-update"><artwork><![CDATA[
+    UPDATE /sensors/ content-type=application/hsml.item+json
+    Payload:
+    [
+      {
+        "n": "temp",
+        "v": 30
+      }
+    ]
+    Response: Changed
+
+    RETRIEVE /sensors/ accept=application/hsml.item+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "n": "temp",
+        "v": 30
+      },
+      {
+        "n": "humid",
+        "v": 50
+      }
+    ]
+]]></artwork></figure>
 
 </section>
 <section anchor="create-2" title="CREATE">
 <t>Create Items and add them to the collection with system-constructed links. Link content is determined by the resource type or traits defined by application semantics. Server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the “Location” option in CoAP or “Location” header in HTTP should be used to identify the created resource. THe server response should indicate that a resource was Created.</t>
+
+<figure title="Create Items" align="left" anchor="fig-example-item-create"><artwork><![CDATA[
+    CREATE /sensors/ content-type=application/hsml.item+json
+    Payload:
+    [
+      {
+        "n": "barometer",
+        "v": 1002
+      }
+    ]
+    Response: Created
+
+    RETRIEVE /sensors/ accept=application/hsml.item+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "n": "temp",
+        "v": 30
+      },
+      {
+        "n": "barometer",
+        "v": 1002
+      },
+      {
+        "n": "humid",
+        "v": 50
+      }
+    ]
+]]></artwork></figure>
+
+</section>
+<section anchor="delete-2" title="DELETE">
+<t>Remove Selected Items and corresponding links from the collection. The server response should indicate that the resource was Deleted. If no items are selected, return a method error (Method Not Allowed).</t>
+
+<figure title="Delete Items" align="left" anchor="fig-example-item-delete"><artwork><![CDATA[
+    DELETE /sensors/?href=barometer 
+    Response: Deleted
+
+    RETRIEVE /sensors/ accept=application/hsml.item+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensors/"
+      },
+      {
+        "n": "temp",
+        "v": 30
+      },
+      {
+        "n": "humid",
+        "v": 50
+      }
+    ]
+]]></artwork></figure>
 
 </section>
 </section>
@@ -478,17 +896,40 @@
 <section anchor="retrieve-3" title="RETRIEVE">
 <t>Return a representation of the Item in the content type according to the accept option of the RETRIEVE request, or using a system defined content-format if there is no accept option provided.</t>
 
-</section>
-<section anchor="create-3" title="CREATE">
-<t>Not Defined, application dependent.</t>
+<figure title="Retrieve One Item" align="left" anchor="fig-example-one-item-retrieve"><artwork><![CDATA[
+    RETRIEVE /sensors/temp accept=text/plain
+    Response Payload:
+    30    
+]]></artwork></figure>
 
 </section>
 <section anchor="update-3" title="UPDATE">
 <t>Replace the resource state with the state defined in the supplied representation according to the content-type or ct option. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.</t>
 
+<figure title="Update One Item" align="left" anchor="fig-example-one-item-update"><artwork><![CDATA[
+    UPDATE /sensors/temp content-type=text/plain
+    Payload:
+    33    
+    
+    RETRIEVE /sensors/temp accept=text/plain
+    Response Payload:
+    33   
+]]></artwork></figure>
+
+</section>
+<section anchor="create-3" title="CREATE">
+<t>Not Defined, application dependent.</t>
+
 </section>
 <section anchor="delete-3" title="DELETE">
 <t>Remove the links to the item from the collection, and remove the item. If the item is stored as a collection, remove the collection. The server response should indicate that the resource was Deleted.</t>
+
+<figure title="Delete One Item" align="left" anchor="fig-example-one-item-delete"><artwork><![CDATA[
+    DELETE /sensors/temp 
+    
+    RETRIEVE /sensors/temp accept=text/plain
+    Response: Not Found
+]]></artwork></figure>
 
 </section>
 </section>
@@ -496,23 +937,192 @@
 
 <t>Group transfer operations are provided by collections that contain links with the “grp” relation value.</t>
 
-<t>Transfer operations which specify the collection URI as target are sent to the resolved URI of each link in the collection that contains the “grp” relation.</t>
+<t>Transfer operations which specify the collection URI as target and use the item content format are sent to the resolved URI of each link in the collection that contains the “grp” relation.</t>
 
-<t>URI Parameters may be used to select a particular subset of target resources within the group in the collection.</t>
+<t>URI Parameters used for resource selection and matching are sent to the target URIs of all links that contain the “grp” relation.</t>
 
 <t>Responses from the selected group resources are aggregated and by default returned as a single response. The group response SHOULD be returned as an outer array where such representation is available, for example a JSON array which contains elements consisting of SenML responses.</t>
 
-<t>Optionally, a chunked response may be specified, if allowed by the transfer implementation, in which the response from each group member is returned individually as a sequence of responses.</t>
+<t>Optionally, a chunked response may be specified, if provided by the transfer implementation, in which the response from each group member is returned individually within a sequence of responses.</t>
 
+<t>The return code should be based on successful responses from link targets. An implementation of a group collection may choose to allow some rejected responses from link targets, depending on the composition of the link targets. A group may not be required to be composed of link targets that always accept all requests; this is at the discretion of the resource designer.</t>
+
+<t>No mechanism is provided in this document to enable a client to inspect the separate return codes from each group link target resource. Multiple transfer headers may be supplied in some representations, or mapped to metadata in others.</t>
+
+<t>The following examples assume the prior example from <xref target="fig-example-coll-item"/> indexed by a group collection as in <xref target="fig-example-hsml-grp"/>.</t>
+
+<figure title="Example Group Collection" align="left" anchor="fig-example-hsml-grp"><artwork><![CDATA[
+    RETRIEVE /sensor-group/ accept=application/hsml.collection+json
+    Response Payload:
+    [
+      {
+        "bi": "/sensor-group/"
+      },
+      {
+        "anchor": "/sensor-group/",
+        "rel": ["self", "index"]
+      },
+      {
+        "href": "/sensors/temp/",
+        "rel": "grp"
+      },
+      {
+        "href": "/sensors/humid/",
+        "rel": "grp"
+      }
+    ]
+]]></artwork></figure>
+
+<section anchor="retrieve-4" title="RETRIEVE">
+<t>Forwards the RETRIEVE request to each link in the collection that contains the “grp” relation. Returns the response from each link target as an element in an array representation.</t>
+
+<figure title="Example Group Retrieve" align="left" anchor="fig-example-hsml-grp-retrieve"><artwork><![CDATA[
+    RETRIEVE /sensor-group/ accept=application/hsml.item+json
+    Response Payload:
+    [
+      [
+        {
+          "bi": "/sensors/temp/"
+        },
+        {
+          "v": 33
+        }
+      ],
+      [
+        {
+          "bi": "/sensors/humid/"
+        },
+        {
+          "v": 41
+        }
+      ]
+    ]
+]]></artwork></figure>
+
+</section>
+<section anchor="update-4" title="UPDATE">
+<t>Forward the UPDATE request to each link in the collection that contains the “grp” relation.</t>
+
+<figure title="Example Group Update" align="left" anchor="fig-example-hsml-grp-update"><artwork><![CDATA[
+    UPDATE /sensor-group/ content-type=application/hsml.item+json
+    Payload:
+    [
+      {
+        "v": 0
+      }
+    ]
+    Response: Changed
+    
+    RETRIEVE /sensor-group/ accept=application/hsml.item+json
+    Response Payload:
+    [
+      [
+        {
+          "bi": "/sensors/temp/"
+        },
+        {
+          "v": 0
+        }
+      ],
+      [
+        {
+          "bi": "/sensors/humid/"
+        },
+        {
+          "v": 0
+        }
+      ]
+    ]
+]]></artwork></figure>
+
+</section>
+<section anchor="create-4" title="CREATE">
+<t>Forward the CREATE request to each link in the collection that contains the “grp” relation. In the example shown in <xref target="fig-example-hsml-grp-create"/>, an additional named resource is being created within each (collection type) item to hold a location value for that item.</t>
+
+<figure title="Example Group Create" align="left" anchor="fig-example-hsml-grp-create"><artwork><![CDATA[
+    CREATE /sensor-group/ content-type=application/hsml.item+json
+    Payload:
+    [
+      {
+        "n": "location",
+        "vs": "living room"
+      }
+    ]
+    Response: Created
+    
+    RETRIEVE /sensor-group/ accept=application/hsml.item+json
+    Response Payload:
+    [
+      [
+        {
+          "bi": "/sensors/temp/"
+        },
+        {
+          "v": 0
+        },
+        {
+          "n": "location",
+          "vs": "living room"
+        }
+
+      ],
+      [
+        {
+          "bi": "/sensors/humid/"
+        },
+        {
+          "v": 0
+        },
+        {
+          "n": "location",
+          "vs": "living room"
+        }
+      ]
+    ]
+]]></artwork></figure>
+
+</section>
+<section anchor="delete-4" title="DELETE">
+<t>Forward the DELETE request to each link in the collection that contains the “grp” relation. In the example shown in <xref target="fig-example-hsml-grp-delete"/>, the URI parameter ?href=location selects the resource at the relative URI reference “location” at each group link target for delete.</t>
+
+<figure title="Example Group Delete" align="left" anchor="fig-example-hsml-grp-delete"><artwork><![CDATA[
+    DELETE /sensor-group/?href=location 
+    Response: Deleted
+    
+    RETRIEVE /sensor-group/ accept=application/hsml.item+json
+
+    Response Payload:
+    [
+      [
+        {
+          "bi": "/sensors/temp/"
+        },
+        {
+          "v": 0
+        }
+      ],
+      [
+        {
+          "bi": "/sensors/humid/"
+        },
+        {
+          "v": 0
+        }
+      ]
+    ]
+
+]]></artwork></figure>
+
+</section>
 </section>
 </section>
 <section anchor="link-extensions" title="Link extensions">
 
 <section anchor="actions" title="Actions">
 
-<t>Actions are hypermedia controls, indicated by a rel=action value in a link, used to construct transfer operations that change the state of resources. The use roughly follows the use of forms in HTML <xref target="RFC1866"/>, with semantics more consistent with links.</t>
+<t>Actions are hypermedia controls, indicated by a rel=action value in a link, used to construct transfer operations that change the state of resources. The use roughly follows the use of forms in HTML <xref target="RFC1866"/>, with semantics more consistent with links. See <xref target="action-params"/> for more information.</t>
 
-<t>An example Action element is shown in <xref target="fig-action-element"/></t>
+<t>An example Action element is shown in <xref target="fig-action-element"/>.</t>
 
 <figure title="Example Action Element" align="left" anchor="fig-action-element"><artwork><![CDATA[
     {
@@ -532,7 +1142,9 @@
 
 <t>Monitors are hypermedia controls, indicated by a rel=monitor value in a link, used to construct transfer operations that expose state changes of resources. A monitor invokes an outbound transfer operation on a target resource. Monitors use the IANA registered link relation “monitor”, defined in <xref target="RFC5989"/>.</t>
 
-<t>An example Monitor element is shown in <xref target="fig-monitor-element"/></t>
+<t>Monitors have a set of accept parameters that indicate how the context resource is being observed, a set of filter parameters that indicate the conditions for generating a state change in the monitor, and a set of target parameters that indicate how state changes are to be applied to the monitor resource. See <xref target="monitor-params"/> for more information.</t>
+
+<t>An example Monitor element is shown in <xref target="fig-monitor-element"/>.</t>
 
 <figure title="Example Monitor Element" align="left" anchor="fig-monitor-element"><artwork><![CDATA[
     {
@@ -650,7 +1262,7 @@
 </list></t>
 
 </section>
-<section anchor="link-parameters-used-in-actions" title="Link Parameters used in Actions">
+<section anchor="action-params" title="Link Parameters used in Actions">
 
 <t><list style="hanging">
   <t hangText='“anchor”'><vspace blankLines='0'/>
@@ -674,7 +1286,7 @@
 </list></t>
 
 </section>
-<section anchor="link-parameters-used-in-monitors" title="Link Parameters used in Monitors">
+<section anchor="monitor-params" title="Link Parameters used in Monitors">
 
 <t><list style="hanging">
   <t hangText='“anchor”'><vspace blankLines='0'/>
@@ -744,7 +1356,7 @@
 </section>
 <section anchor="iana-cons" title="IANA Considerations">
 
-<section anchor="new-media-types-for-iana-media-type-registry" title="New Media Types for IANA Media Type registry">
+<section anchor="new-media-types" title="New Media Types">
 
 <t>Type</t>
 
@@ -775,7 +1387,7 @@
 </list></t>
 
 </section>
-<section anchor="new-content-formats-for-the-iana-core-parameters-registry" title="New Content Formats for the IANA CoRE Parameters Registry">
+<section anchor="new-core-parameters-content-formats" title="New CoRE Parameters Content Formats">
 
 <t>(subject to Structured Syntax encoding rules TBD)</t>
 
@@ -814,14 +1426,14 @@
 </list></t>
 
 </section>
-<section anchor="new-link-relation-types-rel" title="New Link Relation Types (rel=)">
+<section anchor="new-link-relation-types" title="New Link Relation Types">
 
 <t><list style="symbols">
   <t>grp</t>
 </list></t>
 
 </section>
-<section anchor="new-interface-types-if-for-the-iana-core-parameters-registry" title="New Interface types (if=) for the IANA CoRE Parameters Registry">
+<section anchor="new-core-interface-types" title="New CoRE Interface Types">
 
 <t><list style="symbols">
   <t>hsml.collection</t>
@@ -830,7 +1442,8 @@
 </list></t>
 
 </section>
-<section anchor="transfer-layer-method-definitions-may-use-the-default-curie-and-do-not-need-to-be-registered-with-iana" title="Transfer Layer method definitions may use the default CURIE and do not need to be registered with IANA">
+<section anchor="transfer-layer-methods" title="Transfer Layer Methods">
+<t>These definitions may use the default CURIE and do not need to be registered with IANA</t>
 
 <t><list style="symbols">
   <t>hsml:create</t>
