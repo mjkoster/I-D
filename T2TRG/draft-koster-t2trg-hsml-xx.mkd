@@ -78,7 +78,7 @@ informative:
 --- abstract
 The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group {{T2TRG}} has a charter to investigate the use of REST design style {{REST}}for machine interactions. The W3C Web of Things Interest Group {{W3C-WoT}} are investigating abstract hypermedia controls and interaction models for machines. Machine optimized content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{I-D.ietf-core-senml}}. 
 
-Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A common data model is described with a representation format that uses a common set of reserved keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.
+Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A simple, reusable data model is described with a representation format that uses a well known set of keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.
 
 --- middle
 
@@ -165,8 +165,8 @@ OBSERVE
 # Collections {#collection-description}
 Collection representations in HSML include Base Elements, Link Elements, and Item Elements.
 
-## Base elements
-Base elements describe the context under which to interpret values embedded in subsequent items within the representation of a collection.
+## Base element
+A base elements describes the context under which to interpret values embedded in subsequent items within the representation of a collection.
 
 The base identifier element (bi) may contain an absolute URI or an absolute path reference from which to base relative references found in the links. It functions as a base URI embedded in content as per {{RFC3986}} Section 5.1.1
 
@@ -181,7 +181,7 @@ The format of base elements are specified in {{I-D.ietf-core-senml}}. {{fig-exam
 ~~~    
 {: #fig-example-base-identifier title='Example Base URI' align="left"}
 
-Other base items from SenML are permissible, including base time (bt) and base value(bv). If additional senml base element are present, the client MUST interpret the items in the collection in the context of the applicable base elements. For example, if there is a "bv" or base value elment, all of the returned values from items in the collection MUST be added to the base value as per {{I-D.ietf-core-senml}}.
+Other base items from SenML are permissible, including base time (bt) and base value(bv). If additional senml base values are present, the client MUST interpret the items in the collection in the context of the applicable base elements. For example, if there is a "bv" or base value elment, all of the returned values from items in the collection MUST be added to the base value as per {{I-D.ietf-core-senml}}.
 
 ## Link element
 A link element is a hyperlink based on the structure and syntax of {{RFC6690}} and {{I-D.ietf-core-links-json}}. An example link element is shown in {{fig-link-element}}.
@@ -197,7 +197,7 @@ A link element is a hyperlink based on the structure and syntax of {{RFC6690}} a
 ## Item element
 An item element in a collection is a data element that is referenced by a link in the collection. 
 
-Items in the collection are indicated by references ("href") that serve as selection variables for matching to URI parameters and resource names ("n")in multi-resource representataions. Reference resolution should use the rules defined in {{RFC3986}}.
+Items in the collection are indicated by hyperlink references ("href") that serve as selection variables for matching to URI parameters and resource names ("n")in multi-resource representataions. Reference resolution should use the rules defined in {{RFC3986}}.
 
 Items may be embedded in the collection, they may be subresources of the collection, or they may be items in other collections referenced by links in the collection. An example item element is shown in {{fig-item-element}}
 
@@ -310,7 +310,7 @@ Link formats are useful for discovery workflow, item formats are useful for inte
 In addition to HSML native formats, standard CoRE Link-Format {{RFC6690}} and SenML formats {{I-D.ietf-core-senml}} may be exposed.
 
 ## Example Serialization Formats {#example-formats}
-{{fig-example-hsml}} shows an example document in hsml+json format. This example contains a base element, a link element, and an item element.
+{{fig-example-hsml}} shows an example document in hsml+json format. This example contains a base element, three link elements, and two item elements.
 
 ~~~~
     RETRIEVE /sensors/ accept=application/hsml+json
@@ -346,7 +346,7 @@ In addition to HSML native formats, standard CoRE Link-Format {{RFC6690}} and Se
       }
     ]
 ~~~~
-{: #fig-example-hsml title='application/hsml+json Example' align="left"}
+{: #fig-example-hsml title='Example Collection Format' align="left"}
 
 The HSML media type defines content formats and corresponding CoRE Interface Types that may select partial representations of the resource for interaction.
 
@@ -378,9 +378,9 @@ Link content formats, when used in an "accept" option or "content-type" option i
       }
     ]
 ~~~~
-{: #fig-example-hsml-link title='application/hsml.link+json Example' align="left"}
+{: #fig-example-hsml-link title='Example Lnk Format' align="left"}
 
-CoRE link-format content formats select RFC6690 compliant links, and may not return representations of extended links (rel=action, rel=monitor).
+CoRE link-format content formats, for example application/link-format+json,  select RFC6690 compliant links, and may not include representations of extended links (rel=action, rel=monitor).
 
 ### Item Formats
 
@@ -405,7 +405,7 @@ Item content formats, when used in an "accept" option or "content-type" option i
       }
     ]
 ~~~~
-{: #fig-example-hsml-item title='application/hsml.item+json Example' align="left"}
+{: #fig-example-hsml-item title='Example Item Format' align="left"}
 
 URI Parameters for matching link attributes and relations may be used to select items when item representations are being specified using either content-format (accept) or interface parameters (if=). For example:
 
@@ -422,7 +422,7 @@ URI Parameters for matching link attributes and relations may be used to select 
       }    
     ]
 ~~~~
-{: #fig-example-hsml-item-rt title='Example link parameter selecting item' align="left"}
+{: #fig-example-hsml-item-rt title='Item Selection Using Link Parameter' align="left"}
 
 SenML content formats select data records and return SenML compliant resource names. "bn" may optionally be returned when  compliant resource names "n" may be resolved through simple string concatenation as per {{I-D.ietf-core-senml}}.
 
@@ -454,20 +454,20 @@ Resource selection is performed based on matching URI Parameters with Link Param
 
 The target resource selection depends on the content-format specified in the request or the interface type specified in the URI parameters. 
 
-The collection content-formats or interface types select all links and items in the collection, including link extensions.
+The collection content-formats or interface types select all links and items in the collection, including link extensions. URI parameters included in the request should be matched against link parameters for selecting links and associated items. 
 
-The link content formats or interface types select all links in the collection. 
+The link content formats or interface types select all links in the collection. URI parameters included in the request should be matched against link parameters for link selection.
 
-The item content formats or interface types select all items in the collection.
+The item content formats or interface types select all items in the collection. URI parameters included in the request should be matched against link parameters associated with items in the collection for item selection as shown in {{fig-example-hsml-item-rt}}.
 
 # Transfer Model Mapping to Collections
 
-## Target Resource is Collection 
+## Target Resource is Collection, Format is Collection
 
 When the reference of a request targets a collection resource, using a collection format, the representation may contain both links and items. It is implied that operations using this format will interact with both links and items. The collection format is indicated by using a collection content type in the accept or content-type header, or by specifying a collection interface type e.g. if=hsml.collection.
 
 ### RETRIEVE 
-Return a representation of selected elements. Return a list of elements in the collection, including links and optionally representations of items, for example {{fig-example-hsml-retrieve}}. Elements may include link extenstions, for example action links and monitor links.
+Retrieve returns a representation of selected elements, consisting of a list of elements in the collection, including base element, links, and optionally representations of items, as shown in {{fig-example-hsml-retrieve}}. Elements may include link extenstions, for example action links and monitor links.
 
 ~~~~
     RETRIEVE /sensors/ accept=application/hsml.collection+json
@@ -501,7 +501,7 @@ Return a representation of selected elements. Return a list of elements in the c
 {: #fig-example-hsml-retrieve title='Retrieve Collection' align="left"}
 
 ### UPDATE 
-UPDATE Selected Elements, replacing all selected elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
+Update replaces all selected elements in the collection with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
 
 ~~~~
     UPDATE /sensors/?href=temp 
@@ -545,7 +545,7 @@ UPDATE Selected Elements, replacing all selected elements with elements included
 {: #fig-example-hsml-update title='Update Item in Collection' align="left"}
 
 ### CREATE 
-Add Elements to Collection, including links and items, where the elements are specified by representations included in the payload. Hints and directives about the created resource may be included in the payload as link parameters, for example a value for href, specifying the location of the created resource. The server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the "Location" option in CoAP or "Location" header in HTTP should be used to identify the created resource. The server response should indicate that a resource was Created.
+Create adds elements to a collection, including links and items, where the elements are specified by representations included in the payload. Hints and directives about the created resource may be included in the payload as link parameters, for example a value for href, specifying the location of the created resource. The server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the "Location" option in CoAP or "Location" header in HTTP should be used to identify the created resource. The server response should indicate that a resource was Created.
 
 ~~~~
     CREATE /sensors/ content-type=application/hsml.collection+json
@@ -602,7 +602,7 @@ Add Elements to Collection, including links and items, where the elements are sp
 {: #fig-example-hsml-create title='Create Item in Collection' align="left"}
 
 ### DELETE 
-Remove Selected Elements from the collection. If no elements are selected, remove the collection. The server response should indicate that the resource was Deleted.
+Delete removes selected elements from the collection. If no elements are selected, delete removes the entire collection. The server response should indicate that the resource was Deleted.
 
 ~~~~
     DELETE /sensors/?href=barometer
@@ -638,12 +638,12 @@ Remove Selected Elements from the collection. If no elements are selected, remov
 ~~~~
 {: #fig-example-hsml-delete title='Delete Item in Collection' align="left"}
 
-## Target URI is Collection, Target Resource is Link
+## Target Resource is Collection, Format is Link
 
 When a collection is referenced and the link format is indicated, using a link content format in the header or specifying a link interface type, e.g. if=hsml.link, it is expected that the request will interact with the links in the collection. 
 
 ### RETRIEVE 
-List Selected Links, for example {{fig-example-link-retrieve}}.
+Retrieve returns a list containing selected links, as shown in {{fig-example-link-retrieve}}.
 
 ~~~~
     RETRIEVE /sensors/ accept=application/hsml.link+json
@@ -677,7 +677,7 @@ List Selected Links, for example {{fig-example-link-retrieve}}.
 {: #fig-example-link-retrieve title='Retrieve Links' align="left"}
 
 ### UPDATE
-Modify Selected Links, replacing link elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
+Update modifies selected links, replacing link elements with elements included in the payload. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
 
 ~~~~
     UPDATE /sensors/?href=temp 
@@ -709,7 +709,7 @@ Modify Selected Links, replacing link elements with elements included in the pay
 {: #fig-example-link-update title='Update Links' align="left"}
 
 ### CREATE 
-Add Links to the collection, where the links are included in the payload. The server response should indicate that the resource was Changed.
+Create adds links to the collection, where the links are included in the payload. The server response should indicate that the resource was Changed.
 
 ~~~~
     CREATE /sensors/ content-type=application/hsml.link+json
@@ -745,7 +745,7 @@ Add Links to the collection, where the links are included in the payload. The se
 {: #fig-example-link-create title='Create Links' align="left"}
 
 ### DELETE
-Remove Selected Links from the collection. The server response should indicate that the resource was Changed. If links point to items in the context of the collection, either remove the items as well as the links, or leave the collection as is and return a method error (Method Not Allowed).
+Delete removes selected links from the collection. The server response should indicate that the resource was Changed. If links point to items in the context of the collection, either remove the items as well as the links, or leave the collection as is and return a method error (Method Not Allowed).
 
 ~~~~
     DELETE /sensors/?href=sensor-group 
@@ -770,7 +770,7 @@ Remove Selected Links from the collection. The server response should indicate t
 ~~~~
 {: #fig-example-link-delete title='Delete Links' align="left"}
 
-## Target URI is Collection, Target Resource is Item
+## Target Resource is Collection, Format is Item
 
 Whan a collection is referenced and the item format is indicated, either by including an item content type in the request header or using an item interface type, e.g. if=hsml.item, it is expected that the request will interact with the items in a collection. 
 
@@ -783,7 +783,7 @@ Collective operations on items in collections are invoked by using the URI of th
 Items which are compatible with the HSML item format may be returned with multiple items embedded in a single representation.
 
 ### RETRIEVE
-Retrieve Selected Items, and return a composite representation of all selected items, for example {{fig-example-item-retrieve}}.
+Retrieve returns a list containing a base element and a composite representation of the selected items as shown in {{fig-example-item-retrieve}}.
 
 ~~~~
     RETRIEVE /sensors/ accept=application/hsml.item+json
@@ -818,7 +818,7 @@ Retrieve Selected Items, and return a composite representation of all selected i
 {: #fig-example-item-retrieve title='Retrieve Items' align="left"}
 
 ### UPDATE
-Modify Selected Items, replacing all selected items with items included in the payload which match by name "n" value. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
+Update modifies selected items, replacing items in the collection with items included in the payload which match by name "n" value. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
 
 ~~~~
     UPDATE /sensors/ content-type=application/hsml.item+json
@@ -850,7 +850,7 @@ Modify Selected Items, replacing all selected items with items included in the p
 {: #fig-example-item-update title='Update Items' align="left"}
 
 ### CREATE
-Create Items and add them to the collection with system-constructed links. Link content is determined by the resource type or traits defined by application semantics. Server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the "Location" option in CoAP or "Location" header in HTTP should be used to identify the created resource. THe server response should indicate that a resource was Created.
+Create adds new items to the collection along with system-constructed links. Link content is determined by the resource type or traits defined by application semantics. Server is expected to return the location of created resource instances to the client in a header or other response parameter. For example, the "Location" option in CoAP or "Location" header in HTTP should be used to identify the created resource. THe server response should indicate that a resource was Created.
 
 ~~~~
     CREATE /sensors/ content-type=application/hsml.item+json
@@ -886,7 +886,7 @@ Create Items and add them to the collection with system-constructed links. Link 
 {: #fig-example-item-create title='Create Items' align="left"}
 
 ### DELETE
-Remove Selected Items and corresponding links from the collection. The server response should indicate that the resource was Deleted. If no items are selected, return a method error (Method Not Allowed).
+Delete removes selected items and corresponding links from the collection. The server response should indicate that the resource was Deleted. If no items are selected, return a not found error.
 
 ~~~~
     DELETE /sensors/?href=barometer 
@@ -911,12 +911,12 @@ Remove Selected Items and corresponding links from the collection. The server re
 {: #fig-example-item-delete title='Delete Items' align="left"}
 
 
-## Target URI is Item 
+## Target Resource is Item 
 
 When the URI of a reference points to an item in a collection, it is expected that the request will interact with a single item.
 
 ### RETRIEVE 
-Return a representation of the Item in the content type according to the accept option of the RETRIEVE request, or using a system defined content-format if there is no accept option provided.
+Retrieve returns a representation of the item in the content type according to the accept option of the RETRIEVE request, or using a system defined content-format if there is no accept option provided.
 
 ~~~~
     RETRIEVE /sensors/temp accept=text/plain
@@ -926,7 +926,7 @@ Return a representation of the Item in the content type according to the accept 
 {: #fig-example-one-item-retrieve title='Retrieve One Item' align="left"}
 
 ### UPDATE 
-Replace the resource state with the state defined in the supplied representation according to the content-type or ct option. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
+Update replaces the resource state with the state defined in the supplied representation according to the content-type or ct option. Update operations may include replace (PUT) and partial update (PATCH) oprations where supported in the transfer protocol. The server response should indicate that the resource was Changed.
 
 ~~~~
     UPDATE /sensors/temp content-type=text/plain
@@ -943,7 +943,7 @@ Replace the resource state with the state defined in the supplied representation
 Not Defined, application dependent.
 
 ### DELETE 
-Remove the links to the item from the collection, and remove the item. If the item is stored as a collection, remove the collection. The server response should indicate that the resource was Deleted.
+Delete removes any links to the item from the collection, and removes the item. If the item is stored as a collection, delete removes the collection. The server response should indicate that the resource was Deleted.
 
 ~~~~
     DELETE /sensors/temp 
@@ -957,7 +957,7 @@ Remove the links to the item from the collection, and remove the item. If the it
 
 Group transfer operations are provided by collections that contain links with the "grp" relation value. 
 
-Transfer operations which specify the collection URI as target and use the item content format are sent to the resolved URI of each link in the collection that contains the "grp" relation.
+Transfer operations which specify the collection URI as target and use the item content format are routed to the resolved URI of each link in the collection that contains the "grp" relation.
 
 URI Parameters used for resource selection and matching are sent to the target URIs of all links that contain the "grp" relation.
 
@@ -995,7 +995,7 @@ The following examples assume the prior example from {{fig-example-coll-item}} i
 {: #fig-example-hsml-grp title='Example Group Collection' align="left"}
 
 ### RETRIEVE
-Forwards the RETRIEVE request to each link in the collection that contains the "grp" relation. Returns the response from each link target as an element in an array representation. 
+Retrieve requests are routed to each link in the collection that contains the "grp" relation. The response from each link target is returned as an element in an array representation. 
 
 ~~~~
     RETRIEVE /sensor-group/ accept=application/hsml.item+json
@@ -1022,7 +1022,7 @@ Forwards the RETRIEVE request to each link in the collection that contains the "
 {: #fig-example-hsml-grp-retrieve title='Group Retrieve' align="left"}
 
 ### UPDATE
-Forward the UPDATE request to each link in the collection that contains the "grp" relation. 
+Update requests are routed to each link in the collection that contains the "grp" relation. The target resource of each group link processes the request, including URI parameters and content format. The result code returned should indicate that the resource is Changed if any resource state may have been updated.
 
 ~~~~
     UPDATE /sensor-group/ content-type=application/hsml.item+json
@@ -1058,7 +1058,7 @@ Forward the UPDATE request to each link in the collection that contains the "grp
 {: #fig-example-hsml-grp-update title='Group Update' align="left"}
 
 ### CREATE
-Forward the CREATE request to each link in the collection that contains the "grp" relation. In the example shown in {{fig-example-hsml-grp-create}}, an additional named resource is being created within each (collection type) item to hold a location value for that item.
+Create requests are routed to each link in the collection that contains the "grp" relation. In the example shown in {{fig-example-hsml-grp-create}}, an additional named resource is being created within each (collection type) item to hold a location value for that item. The result code should indicate that a resource was Created if any resource was created as a result of the create operation.
 
 ~~~~
     CREATE /sensor-group/ content-type=application/hsml.item+json
@@ -1103,9 +1103,8 @@ Forward the CREATE request to each link in the collection that contains the "grp
 ~~~~
 {: #fig-example-hsml-grp-create title='Group Create' align="left"}
 
-
 ### DELETE
-Forward the DELETE request to each link in the collection that contains the "grp" relation. In the example shown in {{fig-example-hsml-grp-delete}}, the URI parameter ?href=location selects the resource at the relative URI reference "location" at each group link target for delete.
+Delete requests are routed to each link in the collection that contains the "grp" relation. In the example shown in {{fig-example-hsml-grp-delete}}, the URI parameter ?href=location selects the resource at the relative URI reference "location" at each group link target for delete. The result code should indicate that a resource was Deleted if any resource was deleted as a result of the delete operation.
 
 ~~~~
     DELETE /sensor-group/?href=location 
@@ -1224,7 +1223,7 @@ The following keywords are reserved for use in an HSML serialization to indicate
 :    Link relation type as defined in {{RFC5988}} and {{RFC6690}}
 
 "href"
-:    Target of a link reference. This may be a relative reference in the collection e.g. "currentValue" or a local absolute reference "/sensors/temp/currentValue" or a full reference "https://example.com/sensors/temp/currentValue"
+:    Target of a link reference. This may be a relative path reference in the collection, e.g. "currentValue" or an absolute path reference on the server, "/sensors/temp/currentValue", or an absulute URI, for example  "https://example.com/sensors/temp/currentValue"
 {: vspace='0'}
 
 ### Link Relation Types
@@ -1290,7 +1289,7 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 ## Link Parameters used in Actions {#action-params}
 
 "anchor"
-:    May override the default context of an action and store it in a different location from the subject resource
+:    May override the default context of an action
 
 "rel"
 :    Indicates that this control is an action when rel contains the value "action"
