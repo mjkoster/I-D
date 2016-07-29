@@ -78,7 +78,7 @@ informative:
 --- abstract
 The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group {{T2TRG}} has a charter to investigate the use of REST design style {{REST}}for machine interactions. The W3C Web of Things Interest Group {{W3C-WoT}} are investigating abstract hypermedia controls and interaction models for machines. Machine optimized content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{I-D.ietf-core-senml}}. 
 
-Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A simple, reusable data model is described with a representation format that uses a well known set of keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.
+Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A simple, reusable data model is described with a representation format, using a well known set of keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible with SenML and CoRE Link-format by reusing the keyword identifiers and element structures from these content formats. Representations of HSML document content may be obtained in CoRE Link-Format and SenML content formats.
 
 --- middle
 
@@ -101,13 +101,13 @@ A standardized encapsulation of resources for modeling things, capabilities, gro
 
 # Data Model and Interaction Model {#model}
 
-The HSML data model consists of collections containing links and items. An instance of a collection is identified by a URI.
+The HSML data model consists of collections containing links which point to items. An instance of a collection is a resource and is identified by a URI.
 
 Links are standard web links as in {{RFC5988}} or {{RFC6690}}. Items are identified by links in collections. 
 
 Links in a collection may point to items within the context of the collection or they may point to items external to the collection, on the same server or on other servers.
 
-Items are data elements, either within the context the collection, or outide the context of the collection. An instance of an item is identified by a URI. 
+Items are data elements, either within the context the collection, or outide the context of the collection. An instance of an item is a resource and is identified by a URI. 
 
 An Item may only be in the context of one collection, but may be identified by any number of links in any number of collections. 
 
@@ -115,7 +115,7 @@ Items in the collection that use an HSML compatible data model, for example SenM
 
 ## Informative Representation Examples
 
-JSON formatted examples are used in this document to illustrate normative and informative concepts. Representations in other formats may be derived from the JSON representations.
+JSON formatted examples are used in this document to illustrate normative and informative concepts. Representations in other formats may be derived from the JSON representations. For example, compact binary mappings may be defined using available models. 
 
 ## Links
 
@@ -139,7 +139,7 @@ Applications may select resources by using URI parameters, and transfer represen
 
 ### Collective operation on groups of linked resources
 
-Resource links in the collection may specify group transfer semantics, where transfer operations are replicated on the resources indicated by links in the collection, optionally selected using URI parameters. Group responses may be aggregated using a multi-item format which identifies each item by URI.
+Resource links in the collection may specify group transfer semantics, where transfer operations are routed to each resource in the collection specified by a group link. Group responses are aggregated using a multi-item format which identifies each item by URI.
 
 # Abstract Transfer Model
 
@@ -1494,6 +1494,63 @@ Representations submitted to a server to update the state of a resource (UPDATE,
 
 ## Object Signing and Encryption
 Object signing and encryption SHOULD use the mechanisms specified in IETF documents for secure JSON Objects {{RFC7516}} and CBOR Objects {{I-D.ietf-cose-msg}} {{I-D.selander-ace-object-security}}.
+
+# Terminology
+
+Client
+:    Having a client role in a REST operation, transmitting a request and receiving one or more responses.
+
+Server
+:    Having a server role in a REST operation, the origin of data items or proxy for the origin. A server is also an authority for a URI namespace {{RFC3986}}.
+
+Resource
+:    Server endpoint for a REST operation, identified by a URI {{RFC3986}}
+
+Representation
+:    An encoded form of the state of a resource. The encoding rules may be specified in a media type or content type. Clients and servers exchange representations of resources in order to effect application state changes {{REST}}.
+
+URI
+:    Uniform Resource Identifier, used to identify a resource in a link or as a reference {{RFC3986}}
+
+Reference
+:    An identifier used to select or identify a particular resource. References are constructed by clients to identify resources when interacting with servers. Servers match references in client requests against URIs of hosted resources.
+
+Media Type, also Content-Format, Content-Type
+:    A set of rules for encoding, transfer, and prosessing resource representations
+
+Hypermedia
+:    Design style which uses metadata in the form of hyperlinks to structure resources in relation to each other
+
+Collection
+:    A composite resource that contains links and optionally data items
+
+Link, also Hyperlink
+:    A metadata element as described in {{RFC5988}} and {{RFC6690}} that contains a pointer to and description of some data element.
+
+Item
+:    A data item pointed to by one or more links in one or more collections.
+
+Context
+:    The context of a link is the subject of the link or the enclosing scope. In this document the collection is the default context for links in the collection.
+
+Target
+:    The target of a link is the resource being pointed to or described. Links in a collection point to and describe items as link targets.
+
+Transfer Layer
+:    A set of predefined message types used to implement state transfer semantics, for example REST.
+
+Request
+:    A message sent from a client to a server identifying the resource, representation, and method to use for the interaction with the server.
+
+Response
+:    A message sent from a server to a client in response to a request, which communicates the state of the identified resource.
+
+Operation or Method
+:    The state transition type requested by the client for the server to perform on the identified resource. Indicated by the transfer layer method, for example, RETRIEVE, UPDATE, CREATE, DELETE.
+
+Pubsub
+:    A transfer layer semantic interface based on the publish-subscribe paradigm, allowing for asynchronous messages to be routed on demand.
+{: vspace='0'}
 
 
 --- back

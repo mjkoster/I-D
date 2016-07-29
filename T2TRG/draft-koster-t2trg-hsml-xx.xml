@@ -45,7 +45,7 @@
 
 <t>The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group <xref target="T2TRG"/> has a charter to investigate the use of REST design style <xref target="REST"/>for machine interactions. The W3C Web of Things Interest Group <xref target="W3C-WoT"/> are investigating abstract hypermedia controls and interaction models for machines. Machine optimized content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.ietf-core-senml"/>.</t>
 
-<t>Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A simple, reusable data model is described with a representation format that uses a well known set of keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible both SenML and with CoRE Link-format by reusing the keyword identifiers and element structures from these documents in the base representation of the collection.</t>
+<t>Structured data which contains both links and items is known as the collection type. This draft describes media types for representation of machine resources structured as collections. A simple, reusable data model is described with a representation format, using a well known set of keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible with SenML and CoRE Link-format by reusing the keyword identifiers and element structures from these content formats. Representations of HSML document content may be obtained in CoRE Link-Format and SenML content formats.</t>
 
 
 
@@ -77,13 +77,13 @@
 </section>
 <section anchor="model" title="Data Model and Interaction Model">
 
-<t>The HSML data model consists of collections containing links and items. An instance of a collection is identified by a URI.</t>
+<t>The HSML data model consists of collections containing links which point to items. An instance of a collection is a resource and is identified by a URI.</t>
 
 <t>Links are standard web links as in <xref target="RFC5988"/> or <xref target="RFC6690"/>. Items are identified by links in collections.</t>
 
 <t>Links in a collection may point to items within the context of the collection or they may point to items external to the collection, on the same server or on other servers.</t>
 
-<t>Items are data elements, either within the context the collection, or outide the context of the collection. An instance of an item is identified by a URI.</t>
+<t>Items are data elements, either within the context the collection, or outide the context of the collection. An instance of an item is a resource and is identified by a URI.</t>
 
 <t>An Item may only be in the context of one collection, but may be identified by any number of links in any number of collections.</t>
 
@@ -91,7 +91,7 @@
 
 <section anchor="informative-representation-examples" title="Informative Representation Examples">
 
-<t>JSON formatted examples are used in this document to illustrate normative and informative concepts. Representations in other formats may be derived from the JSON representations.</t>
+<t>JSON formatted examples are used in this document to illustrate normative and informative concepts. Representations in other formats may be derived from the JSON representations. For example, compact binary mappings may be defined using available models.</t>
 
 </section>
 <section anchor="links" title="Links">
@@ -119,7 +119,7 @@
 </section>
 <section anchor="collective-operation-on-groups-of-linked-resources" title="Collective operation on groups of linked resources">
 
-<t>Resource links in the collection may specify group transfer semantics, where transfer operations are replicated on the resources indicated by links in the collection, optionally selected using URI parameters. Group responses may be aggregated using a multi-item format which identifies each item by URI.</t>
+<t>Resource links in the collection may specify group transfer semantics, where transfer operations are routed to each resource in the collection specified by a group link. Group responses are aggregated using a multi-item format which identifies each item by URI.</t>
 
 </section>
 </section>
@@ -1487,6 +1487,48 @@
 <t>Object signing and encryption SHOULD use the mechanisms specified in IETF documents for secure JSON Objects <xref target="RFC7516"/> and CBOR Objects <xref target="I-D.ietf-cose-msg"/> <xref target="I-D.selander-ace-object-security"/>.</t>
 
 </section>
+</section>
+<section anchor="terminology" title="Terminology">
+
+<t><list style="hanging">
+  <t hangText='Client'><vspace blankLines='0'/>
+  Having a client role in a REST operation, transmitting a request and receiving one or more responses.</t>
+  <t hangText='Server'><vspace blankLines='0'/>
+  Having a server role in a REST operation, the origin of data items or proxy for the origin. A server is also an authority for a URI namespace <xref target="RFC3986"/>.</t>
+  <t hangText='Resource'><vspace blankLines='0'/>
+  Server endpoint for a REST operation, identified by a URI <xref target="RFC3986"/></t>
+  <t hangText='Representation'><vspace blankLines='0'/>
+  An encoded form of the state of a resource. The encoding rules may be specified in a media type or content type. Clients and servers exchange representations of resources in order to effect application state changes <xref target="REST"/>.</t>
+  <t hangText='URI'><vspace blankLines='0'/>
+  Uniform Resource Identifier, used to identify a resource in a link or as a reference <xref target="RFC3986"/></t>
+  <t hangText='Reference'><vspace blankLines='0'/>
+  An identifier used to select or identify a particular resource. References are constructed by clients to identify resources when interacting with servers. Servers match references in client requests against URIs of hosted resources.</t>
+  <t hangText='Media Type, also Content-Format, Content-Type'><vspace blankLines='0'/>
+  A set of rules for encoding, transfer, and prosessing resource representations</t>
+  <t hangText='Hypermedia'><vspace blankLines='0'/>
+  Design style which uses metadata in the form of hyperlinks to structure resources in relation to each other</t>
+  <t hangText='Collection'><vspace blankLines='0'/>
+  A composite resource that contains links and optionally data items</t>
+  <t hangText='Link, also Hyperlink'><vspace blankLines='0'/>
+  A metadata element as described in <xref target="RFC5988"/> and <xref target="RFC6690"/> that contains a pointer to and description of some data element.</t>
+  <t hangText='Item'><vspace blankLines='0'/>
+  A data item pointed to by one or more links in one or more collections.</t>
+  <t hangText='Context'><vspace blankLines='0'/>
+  The context of a link is the subject of the link or the enclosing scope. In this document the collection is the default context for links in the collection.</t>
+  <t hangText='Target'><vspace blankLines='0'/>
+  The target of a link is the resource being pointed to or described. Links in a collection point to and describe items as link targets.</t>
+  <t hangText='Transfer Layer'><vspace blankLines='0'/>
+  A set of predefined message types used to implement state transfer semantics, for example REST.</t>
+  <t hangText='Request'><vspace blankLines='0'/>
+  A message sent from a client to a server identifying the resource, representation, and method to use for the interaction with the server.</t>
+  <t hangText='Response'><vspace blankLines='0'/>
+  A message sent from a server to a client in response to a request, which communicates the state of the identified resource.</t>
+  <t hangText='Operation or Method'><vspace blankLines='0'/>
+  The state transition type requested by the client for the server to perform on the identified resource. Indicated by the transfer layer method, for example, RETRIEVE, UPDATE, CREATE, DELETE.</t>
+  <t hangText='Pubsub'><vspace blankLines='0'/>
+  A transfer layer semantic interface based on the publish-subscribe paradigm, allowing for asynchronous messages to be routed on demand.</t>
+</list></t>
+
 </section>
 
 
