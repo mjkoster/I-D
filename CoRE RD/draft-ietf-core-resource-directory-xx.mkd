@@ -1,7 +1,7 @@
 ---
 title: CoRE Resource Directory
-docname: draft-ietf-core-resource-directory-08
-date: 2016-07-07
+docname: draft-ietf-core-resource-directory-10pre
+date: 2016-12-20
 stand_alone: true
 ipr: trust200902
 cat: std
@@ -60,20 +60,23 @@ normative:
   RFC3986:
   RFC5226:
   RFC5988:
-  RFC6335:
+#  RFC6335: portreg
   RFC6570:
-  RFC6763:
+#  RFC6763: dnssd
   RFC7396:
   I-D.ietf-core-links-json:
 informative:
   RFC7252:
-  RFC7390: 
+  RFC7390:
   RFC6775:
   RFC7230:
-  RFC3629:
-  RFC5198:
-  RFC1123:
-  RFC1034:
+#  RFC3629: utf8
+#  RFC5198: nvt-utf8
+#  RFC1123: hostreq
+#  RFC1034: dns1
+  dns-sd:
+    title: "DNS-SD extracted part to be submitted separately"
+    org:
 
 --- abstract
 
@@ -84,7 +87,7 @@ a Resource Directory (RD), which hosts descriptions of resources held on
 other servers, allowing lookups to be performed for those resources. This
 document specifies the web interfaces that a Resource Directory supports
 in order for web servers to discover the RD and to register, maintain, lookup
-and remove resources descriptions. Furthermore, new link attributes useful
+and remove resource descriptions. Furthermore, new link attributes useful
 in conjunction with an RD are defined.
 
 --- middle
@@ -136,6 +139,7 @@ format is used {{RFC6570}}.
 
 This specification makes use of the following additional terminology:
 
+{: vspace='0'}
 Resource Directory
 :   A web entity that stores information about web resources and implements the
 REST interfaces defined in this specification for registration and lookup
@@ -158,10 +162,12 @@ Endpoint
 web server that registers resources to the Resource Directory. An endpoint
 is identified by its endpoint name, which is included during registration,
 and is unique within the associated domain of the registration.
-{: vspace='0'}
 
 Commissioning Tool
 : Commissioning Tool (CT) is a device that assists during the installation of the network by assigning values to parameters, naming endpoints and groups, or adapting the installation to the needs of the applications.
+
+RDAO
+: Resource Directory Address Option.
 
 
 # Architecture and Use Cases {#arch}
@@ -295,7 +301,7 @@ to the desired resources and endpoints. The Resource Directory service need
 not be coupled with the data intermediary service. Mapping of Resource Directories
 to data intermediaries may be many-to-many.
 
-Metadata in web link compatible representations are supplied by Resource Directories, which may be internally stored as  triples, or relation/attribute
+Metadata in web-link compatible representations are supplied by Resource Directories, which may be internally stored as  triples, or relation/attribute
 pairs providing metadata about resource links. External catalogs that are
 represented in other formats may be converted to common web linking formats for storage and access by Resource Directories. Since it is common practice for these to be URN encoded, simple and lossless structural transforms should
 generally be sufficient to store external metadata in Resource Directories.
@@ -338,12 +344,17 @@ unwillingness of a CoAP server to act as a directory server.
 
 ## Resource Directory Address Option (RDAO) {#rdao}
 The Resource Directory Option (RDAO) using IPv6 neighbor Discovery (ND) carries
-information about the address of the Resource Directory (RD). This information is 
-needed when endpoints cannot discover the Resource Directory with link-local 
-multicast address because the endpoint and the RD are separated by a border Router 
-(6LBR). In many circumstances the availability of DHCP cannot be guaranteed either 
-during commissioning of the network. The presence and the use of the RD is 
+information about the address of the Resource Directory (RD). This information is
+needed when endpoints cannot discover the Resource Directory with link-local
+multicast address because the endpoint and the RD are separated by a border Router
+(6LBR). In many circumstances the availability of DHCP cannot be guaranteed either
+during commissioning of the network. The presence and the use of the RD is
 essential during commissioning.
+
+It is possible to send multiple RDAO options in one message,
+indicating as many resource directory addresses.
+
+The lifetime 0x0 means that the RD address is invalid and to be removed.
 
 The RDAO format is:
 
@@ -375,10 +386,10 @@ Length:                 8-bit unsigned integer.  The length of
 Valid Lifetime:         16-bit unsigned integer.  The length of
                         time in units of 60 seconds (relative to
                         the time the packet is received) that
-                        this set of border router information is
-                        valid.  A value of all zero bits (0x0)
-                        assumes a default value of 10,000
-                        (~one week).
+                        this Resource Directory address is valid.
+                        A value of all zero bits (0x0) indicates
+                        that this Resource Directory address
+                        is not valid anymore.
 
 Reserved:               This field is unused.  It MUST be
                         initialized to zero by the sender and
@@ -391,9 +402,9 @@ RD Address:             IPv6 address of the RD.
 # Simple Registration {#simple}
 
 Not all endpoints hosting resources are expected to know how to implement the
-Resource Directory Function Set (see {{rd}}) hence cannot register with a Resource Directory. Instead, simple endpoints can implement the generic Simple Directory 
-Discovery approach described in this section. An RD implementing this 
-specification MUST implement Simple Directory Discovery. However, there may 
+Resource Directory Function Set (see {{rd}}) hence cannot register with a Resource Directory. Instead, simple endpoints can implement the generic Simple Directory
+Discovery approach described in this section. An RD implementing this
+specification MUST implement Simple Directory Discovery. However, there may
 be security reasons why this form of directory discovery would be disabled.
 
 This approach requires that the endpoint makes available the hosted resources
@@ -412,20 +423,20 @@ this document.
 
 ## Simple publishing to Resource Directory Server {#simple_publishing}
 
-An endpoint that wants to make itself discoverable occasionally sends a POST 
-request to the `/.well-known/core` URI of any candidate directory server that 
-it finds. The body of the POST request is empty, which triggers the resource 
-directory server to perform GET requests at the requesting server's default 
+An endpoint that wants to make itself discoverable occasionally sends a POST
+request to the `/.well-known/core` URI of any candidate directory server that
+it finds. The body of the POST request is empty, which triggers the resource
+directory server to perform GET requests at the requesting server's default
 discovery URI to obtain the link-format payload to register.
 
-The endpoint MAY include registration parameters in the POST request as per {{registration}}
+The endpoint MUST include the endpoint name and MAY include other registration parameters in the POST request as per {{registration}}.
 
 The following example shows an endpoint using simple publishing,
 by simply sending an empty POST to a resource directory.
 
 ~~~~
-Req:(to RD server from [ff02::1]) 
-POST coap://rd.example.com/.well-known/core?lt=6000
+Req:(to RD server from [ff02::1])
+POST coap://rd.example.com/.well-known/core?lt=6000;ep=node1
 
 Content-Format: 40
 
@@ -437,7 +448,7 @@ Res: 2.04 Changed
 
 (later)
 
-Req: (from RD server to [ff02::1]) 
+Req: (from RD server to [ff02::1])
 GET coap://[ff02::1]/.well-known/core
 
 Accept: 40
@@ -448,7 +459,6 @@ payload:
 
 </sen/temp>
 ~~~~
-{: align="left"}
 
 
 ## Third-party registration {#third-party-registration}
@@ -469,8 +479,8 @@ indicated in the Context parameter of the registration described in {{registrati
 This section defines the REST interfaces between an RD and endpoints, which
 is called the Resource Directory Function Set. Although the examples
 throughout this section assume the use of CoAP {{RFC7252}}, these REST
-interfaces can also be realized using HTTP {{RFC7230}}. In all definitions in this section, both CoAP response codes (with dot notation) and HTTP response codes 
-(without dot notation) are shown. An RD implementing this specification MUST support 
+interfaces can also be realized using HTTP {{RFC7230}}. In all definitions in this section, both CoAP response codes (with dot notation) and HTTP response codes
+(without dot notation) are shown. An RD implementing this specification MUST support
 the discovery, registration, update, lookup, and removal interfaces defined in this section.
 
 Resource directory entries are designed to be easily exported to other
@@ -501,8 +511,8 @@ well-known interface of the CoRE Link Format {{RFC6690}} as the required
 mechanism. It is however expected that RDs will also be discoverable via
 other methods depending on the deployment.
 
-Discovery of the RD function set is performed by sending either a multicast or 
-unicast GET request to `/.well-known/core` and including a Resource Type (rt) 
+Discovery of the RD function set is performed by sending either a multicast or
+unicast GET request to `/.well-known/core` and including a Resource Type (rt)
 parameter {{RFC6690}} with the value "core.rd" in the query string. Likewise, a
 Resource Type parameter value of "core.rd-lookup" is used to discover the RD
 Lookup Function Set.  Upon success, the response will contain a payload with
@@ -513,7 +523,7 @@ of the network.
 
 A Resource Directory MAY provide hints about the content-formats it supports in the links it exposes or registers, using the "ct" link attribute, as shown in the example below. Clients MAY use these hints to select alternate content-formats for interaction with the Resource Directory.
 
-HTTP does not support multicast and consequently only unicast discovery can be supported 
+HTTP does not support multicast and consequently only unicast discovery can be supported
 using HTTP. Links to Resource Directories MAY be registered in other Resource Directories,
 and well-known entry points SHOULD be provided to enable the bootstrapping of unicast discovery.
 
@@ -533,7 +543,7 @@ URI Template:
 
 URI Template Variables:
 : rt :=
-  : Resource Type (optional). MAY contain one or more of the values "core.rd", "core.rd-lookup",
+  : Resource Type (optional). MAY contain one of the values "core.rd", "core.rd-lookup",
   "core.rd-group" or "core.rd\*"
 
 Content-Format:
@@ -566,7 +576,7 @@ HTTP support :
 : YES (Unicast only)
 
 The following example shows an endpoint discovering an RD using this interface,
-thus learning that the base RD resource is, in this example, at /rd and that the content_format delivered by the server hosting the resource is application.xml (ct=40).  Note
+thus learning that the base RD resource is, in this example, at /rd and that the content_format delivered by the server hosting the resource is application/link-format (ct=40).  Note
 that it is up to the RD to choose its base RD resource, although diagnostics
 and debugging is facilitated by using the base paths specified here where
 possible.
@@ -579,24 +589,24 @@ Res: 2.05 Content
 </rd-lookup>;rt="core.rd-lookup";ct=40,
 </rd-group>;rt="core.rd-group";ct=40
 ~~~~
-{: align="left"}
 
-The following example shows the way of indicating that a client may request 
+The following example shows the way of indicating that a client may request
 alternate content-formats. The Content-Format code attribute "ct" MAY include a
 space-separated sequence of Content-Format codes as specified in
-[RFC7252], indicating that multiple content-formats are available.
-The example below shows the required ct=40 (application/link-format) 
-indicated as well as a vendor-specific content format (21225).
+Section 7.2.1 of {{RFC7252}}, indicating that multiple content-formats are available.
+The example below shows the required Content-Format 40 (application/link-format)
+indicated as well as a more application-specific content format
+(picked as 65225 in this example; this is in the experimental space, not an assigned value).
+The base RD resource values /rd, /rd-lookup, and /rd-group are example values.
 
 ~~~~
 Req: GET coap://[ff02::1]/.well-known/core?rt=core.rd*
 
 Res: 2.05 Content
-</rd>;rt="core.rd";ct="40 21225",
-</rd-lookup>;rt="core.rd-lookup";ct="40 21225",
-</rd-group>;rt="core.rd-group";ct="40 21225"
+</rd>;rt="core.rd";ct="40 65225",
+</rd-lookup>;rt="core.rd-lookup";ct="40 65225",
+</rd-group>;rt="core.rd-group";ct="40 65225"
 ~~~~
-{: align="left"}
 
 ## Registration {#registration}
 
@@ -614,7 +624,7 @@ resources in the RD are kept active for the period indicated by the lifetime
 parameter. The endpoint is responsible for refreshing the entry within this
 period using either the registration or update interface. The registration
 interface MUST be implemented to be idempotent, so that registering twice
-with the same endpoint parameter does not create multiple RD entries. A new registration may be created at any time to supercede an existing registration, replacing the registration parameters and links.
+with the same endpoint parameter does not create multiple RD entries. A new registration may be created at any time to supersede an existing registration, replacing the registration parameters and links.
 
 The registration request interface is specified as follows:
 
@@ -634,8 +644,8 @@ URI Template Variables:
 : rd :=
   : RD Function Set
     path (mandatory). This is the path of
-    the RD Function Set, as obtained from discovery. An RD SHOULD use the value
-    "rd" for this variable whenever possible.
+    the RD Function Set, as obtained from discovery. The value
+    "rd" is recommended for this variable.
 
   ep :=
   : Endpoint name (mandatory). The endpoint name is an identifier
@@ -643,7 +653,7 @@ URI Template Variables:
     parameter is 63 bytes.
 
   d :=
-  : Domain (optional). The domain to which this endpoint belongs. The maximum 
+  : Domain (optional). The domain to which this endpoint belongs. The maximum
     length of this parameter is 63 bytes. When this parameter is elided, the
     RD MAY associate the endpoint with a configured default domain. The domain
     value is needed to export the endpoint to DNS-SD (see {{dns-sd}}).
@@ -698,8 +708,8 @@ HTTP support:
 : YES
 
 The following example shows an endpoint with the name "node1" registering
-two resources to an RD using this interface. The resulting location /rd/4521
-is just an example of an RD generated location.
+two resources to an RD using this interface. The location "/rd"
+is an example value of an RD base location.
 
 ~~~~
 Req: POST coap://rd.example.com/rd?ep=node1
@@ -711,7 +721,6 @@ Payload:
 Res: 2.01 Created
 Location: /rd/4521
 ~~~~
-{: align="left"}
 
 ~~~~
 Req: POST /rd?ep=node1 HTTP/1.1
@@ -724,7 +733,6 @@ Payload:
 Res: 201 Created
 Location: /rd/4521
 ~~~~
-{: align="left"}
 
 
 ## Registration Update {#update}
@@ -732,21 +740,21 @@ Location: /rd/4521
 The update interface is used by an endpoint to refresh or update its
 registration with an RD. To use the interface, the endpoint sends a POST
 request to the resource returned in the Location option in the response to
-the first registration.  
+the first registration.
 
-An update MAY update the lifetime or context registration parameters 
-"lt", "con" as in {{registration}} ) if they have changed since the 
-last registration or update. Parameters that have not changed SHOULD NOT 
-be included in an update. Adding parameters that have not changed increases 
-the size of the message but does not have any other implications. 
+An update MAY update the lifetime or context registration parameters
+"lt", "con" as in {{registration}} ) if they have changed since the
+last registration or update. Parameters that have not changed SHOULD NOT
+be included in an update. Adding parameters that have not changed increases
+the size of the message but does not have any other implications.
 Parameters MUST be included as query parameters in an update operation as
-in {registration}.
+in {{registration}}.
 
 Upon receiving an update request, an RD MUST reset the timeout for that
 endpoint and update the scheme, IP address and port of the endpoint, using
-the source address of the update, or the context ("con") parameter if present. 
-If the lifetime parameter "lt" is included in the received update request, 
-the RD MUST update the lifetime of the registration and set the timeout equal 
+the source address of the update, or the context ("con") parameter if present.
+If the lifetime parameter "lt" is included in the received update request,
+the RD MUST update the lifetime of the registration and set the timeout equal
 to the new lifetime.
 
 An update MAY optionally add or replace links for the endpoint by including
@@ -754,7 +762,7 @@ those links in the payload of the update as a CoRE Link Format
 document. A link is replaced only if both the target URI and relation type match.
 
 In addition to the use of POST, as described in this section, there is an
-alternate way to add, replace, and delete links using PATCH as described 
+alternate way to add, replace, and delete links using PATCH as described
 in {{link-up}}.
 
 The update registration request interface is specified as follows:
@@ -776,15 +784,16 @@ URI Template Variables:
 
   lt :=
   : Lifetime (optional). Lifetime of the registration in seconds. Range of 60-4294967295.
-    If no lifetime is included, a default value of 86400 (24 hours) SHOULD be
-    assumed.
+    If no lifetime is included, the previous last
+  lifetime set on a previous update or the original registration
+  (falling back to 86400) SHOULD be used.
 
 
   con :=
   : Context (optional). This parameter sets the scheme, address and port at
     which this server is available in the form
     scheme://host:port. Optional. In the absence of this parameter the scheme
-    of the protocol, source IP address and source port used to register are
+    of the protocol, source IP address and source port set on the previous update or registration are
     assumed. This parameter is compulsory when the directory is filled by a
     third party such as a commissioning tool.
 
@@ -816,17 +825,16 @@ HTTP support:
 
 
 The following example shows an endpoint updating its registration at
-an RD using this interface.
+an RD using this interface with the example location value: /rd/4521.
 
 ~~~~
 Req: POST /rd/4521
 
 Res: 2.04 Changed
 ~~~~
-{: align="left"}
 
 
-The following example shows an endpoint updating its registration with a new lifetime and context, changing an existing link, and adding a new link using this interface.
+The following example shows an endpoint updating its registration with a new lifetime and context, changing an existing link, and adding a new link using this interface with the example location value /rd/4521.
 With the initial registration the client set the following values:
 
 * lifetime (lt)=500
@@ -842,7 +850,6 @@ Payload:
 
 Res: 2.04 Changed
 ~~~~
-{: align="left"}
 
 
 ## Registration Removal {#removal}
@@ -885,7 +892,7 @@ Failure:
 
 HTTP support: YES
 
-The following examples shows successful removal of the endpoint from the RD.
+The following examples shows successful removal of the endpoint from the RD with example location value /rd/4521.
 
 
 ~~~~
@@ -893,7 +900,6 @@ Req: DELETE /rd/4521
 
 Res: 2.02 Deleted
 ~~~~
-{: align="left"}
 
 
 ## Read Endpoint Links {#read}
@@ -936,7 +942,7 @@ Failure:
 
 HTTP support: YES
 
-The following examples show successful read of the endpoint links from the RD.
+The following examples show successful read of the endpoint links from the RD, with example location value /rd/4521.
 
 
 ~~~~
@@ -947,7 +953,6 @@ Payload:
 </sensors/temp>;ct=41;rt="temperature-c";if="sensor",
 </sensors/light>;ct=41;rt="light-lux";if="sensor"
 ~~~~
-{: align="left"}
 
 
 ## Update Endpoint Links {#link-up}
@@ -955,13 +960,13 @@ Payload:
 \[This section will be removed before or as a result of a working-group last-call if the PATCH methods do not achieve the same level of consensus as the present document.]
 
 A PATCH update adds, removes or changes links for the endpoint by including link update information in the payload of the update as a merge-patch+json format {{RFC7396}}
-document. 
+document.
 
 One or more links are selected for update by using query filtering as specified in {{RFC6690}} Section 4.1
 
 The query filter selects the links to be modified or deleted, by matching the query parameter values to the values of the link attributes.
 
-When the query parameters are not present in the request, the payload specifies links to be added to the target document. When the query parameters are present, the attribute names and values in the query parameters select one or more links on which to apply the PATCH operation. 
+When the query parameters are not present in the request, the payload specifies links to be added to the target document. When the query parameters are present, the attribute names and values in the query parameters select one or more links on which to apply the PATCH operation.
 
 If an attribute name specified in the PATCH document exists in any the set of selected links, all occurrences of the attribute value in the target document MUST be updated using the value from the PATCH payload. If the attribute name is not present in any selected links, the attribute MUST be added to the links.
 
@@ -1002,7 +1007,7 @@ Failure:
 
 HTTP support: YES
 
-The following examples show an endpoint adding </sensors/humid>, modifying </sensors/temp>, and removing </sensors/light> links in RD using the Update Endpoint Links function.
+The following examples show an endpoint adding </sensors/humid>, modifying </sensors/temp>, and removing </sensors/light> links in RD using the Update Endpoint Links function with the example location value /rd/4521.
 
 
 The following example shows an EP adding the link </sensors/humid>;ct=41;rt="humid-s";if="sensor" to the collection of links at the location /rd/4521.
@@ -1011,7 +1016,7 @@ The following example shows an EP adding the link </sensors/humid>;ct=41;rt="hum
 ~~~~
 Req: PATCH /rd/4521
 
-Payload: 
+Payload:
 [{"href":"/sensors/humid","ct": 41, "rt": "humid-s", "if": "sensor"}]
 
 Content-Format:
@@ -1019,16 +1024,15 @@ application/merge-patch+json
 
 Res: 2.04 Changed
 ~~~~
-{: align="left"}
 
 
-The following example shows an EP modifying all links at the location /rd/4521 which are  identified by href="/sensors/temp", from the initial link-value of </sensors/temp>;rt="temperature" to the new link-value </sensors/temp>;rt="temperature-c";if="sensor" by changing the value of the link attribute "rt" and adding the link attribute if="sensor" using the PATCH operation with the supplied merge-patch+json document payload.
+The following example shows an EP modifying all links at the example location /rd/4521 which are  identified by href="/sensors/temp", from the initial link-value of </sensors/temp>;rt="temperature" to the new link-value </sensors/temp>;rt="temperature-c";if="sensor" by changing the value of the link attribute "rt" and adding the link attribute if="sensor" using the PATCH operation with the supplied merge-patch+json document payload.
 
 
 ~~~~
-Req: PATCH /rd/4521?href="/sensors/temp"
+Req: PATCH /rd/4521?href=/sensors/temp
 
-Payload: 
+Payload:
 {"rt": "temperature-c", "if": "sensor"},
 
 Content-Format:
@@ -1036,15 +1040,14 @@ application/merge-patch+json
 
 Res: 2.04 Changed
 ~~~~
-{: align="left"}
 
 
-This example shows an EP removing all links at the location /rd/4521 which are identified by href="/sensors/light". 
+This example shows an EP removing all links at the example location /rd/4521 which are identified by href="/sensors/light".
 
 ~~~~
-Req: PATCH /rd/4521?href="/sensors/light"
+Req: PATCH /rd/4521?href=/sensors/light
 
-Payload: 
+Payload:
 {null}
 
 Content-Format:
@@ -1052,7 +1055,6 @@ application/merge-patch+json
 
 Res: 2.04 Changed
 ~~~~
-{: align="left"}
 
 
 # Group Function Set {#group}
@@ -1071,7 +1073,7 @@ In order to create a group, a commissioning tool (CT) used to configure groups,
 makes a request to the RD indicating the name of the group to create (or
 update), optionally the domain the group belongs to, and optionally the multicast
 address of the group. The registration message includes the list of endpoints
-that belong to that group. 
+that belong to that group.
 
 All the endpoints in the group MUST be registered with the RD before registering a group. If an endpoint is not yet registered to the RD before registering the group, the registration message returns an error. The RD sends a blank target URI for every endpoint link when registering the group.
 
@@ -1093,8 +1095,7 @@ URI Template:
 URI Template Variables:
 : rd-group :=
   : RD Group Function Set path (mandatory). This is the path of the RD Group
-    Function Set. An RD SHOULD use the value "rd-group" for this variable whenever
-    possible.
+    Function Set. The value "rd-group" is recommended for this variable.
 
   gp :=
   : Group Name (mandatory). The name of the group to be created or replaced,
@@ -1142,8 +1143,8 @@ Failure:
 HTTP support:
 : YES
 
-The following example shows an EP registering a group with the name “lights” which has two endpoints to an RD using this interface. The resulting location /rd-group/12
-is just an example of an RD generated group location.
+The following example shows an EP registering a group with the name “lights” which has two endpoints to an RD using this interface. The base location value /rd-group
+is an example of an RD base location.
 
 
 ~~~~
@@ -1156,7 +1157,6 @@ Payload:
 Res: 2.01 Created
 Location: /rd-group/12
 ~~~~
-{: align="left"}
 
 ~~~~
 Req: POST /rd-group?gp=lights HTTP/1.1
@@ -1169,7 +1169,6 @@ Payload:
 Res: 201 Created
 Location: /rd-group/12
 ~~~~
-{: align="left"}
 
 ## Group Removal {#group-removal}
 
@@ -1212,7 +1211,7 @@ HTTP support:
 : YES
 
 
-The following examples shows successful removal of the group from the RD.
+The following examples shows successful removal of the group from the RD with the example location value /rd-group/12.
 
 
 ~~~~
@@ -1220,7 +1219,6 @@ Req: DELETE /rd-group/12
 
 Res: 2.02 Deleted
 ~~~~
-{: align="left"}
 
 
 
@@ -1236,19 +1234,19 @@ based lookup).
 This function set allows lookups for domains, groups, endpoints and resources
 using attributes defined in the RD Function Set and for use with the CoRE
 Link Format. The result of a lookup request is the list of links (if any)
-corresponding to the type of lookup.  Thus, a domain lookup MUST return a list of domains, a group lookup MUST	return a list of groups, an endpoint lookup MUST return a list of endpoints and a resource lookup MUST return a list of links to resources.
+corresponding to the type of lookup.  Thus, a domain lookup MUST return a list of domains, a group lookup MUST return a list of groups, an endpoint lookup MUST return a list of endpoints and a resource lookup MUST return a list of links to resources.
 
 Each endpoint and resource lookup result returns respectively the scheme (IP address and port) followed by the path part of the URI of every endpoint and resource inside angle brackets ("<>") and followed by the other parameters.
 
 The target of these links SHOULD be the actual location of the domain, endpoint or resource, but MAY be an intermediate proxy e.g. in the case of an HTTP lookup interface for CoAP endpoints.
 
-The domain lookup returns every lookup domain with a "/rd" value encapsulated within angle brackets. 
+The domain lookup returns every lookup domain with a base RD resource value (e.g. "/rd") encapsulated within angle brackets.
 
-In case that a group does not implement any multicast address, the group lookup returns every group lookup with a "/rd-group" value encapsulated within angle brackets. Otherwise, the group lookup returns the multicast address of the group inside angle brackets.
+In case that a group does not implement any multicast address, the group lookup returns every group lookup with a group base resource value encapsulated within angle brackets (e.g. "/rd/look-up"). Otherwise, the group lookup returns the multicast address of the group inside angle brackets.
 
 Using the Accept Option, the requester can control whether this list is returned in CoRE Link Format (`application/link-format`, default) or its alternate content-formats (`application/link-format+json` or `application/link-format+cbor`).
 
-The page and count parameters are used to obtain lookup results in specified increments using pagination, where count specifies how many links to return and page specifies which subset of links organized in sequential pages , each containing 'count' links, starting with link zero and page zero. Thus, specifying count of 10 and page of 0 will return the first 10 links in the result set (links 0-9). Count = 10 and page = 1 will return the next 'page' containing links 10-19, and so on. 
+The page and count parameters are used to obtain lookup results in specified increments using pagination, where count specifies how many links to return and page specifies which subset of links organized in sequential pages, each containing 'count' links, starting with link zero and page zero. Thus, specifying count of 10 and page of 0 will return the first 10 links in the result set (links 0-9). Count = 10 and page = 1 will return the next 'page' containing links 10-19, and so on.
 
 Multiple query parameters MAY be included in a lookup, all included parameters MUST match for a resource to be returned.  The character'\*' MAY be included at the end of a parameter value as a wildcard operator.
 
@@ -1263,14 +1261,13 @@ Method:
 : GET
 
 URI Template:
-: /{+rd-lookup-base}/{lookup-type}{?d,ep,gp,et,rt,page,count,resource-param}
+: /{+rd-lookup-base}/{lookup-type}{?d,res,ep,gp,et,rt,page,count,resource-param}
 
 
 URI Template Variables:
 : rd-lookup-base :=
   : RD Lookup Function Set path (mandatory). This is the path of the RD Lookup
-    Function Set. An RD SHOULD use the value "rd-lookup" for this variable whenever
-    possible.
+    Function Set. The recommended value for this variable is: "rd-lookup".
 
   lookup-type :=
   : ("d", "ep", "res", "gp") (mandatory) This variable is used to select the
@@ -1290,14 +1287,14 @@ URI Template Variables:
   page :=
   : Page (optional). Parameter can not be used without the count
     parameter. Results are returned from result set in pages that contain
-    'count' links starting from index (page \* count). Page numbering starts 
+    'count' links starting from index (page \* count). Page numbering starts
     with zero.
 
   count :=
   : Count (optional). Number of results is limited to this parameter value. If
     the page parameter is also present, the response MUST only include 'count'
     links starting with the (page \* count) link in the result set from the query. If
-    the count parameter is not present, then the response MUST return all matching 
+    the count parameter is not present, then the response MUST return all matching
     links in the result set. Link numbering starts with zero.
 
   rt :=
@@ -1342,7 +1339,7 @@ HTTP support:
 
 The examples in this section assume a CoAP host with IP address FDFD::123 and a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.\
 
-The following example shows a client performing a resource lookup:
+The following example shows a client performing a resource lookup with the example look-up location /rd-lookup/:
 
 ~~~~
 Req: GET /rd-lookup/res?rt=temperature
@@ -1350,7 +1347,6 @@ Req: GET /rd-lookup/res?rt=temperature
 Res: 2.05 Content
 <coap://[FDFD::123]:61616/temp>;rt="temperature"
 ~~~~
-{: align="left"}
 
 The following example shows a client performing an endpoint type lookup:
 
@@ -1361,7 +1357,6 @@ Res: 2.05 Content
 <coap://[FDFD::123]:61616>;ep="node5",
 <coap://[FDFD::123]:61616>;ep="node7"
 ~~~~
-{: align="left"}
 
 The following example shows a client performing a domain lookup:
 
@@ -1372,7 +1367,6 @@ Res: 2.05 Content
 <>;d="domain1",
 <>;d="domain2"
 ~~~~
-{: align="left"}
 
 The following example shows a client performing a group lookup for all groups:
 
@@ -1383,7 +1377,6 @@ Res: 2.05 Content
 <>;gp="lights1";d="example.com"
 <>;gp="lights2";d="ecample.com"
 ~~~~
-{: align="left"}
 
 The following example shows a client performing a lookup for all endpoints
 in a particular group:
@@ -1395,7 +1388,6 @@ Res: 2.05 Content
 <coap://[FDFD::123]:61616>;ep="node1",
 <coap://[FDFD::123]:61616>;ep="node2"
 ~~~~
-{: align="left"}
 
 The following example shows a client performing a lookup for all groups an
 endpoint belongs to:
@@ -1406,7 +1398,6 @@ Req: GET /rd-lookup/gp?ep=node1
 Res: 2.05 Content
 <>;gp="lights1"
 ~~~~
-{: align="left"}
 
 The following example shows a client performing a paginated lookup
 
@@ -1429,228 +1420,6 @@ Res: 2.05 Content
 <coap://[FDFD::123]:61616/res/8>;rt=sensor;ct=60
 <coap://[FDFD::123]:61616/res/9>;rt=sensor;ct=60
 ~~~~
-{: align="left"}
-
-# New Link-Format Attributes {#attributes}
-
-When using the CoRE Link Format to describe resources being discovered by
-or posted to a resource directory service, additional information about those
-resources is useful. This specification defines the following new attributes
-for use in the CoRE Link Format {{RFC6690}}:
-
-~~~~ ABNF
-   link-extension    = ( "ins" "=" quoted-string ) ; Max 63 bytes
-   link-extension    = ( "exp" )
-~~~~
-
-## Resource Instance attribute 'ins'
-
-The Resource Instance "ins" attribute is an
-identifier for this resource, which makes it possible
-to distinguish it from other similar resources. This attribute is similar
-in use to the &lt;Instance> portion of a DNS-SD record (see {{cheshire}}, and SHOULD be unique across resources with the same Resource Type attribute
-in the domain it is used. A Resource Instance might be a descriptive string
-like "Ceiling Light, Room 3", a short ID like "AF39" or a unique UUID or
-iNumber. This attribute is used by a Resource Directory to distinguish between
-multiple instances of the same resource type within the directory.
-
-This attribute MUST be no more than 63 bytes in length. The resource identifier
-attribute MUST NOT appear more than once in a link description.  This attribute MAY be used as a query parameter in the RD Lookup Function Set defined in Section 7.
-
-
-## Export attribute 'exp'
-
-The Export "exp" attribute is used as a flag to indicate that a link description
-MAY be exported by a resource directory to external directories.
-
-The CoRE Link Format is used for many purposes between CoAP endpoints. Some
-are useful mainly locally, for example checking the observability of a resource
-before accessing it, determining the size of a resource, or traversing dynamic
-resource structures. However, other links are very useful to be exported
-to other directories, for example the entry point resource to a functional
-service.  This attribute MAY be used as a query parameter in the RD Lookup Function Set defined in Section 7.
-
-
-
-# DNS-SD Mapping {#dns-sd}
-
-CoRE Resource
-Discovery is intended to support fine-grained discovery of hosted
-resources, their attributes, and possibly other resource relations {{RFC6690}}. In contrast, service discovery generally refers to a coarse-grained
-resolution of an endpoint's IP address, port number, and protocol.
-
-Resource and service discovery are complementary in the case of large
-networks, where the latter can facilitate scaling.  This document
-defines a mapping between CoRE Link Format attributes and DNS-Based
-Service Discovery {{RFC6763}} fields that permits
-discovery of CoAP services by either method.
-
-## DNS-based Service discovery {#cheshire}
-
-DNS-Based Service Discovery (DNS-SD) defines a conventional method of
-configuring DNS PTR, SRV, and TXT resource records to facilitate
-discovery of services (such as CoAP servers in a subdomain) using the
-existing DNS infrastructure.  This section gives a brief overview of
-DNS-SD; see {{RFC6763}} for a detailed
-specification.
-
-DNS-SD service names are limited to 255 octets and are of the form:
-
-Service Name = &lt;Instance>.&lt;ServiceType>.&lt;Domain>.
-
-The service name is the label of SRV/TXT resource records. The SRV RR specifies
-the host and the port of the endpoint. The TXT RR provides additional information 
-in the form of key/value pairs.
-
-The &lt;Domain> part of the service name is identical to the global (DNS
-subdomain) part of the authority in URIs that identify servers or groups
-of servers.
-
-The &lt;ServiceType> part is composed of at least two labels.  The first
-label of the pair is the application protocol name {{RFC6335}} preceded by an
-underscore character.  The second label indicates the transport and is always
-"_udp" for UDP-based CoAP services.  In cases where narrowing the scope of
-the search may be useful, these labels may be optionally preceded by a
-subtype name followed by the "_sub" label.  An example of this more specific
-&lt;ServiceType> is "light._sub._dali._udp".
-
-A default &lt;Instance> part of the service name may be set at the factory
-or during the commissioning process.  It SHOULD uniquely identify an instance
-of &lt;ServiceType> within a &lt;Domain>.  Taken together, these three
-elements comprise a unique name for an SRV/ TXT record pair within the DNS
-subdomain.
-
-The granularity of a service name MAY be that of a host or group, or it could
-represent a particular resource within a CoAP server.  The SRV record
-contains the host name (AAAA record name) and port of the service while
-protocol is part of the service name.  In the case where a service name
-identifies a particular resource, the path part of the URI must be carried in
-a corresponding TXT record.
-
-A DNS TXT record is in practice limited to a few hundred octets in length,
-which is indicated in the resource record header in the DNS response message.
-The data consists of one or more strings comprising a key=value pair.  By
-convention, the first pair is txtver=&lt;number> (to support different
-versions of a service description).
-
-
-## mapping ins to &lt;Instance> {#ins}
-
-The Resource Instance "ins" attribute maps to the &lt;Instance> part of a
-DNS-SD service name.  It is stored directly in the DNS as a single DNS label
-of canonical precomposed UTF-8 {{RFC3629}} "Net-Unicode" (Unicode
-Normalization Form C) {{RFC5198}} text.  However, to the extent that the
-"ins" attribute may be chosen to match the DNS host name of a service, it
-SHOULD use the syntax defined in Section 3.5 of {{RFC1034}} and Section 2.1
-of {{RFC1123}}.
-
-The &lt;Instance> part of the name of a service being offered on the network
-SHOULD be configurable by the user setting up the service, so that he or she
-may give it an informative name.  However, the device or service SHOULD NOT
-require the user to configure a name before it can be used.  A sensible
-choice of default name can allow the device or service to be accessed in many
-cases without any manual configuration at all.  The default name should be
-short and descriptive, and MAY include a collision-resistant substring such
-as the lower bits of the device's MAC address, serial number, fingerprint, or
-other identifier in an attempt to make the name relatively unique.
-
-DNS labels are currently limited to 63 octets in length and the
-entire service name may not exceed 255 octets.
-
-
-## Mapping rt to &lt;ServiceType> {#exp}
-
-The resource type "rt" attribute is mapped into the &lt;ServiceType> part of
-a DNS-SD service name and SHOULD conform to the reg-rel-type production of
-the Link Format defined in Section 2 of {{RFC6690}}.  The "rt" attribute MUST
-be composed of at least a single Net-Unicode text string, without underscore
-'_' or period '.' and limited to 15 octets in length, which represents the
-application protocol name.  This string is mapped to the DNS-SD
-&lt;ServiceType> by prepending an underscore and appending a period followed
-by the "_udp" label.  For example, rt="dali" is mapped into "_dali._udp".
-
-The application protocol name may be optionally followed by a period
-and a service subtype name consisting of a Net-Unicode text string,
-without underscore or period and limited to 63 octets.  This string
-is mapped to the DNS-SD &lt;ServiceType> by appending a period followed
-by the "_sub" label and then appending a period followed by the
-service type label pair derived as in the previous paragraph.  For
-example, rt="dali.light" is mapped into "light._sub._dali._udp".
-
-The resulting string is used to form labels for DNS-SD records which
-are stored directly in the DNS.
-
-
-## Domain mapping {#domain}
-
-DNS domains may be derived from the "d" attribute. The domain attribute may
-be suffixed with the zone name of the authoritative DNS server to generate
-the domain name. The "ep" attribute is prefixed to the domain name to generate
-the FQDN to be stored into DNS with an AAAA RR.
-
-
-## TXT Record key=value strings {#TXT}
-
-A number of {{RFC6763}} key/value pairs are derived from link-format
-information, to be exported in the DNS-SD as key=value strings in a
-TXT record ({{RFC6763}}, Section 6.3).
-
-The resource &lt;URI> is exported as key/value pair "path=&lt;URI>".
-
-The Interface Description "if" attribute is exported as key/value
-pair "if=&lt;Interface Description>".
-
-The DNS TXT record can be further populated by importing any other
-resource description attributes as they share the same key=value
-format specified in Section 6 of {{RFC6763}}.
-
-
-## Importing resource links into DNS-SD {#import}
-
-Assuming the ability to query a Resource Directory or multicast a GET
-(?exp) over the local link, CoAP resource discovery may be used to
-populate the DNS-SD database in an automated fashion.  CoAP resource
-descriptions (links) can be exported to DNS-SD for exposure to
-service discovery by using the Resource Instance attribute as the
-basis for a unique service name, composed with the Resource Type as
-the &lt;ServiceType>, and registered in the correct &lt;Domain>.  The agent
-responsible for exporting records to the DNS
-zone file SHOULD be authenticated to the DNS server.
-The following example shows an agent discovering a resource to be
-exported:
-
-~~~~
-   Req: GET /rd-lookup/res?exp
-
-   Res: 2.05 Content
-   <coap://[FDFD::1234]:5683/light/1>;
-     exp;rt="dali.light";ins="Spot";
-               d="office";ep="node1"
-
-~~~~
-{: align="left"}
-
-The agent subsequently registers the following DNS-SD RRs, assuming a zone
-name "example.com" prefixed with "office":
-
-
-~~~~
-node1.office.example.com.          IN AAAA        FDFD::1234
-_dali._udp.office.example.com      IN PTR
-                          Spot._dali._udp.office.example.com
-light._sub._dali._udp.example.com  IN PTR
-                          Spot._dali._udp.office.example.com
-Spot._dali._udp.office.example.com IN SRV  0 0 5683
-                          node1.office.example.com.
-Spot._dali._udp.office.example.com IN TXT
-                          txtver=1;path=/light/1
-~~~~
-{: align="left"}
-
-In the above figure the Service Name is chosen as Spot._dali._udp.office.example.com
-without the light._sub service prefix. An alternative Service Name would
-be: Spot.light._sub._dali._udp.office.example.com.
-
 
 
 # Security Considerations
@@ -1698,8 +1467,8 @@ large-scale DDoS attacks on the target. Especially, if the service
 returns a response that is order of magnitudes larger than the
 request, the situation becomes even worse as now the attack can be
 amplified. DNS servers have been widely used for DDoS amplification
-attacks. There is also a danger that NTP Servers could become implicated in denial-of-service (DoS) attacks since they run on unprotected UDP, there 
-is no return routability check, and they can have a large amplification factor. 
+attacks. There is also a danger that NTP Servers could become implicated in denial-of-service (DoS) attacks since they run on unprotected UDP, there
+is no return routability check, and they can have a large amplification factor.
 The responses from the NTP server were found to be
 19 times larger than the request. A Resource Directory (RD) which responds
 to wild-card lookups is potentially vulnerable if run with CoAP over UDP.
@@ -1718,11 +1487,6 @@ DTLS or TLS or TCP.
 "core.rd", "core.rd-group" and "core.rd-lookup" resource types need to be
 registered with the resource type registry defined by {{RFC6690}}.
 
-
-## Link Extension {#iana-link-ext}
-
-The "exp" and "ins" attributes need to be registered when a future Web Linking link-extension
-registry is created (e.g. in RFC5988bis).
 
 ## IPv6 ND Resource Directory Address Option
 
@@ -1752,9 +1516,7 @@ Initial entries in this sub-registry are as follows:
 | Resource Name | res   |               | Name of the resource                             |
 | Group Name    | gp    |               | Name of a group in the RD                                      |
 | Page          | page  | Integer       | Used for pagination                                            |
-| Count         | count | Integer       | Used for pagination                                            |
-| Resource Instance | ins |             | Instance Identifier                                 
-| Export        | exp |                 | A link MAY be exported to another Resource Directory
+| Count         | count | Integer       | Used for pagination                                            
 {: #tab-registry title='RD Parameters'}
 
 The IANA policy for future additions to the sub-registry is "Expert Review"
@@ -1764,7 +1526,7 @@ as described in {{RFC5226}}.
 
 # Examples {#examples}
 
-Examples are added here.
+<!-- ??? Examples are added here. -->
 
 ## Lighting Installation {#lt-ex}
 
@@ -1774,7 +1536,7 @@ the application code in the lights and sensors. In particular, the example
 leads to the definition of a group and the enabling of the corresponding
 multicast address. No conclusions must be drawn on the realization of actual
 installation or naming procedures, because the example only "emphasizes" some of the issues
-that may influence the use of the RD and does not pretend to be normative.
+that may influence the use of the RD and does not pretend to be normative. The example uses the recommended values for the base resources: "/rd", "/rd-lookup", and "/rd-group".
 
 ### Installation Characteristics {#lt-in-ch}
 
@@ -1813,7 +1575,9 @@ assigned to CT, RD, luminaries and sensor shown in {{interface-S}} below:
 | Resource directory | FDFD::ABCD:0 |
 {: #interface-S title='interface SLAAC addresses'}
 
-In {{rd-en}} the use of resource directory during installation is presented. In {{dns-en}} the connection to DNS is discussed.
+In {{rd-en}} the use of resource directory during installation is
+presented.
+In Section FIXME of {{dns-sd}}, the connection to DNS is discussed.
 
 
 ### RD entries {#rd-en}
@@ -1856,7 +1620,6 @@ Payload:
 Res: 2.01 Created
 Location: /rd/4521
 ~~~~
-{: align="left"}
 
 
 ~~~~
@@ -1870,7 +1633,6 @@ Payload:
 Res: 2.01 Created
 Location: /rd/4522
 ~~~~
-{: align="left"}
 
 
 ~~~~
@@ -1882,7 +1644,6 @@ Payload:
 Res: 2.01 Created
 Location: /rd/4523
 ~~~~
-{: align="left"}
 
 The domain name d="R2-4-015" has been added for an efficient lookup because
 filtering on "ep" name is more awkward. The same domain name is communicated to
@@ -1895,7 +1656,7 @@ of the presence sensor are registered as members of the group.
 
 ~~~~
 Req: POST coap://[FDFD::ABCD:0]/rd-group
-?gp=grp_R2-4-015;con="coap//[FF05::1]";exp;ins="grp1234"
+?gp=grp_R2-4-015;con="coap//[FF05::1]"
 Payload:
 <>ep=lm_R2-4-015_wndw,
 <>ep=lm_R2-4-015_door,
@@ -1904,7 +1665,6 @@ Payload:
 Res: 2.01 Created
 Location: /rd-group/501
 ~~~~
-{: align="left"}
 
 After the filling of the RD by the CT, the application in the luminaries
 can learn to which groups they belong, and enable their interface for the
@@ -1924,7 +1684,6 @@ Res: 2.05 Content
 <coap://[FDFD::ABCD:2]>;
    ep="lm_R2-4-015_door"
 ~~~~
-{: align="left"}
 
 Knowing its own IPv6 address, the luminary discovers its endpoint name. With
 the endpoint name the luminary queries the RD for all groups to which the
@@ -1938,7 +1697,6 @@ Req: GET coap://[FDFD::ABCD:0]/rd-lookup/gp
 Res: 2.05 Content
 <coap://[FF05::1]>;gp="grp_R2-4-015"
 ~~~~
-{: align="left"}
 
 From the context parameter value, the luminary learns the multicast address
 of the multicast group.
@@ -1955,58 +1713,20 @@ Req: POST //[FDFD::ABCD:1]/coap-group
 Res: 2.01 Created
 Location-Path: /coap-group/1
 ~~~~
-{: align="left"}
 
-Dependent on the situation only the address ,"a", or the name, "n", is specified
+Dependent on the situation, only the address, "a", or the name, "n", is specified
 in the coap-group resource.
 
 
-### DNS entries {#dns-en}
-
-
-It may be profitable to discover the light groups for applications, which are unaware ot the existence of the RD. An agent needs to query the
-RD to return all groups which are exported to be inserted into DNS.
-
-
-~~~~
-   Req: GET /rd-lookup/gp?exp
-
-   Res: 2.05 Content
-   <coap://[FF05::1]/>;exp;gp="grp_R2-4-015;ins="grp1234";
-ep="lm_R2-4-015_wndw";
-ep="lm_R2-4-015_door
-
-~~~~
-{: align="left"}
-
-The group with FQDN grp_R2-4-015.bc.example.com can be entered into the DNS
-by the agent. The accompanying instance name is grp1234. The &lt;ServiceType>
-is chosen to be _group._udp. The agent enters the following RRs into the
-DNS.
-
-
-~~~~
-grp_R2-4-015.bc.example.com.        IN AAAA            FF05::1
-_group._udp.bc.example.com          IN PTR
-                            grp1234._group._udp.bc.example.com
-grp1234._group._udp.bc.example.com  IN SRV  0 0 5683
-                             grp_R2-4-015_door.bc.example.com.
-grp1234._group._udp.bc.example.com  IN TXT
-                                     txtver=1;path=/light/grp1
-~~~~
-{: align="left"}
-
-From then on applications, not familiar with the existence of the RD, can use DNS to access the lighting group.
-
 ## OMA Lightweight M2M (LWM2M) Example {#lwm2m-ex}
 
-This example shows how the OMA LWM2M specification makes use of Resource Directory (RD). 
+This example shows how the OMA LWM2M specification makes use of Resource Directory (RD).
 
-OMA LWM2M is a profile for device services based on CoAP(OMA Name Authority). LWM2M defines a simple object model and a number of abstract interfaces and operations for device management and device service enablement. 
+OMA LWM2M is a profile for device services based on CoAP(OMA Name Authority). LWM2M defines a simple object model and a number of abstract interfaces and operations for device management and device service enablement.
 
 An LWM2M server is an instance of an LWM2M middleware service layer, containing a Resource Directory along with other LWM2M interfaces defined by the LWM2M specification.
 
-CoRE Resource Directory (RD) is used to provide the LWM2M Registration interface. 
+CoRE Resource Directory (RD) is used to provide the LWM2M Registration interface.
 
 LWM2M does not provide for registration domains and does not currently
 use the rd-group or rd-lookup interfaces.
@@ -2017,7 +1737,7 @@ The location of the LWM2M Server and RD Function Set is provided by the LWM2M Bo
 
 ### The LWM2M Object Model {#lwm2m-obj}
 
-The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of Objects and Resources. 
+The OMA LWM2M object model is based on a simple 2 level class hierarchy consisting of Objects and Resources.
 
 An LWM2M Resource is a REST endpoint, allowed to be a single value or an array of values of the same data type.
 
@@ -2057,7 +1777,6 @@ example, a LWM2M URI might be:
 ~~~~
 /1/0/1
 ~~~~
-{: align="left"}
 
 The base uri is empty, the Object ID is 1, the instance ID is 0, the
 resource ID is 1, and the resource instance is "undefined". This
@@ -2069,11 +1788,11 @@ registration lifetime configured, in instance 0 of a type 1 object
 
 LWM2M defines a registration interface based on the Resource Directory Function Set, described in {{rd}}. The URI of the LWM2M Resource Directory function set is specified to be "/rd" as recommended in {{registration}}.
 
-LWM2M endpoints register object IDs, for example </1>, to indicate that a particular object type is supported, and register object instances, for example </1/0>, to indicate that a particular instance of that object type exists. 
+LWM2M endpoints register object IDs, for example </1>, to indicate that a particular object type is supported, and register object instances, for example </1/0>, to indicate that a particular instance of that object type exists.
 
 Resources within the LWM2M object instance are not registered with the RD, but may be discovered by reading the resource links from the object instance using GET with a CoAP Content-Format of application/link-format. Resources may also be read as a structured object by performing a GET to the object instance with a Content-Format of senml+json.
 
-When an LWM2M object or instance is registered, this indicates to the LWM2M server that the object and its resources are available for management and service enablement (REST API) operations. 
+When an LWM2M object or instance is registered, this indicates to the LWM2M server that the object and its resources are available for management and service enablement (REST API) operations.
 
 LWM2M endpoints may use the following RD registration parameters as defined in {{tab-registry}} :
 
@@ -2082,7 +1801,6 @@ LWM2M endpoints may use the following RD registration parameters as defined in {
 ep - Endpoint Name
 lt - registration lifetime
 ~~~~
-{: align="left"}
 
 Endpoint Name is mandatory, all other registration parameters are optional.
 
@@ -2102,10 +1820,9 @@ The following RD registration parameters are not currently specified for use in 
 
 
 ~~~~
-et - Endpoint Type 
+et - Endpoint Type
 con - Context
 ~~~~
-{: align="left"}
 
 The endpoint registration must include a payload containing links to all supported objects and existing object instances, optionally including the appropriate link-format relations.
 
@@ -2115,7 +1832,6 @@ Here is an example LWM2M registration payload:
 ~~~~ linkformat
 </1>,</1/0>,</3/0>,</5>
 ~~~~
-{: align="left"}
 
 This link format payload indicates that object ID 1 (LWM2M Server Object) is supported, with a single instance 0 existing, object ID 3 (LWM2M Device object) is supported, with a single instance 0 existing, and object 5 (LWM2M Firmware Object) is supported, with no existing instances.
 
@@ -2127,7 +1843,6 @@ If the LWM2M endpoint exposes objects at a base URI other than the default empty
 ~~~~ linkformat
 </my_lwm2m>;rt="oma.lwm2m",</my_lwm2m/1>,<my_lwm2m/1/0>,<my_lwm2m/5>
 ~~~~
-{: align="left"}
 
 This link payload indicates that the lwm2m objects will be placed under the base URI "/my_lwm2m" and that object ID 1 (server) is supported, with a single instance 0 existing, and object 5 (firmware update) is supported.
 
@@ -2142,7 +1857,6 @@ b - Protocol Binding
 sms - MSISDN
 link payload - new or modified links
 ~~~~
-{: align="left"}
 
 A Registration update is also specified to be used to update the LWM2M server whenever the endpoint's UDP port or IP address are changed.
 
@@ -2154,25 +1868,41 @@ LWM2M allows for de-registration using the delete method on the returned locatio
 # Acknowledgments
 
 Oscar Novo, Srdjan Krco, Szymon Sasin, Kerry Lynn, Esko Dijk, Anders
-Brandt, Matthieu Vial, Mohit Sethi, Sampo Ukkola and Linyi
-Tian have provided helpful comments, discussions and ideas to improve and
-shape this document. Section 9 is based on an earlier draft
-by Kerry Lynn. Zach would also like to thank his colleagues from the
+Brandt, Matthieu Vial, Mohit Sethi, Sampo Ukkola, Linyi
+Tian, Chistian Amsuss, and Jan Newmarch have provided helpful comments, discussions and ideas to improve and
+shape this document. Zach would also like to thank his colleagues from the
 EU FP7 SENSEI project, where many of the resource directory concepts were
 originally developed.
 
 
 # Changelog
 
+changes from -09 to -10
+
+* removed "ins" and "exp" link-format extensions.
+* removed all text concerning DNS-SD.
+* removed inconsistency in RDAO text.
+* suggestions taken over from various sources
+
+changes from -08 to -09
+
+* clarified the "example use" of the base RD resource values /rd, /rd-lookup, and /rd-group.
+
+* changed "ins" ABNF notation.
+
+* various editorial improvements, including in examples
+
+* clarifications for RDAO
+
 changes from -07 to -08
 
 * removed link target value returned from domain and group lookup types
 
-* Maximum length of domain parameter 63 bytes for consistency with group 
+* Maximum length of domain parameter 63 bytes for consistency with group
 
 * removed option for simple POST of link data, don't require a .well-known/core resource to accept POST data and handle it in a special way; we already have /rd for that
 
-* add IPv6 ND Option for discovery of an RD 
+* add IPv6 ND Option for discovery of an RD
 
 * clarify group configuration section 6.1 that endpoints must be registered before including them in a group
 
