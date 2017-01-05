@@ -399,80 +399,6 @@ RD Address:             IPv6 address of the RD.
 ~~~~
 {: #fig-rdao title='Resource Directory Address Option' align="left"}
 
-# Simple Registration {#simple}
-
-Not all endpoints hosting resources are expected to know how to implement the
-Resource Directory Function Set (see {{rd}}) hence cannot register with a Resource Directory. Instead, simple endpoints can implement the generic Simple Directory
-Discovery approach described in this section. An RD implementing this
-specification MUST implement Simple Directory Discovery. However, there may
-be security reasons why this form of directory discovery would be disabled.
-
-This approach requires that the endpoint makes available the hosted resources
-that it wants to be discovered, as links on its `/.well-known/core` interface as
-specified in {{RFC6690}}.
-
-The endpoint then finds one or more addresses of the directory server as described in {{simple_finding}}.
-
-An endpoint can send (a selection of) hosted resources to a directory server for publication as described in {{simple_publishing}}.
-
-The directory server integrates the information it received this way into its
-resource directory.  It MAY make the information available to further
-directories, if it can ensure that a loop does not form.  The protocol used
-between directories to ensure loop-free operation is outside the scope of
-this document.
-
-## Simple publishing to Resource Directory Server {#simple_publishing}
-
-An endpoint that wants to make itself discoverable occasionally sends a POST
-request to the `/.well-known/core` URI of any candidate directory server that
-it finds. The body of the POST request is empty, which triggers the resource
-directory server to perform GET requests at the requesting server's default
-discovery URI to obtain the link-format payload to register.
-
-The endpoint MUST include the endpoint name and MAY include other registration parameters in the POST request as per {{registration}}.
-
-The following example shows an endpoint using simple publishing,
-by simply sending an empty POST to a resource directory.
-
-~~~~
-Req:(to RD server from [ff02::1])
-POST coap://rd.example.com/.well-known/core?lt=6000;ep=node1
-
-Content-Format: 40
-
-payload:
-
-(empty payload)
-
-Res: 2.04 Changed
-
-(later)
-
-Req: (from RD server to [ff02::1])
-GET coap://[ff02::1]/.well-known/core
-
-Accept: 40
-
-Res: 2.05 Content
-
-payload:
-
-</sen/temp>
-~~~~
-
-
-## Third-party registration {#third-party-registration}
-
-For some applications, even Simple Directory Discovery may be too taxing
-for certain very constrained devices, in particular if the security requirements
-become too onerous.
-
-In a controlled environment (e.g. building control), the Resource Directory
-can be filled by a third device, called a commissioning tool. The commissioning
-tool can fill the Resource Directory from a database or other means. For
-that purpose the scheme, IP address and port of the registered device is
-indicated in the Context parameter of the registration described in {{registration}}.
-
 
 # Resource Directory Function Set {#rd}
 
@@ -733,6 +659,80 @@ Payload:
 Res: 201 Created
 Location: /rd/4521
 ~~~~
+
+### Simple Registration {#simple}
+
+Not all endpoints hosting resources are expected to know how to implement the
+Resource Directory Function Set (see {{rd}}) hence cannot register with a Resource Directory. Instead, simple endpoints can implement the generic Simple Directory
+Discovery approach described in this section. An RD implementing this
+specification MUST implement Simple Directory Discovery. However, there may
+be security reasons why this form of directory discovery would be disabled.
+
+This approach requires that the endpoint makes available the hosted resources
+that it wants to be discovered, as links on its `/.well-known/core` interface as
+specified in {{RFC6690}}.
+
+The endpoint then finds one or more addresses of the directory server as described in {{simple_finding}}.
+
+An endpoint can send (a selection of) hosted resources to a directory server for publication as described in {{simple_publishing}}.
+
+The directory server integrates the information it received this way into its
+resource directory.  It MAY make the information available to further
+directories, if it can ensure that a loop does not form.  The protocol used
+between directories to ensure loop-free operation is outside the scope of
+this document.
+
+### Simple publishing to Resource Directory Server {#simple_publishing}
+
+An endpoint that wants to make itself discoverable occasionally sends a POST
+request to the `/.well-known/core` URI of any candidate directory server that
+it finds. The body of the POST request is empty, which triggers the resource
+directory server to perform GET requests at the requesting server's default
+discovery URI to obtain the link-format payload to register.
+
+The endpoint MUST include the endpoint name and MAY include other registration parameters in the POST request as per {{registration}}.
+
+The following example shows an endpoint using simple publishing,
+by simply sending an empty POST to a resource directory.
+
+~~~~
+Req:(to RD server from [ff02::1])
+POST coap://rd.example.com/.well-known/core?lt=6000;ep=node1
+
+Content-Format: 40
+
+payload:
+
+(empty payload)
+
+Res: 2.04 Changed
+
+(later)
+
+Req: (from RD server to [ff02::1])
+GET coap://[ff02::1]/.well-known/core
+
+Accept: 40
+
+Res: 2.05 Content
+
+payload:
+
+</sen/temp>
+~~~~
+
+
+### Third-party registration {#third-party-registration}
+
+For some applications, even Simple Directory Discovery may be too taxing
+for certain very constrained devices, in particular if the security requirements
+become too onerous.
+
+In a controlled environment (e.g. building control), the Resource Directory
+can be filled by a third device, called a commissioning tool. The commissioning
+tool can fill the Resource Directory from a database or other means. For
+that purpose the scheme, IP address and port of the registered device is
+indicated in the Context parameter of the registration described in {{registration}}.
 
 
 ## Registration Update {#update}
