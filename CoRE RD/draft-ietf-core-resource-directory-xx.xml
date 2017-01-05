@@ -647,10 +647,7 @@ Location: /rd/4521
 
 <section anchor="simple" title="Simple Registration">
 
-<t>Not all endpoints hosting resources are expected to know how to implement the
-Resource Directory Function Set (see <xref target="rd"/>) hence cannot register with a Resource Directory. Instead, simple endpoints can implement the generic Simple Directory
-Discovery approach described in this section. An RD implementing this
-specification MUST implement Simple Directory Discovery. However, there may
+<t>Not all endpoints hosting resources are expected to know how to upload links to a RD as described in <xref target="registration"/>. Instead, simple endpoints can implement the Simple Registration approach described in this section. An RD implementing this specification MUST implement Simple Registration. However, there may
 be security reasons why this form of directory discovery would be disabled.</t>
 
 <t>This approach requires that the endpoint makes available the hosted resources
