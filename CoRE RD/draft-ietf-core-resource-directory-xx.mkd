@@ -308,9 +308,9 @@ groups may defined to allow batched reads from multiple resources.
 
 # Finding a Resource Directory {#simple_finding}
 
-There can be several mechanisms for discovering the RD including assuming a default location (e.g. on an Edge Router in a LoWPAN), by assigning an anycast address to the
-RD, using DHCP, or by discovering the RD using .well-known/core and hyperlinks as 
-specified in CoRE Link Format{{RFC6690}}.
+Several mechanisms can be employed for discovering the RD, including assuming a default location (e.g. on an Edge Router in a LoWPAN), assigning an anycast address to the
+RD, using DHCP, or discovering the RD using .well-known/core and hyperlinks as
+specified in CoRE Link Format {{RFC6690}}.
 Endpoints that want to contact a Resource Directory can obtain candidate IP
 addresses for such servers in a number of ways.
 
@@ -1203,7 +1203,7 @@ Res: 2.02 Deleted
 # RD Lookup {#lookup}
 
 In order for an RD to be used for discovering resources registered with it,
-an optional lookup interface may be provided . This lookup interface
+an optional lookup interface may be provided. This lookup interface
 is defined as a default, and it is assumed that RDs may also support lookups
 to return resource descriptions in alternative formats (e.g. Atom or HTML
 Link) or using more advanced interfaces (e.g. supporting context or semantic
@@ -1244,7 +1244,7 @@ URI Template:
 
 URI Template Variables:
 : rd-lookup-base :=
-  : RD Lookup Base URI path (mandatory). This is the path for RD Lookup requests. The recommended value for this variable is: "rd-lookup".
+  : RD Lookup Base URI path (mandatory). This is the base path for RD Lookup requests. The recommended value for this variable is: "rd-lookup".
 
   lookup-type :=
   : ("d", "ep", "res", "gp") (mandatory) This variable is used to select the
@@ -1314,7 +1314,7 @@ Failure:
 HTTP support:
 : YES
 
-The examples in this section assume CoAP hosts with a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.\
+The examples in this section assume CoAP hosts with a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.
 
 The following example shows a client performing a resource lookup with the example look-up location /rd-lookup/:
 
