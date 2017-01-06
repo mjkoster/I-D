@@ -309,7 +309,8 @@ groups may defined to allow batched reads from multiple resources.
 # Finding a Resource Directory {#simple_finding}
 
 There can be several mechanisms for discovering the RD including assuming a default location (e.g. on an Edge Router in a LoWPAN), by assigning an anycast address to the
-RD, using DHCP, or by discovering the RD using the hyperlinks as specified in CoRE Link Format{{RFC6690}}.
+RD, using DHCP, or by discovering the RD using .well-known/core and hyperlinks as 
+specified in CoRE Link Format{{RFC6690}}.
 Endpoints that want to contact a Resource Directory can obtain candidate IP
 addresses for such servers in a number of ways.
 
@@ -533,7 +534,9 @@ resources in the RD are kept active for the period indicated by the lifetime
 parameter. The endpoint is responsible for refreshing the entry within this
 period using either the registration or update interface. The registration
 interface MUST be implemented to be idempotent, so that registering twice
-with the same endpoint parameter does not create multiple RD entries. A new registration may be created at any time to supersede an existing registration, replacing the registration parameters and links.
+with the same endpoint parameters ep and d does not create multiple RD entries. 
+A new registration may be created at any time to supersede an existing registration, 
+replacing the registration parameters and links.
 
 The registration request interface is specified as follows:
 
@@ -1278,8 +1281,8 @@ URI Template Variables:
   : Endpoint type (optional). Used for group, endpoint and resource lookups.
 
   resource-param :=
-  : Link attribute parameters (optional). Any link attribute as defined in Section
-    4.1 of {{RFC6690}}, used for resource lookups.
+  : Link attribute parameters (optional). Any link target attribute as defined in 
+  Section 4.1 of {{RFC6690}}, used for resource lookups.
 
   Content-Format:
   : application/link-format (optional)
