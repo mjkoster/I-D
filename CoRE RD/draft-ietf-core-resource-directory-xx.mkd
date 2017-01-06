@@ -306,9 +306,11 @@ This provides isolation and protection of sensitive data when needed. Resource
 groups may defined to allow batched reads from multiple resources.
 
 
-# Finding a Directory Server {#simple_finding}
+# Finding a Resource Directory {#simple_finding}
 
-Endpoints that want to contact a directory server can obtain candidate IP
+There can be several mechanisms for discovering the RD including assuming a default location (e.g. on an Edge Router in a LoWPAN), by assigning an anycast address to the
+RD, using DHCP, or by discovering the RD using the hyperlinks as specified in CoRE Link Format{{RFC6690}}.
+Endpoints that want to contact a Resource Directory can obtain candidate IP
 addresses for such servers in a number of ways.
 
 In a 6LoWPAN, good candidates can be taken from:
@@ -411,16 +413,11 @@ Any additional content format supported by a Resource Directory implementing thi
 specification MUST have an equivalent serialization in the application/link-format
 content format.
 
-## Discovery {#discovery}
+## Base URI Discovery {#discovery}
 
 Before an endpoint can make use of an RD, it must first know the RD's address 
-and port, and the base URI information for its REST API. There can be several
-mechanisms for discovering the RD including assuming a default location
-(e.g. on an Edge Router in a LoWPAN), by assigning an anycast address to the
-RD, using DHCP, or by discovering the RD using the CoRE Link Format (see also
-{{simple_finding}}). This section defines discovery of the RD using the
-well-known interface of the CoRE Link Format {{RFC6690}} as the required
-mechanism. It is however expected that RDs will also be discoverable via
+and port, and the base URI information for its REST API. This section defines 
+discovery of the RD and its base URI using the well-known interface of the CoRE Link Format {{RFC6690}}. It is however expected that RDs will also be discoverable via
 other methods depending on the deployment.
 
 Discovery of the RD base URI is performed by sending either a multicast or
@@ -1860,6 +1857,8 @@ changes from -09 to -10
 * removed all text concerning DNS-SD.
 * removed inconsistency in RDAO text.
 * suggestions taken over from various sources
+* replaced "Function Set" with "REST API", "base URI", "base path"
+* moved simple registration to registration section 
 
 changes from -08 to -09
 

@@ -306,9 +306,11 @@ groups may defined to allow batched reads from multiple resources.</t>
 
 </section>
 </section>
-<section anchor="simple_finding" title="Finding a Directory Server">
+<section anchor="simple_finding" title="Finding a Resource Directory">
 
-<t>Endpoints that want to contact a directory server can obtain candidate IP
+<t>There can be several mechanisms for discovering the RD including assuming a default location (e.g. on an Edge Router in a LoWPAN), by assigning an anycast address to the
+RD, using DHCP, or by discovering the RD using the hyperlinks as specified in CoRE Link Format<xref target="RFC6690"/>.
+Endpoints that want to contact a Resource Directory can obtain candidate IP
 addresses for such servers in a number of ways.</t>
 
 <t>In a 6LoWPAN, good candidates can be taken from:</t>
@@ -410,16 +412,11 @@ specification MUST have an equivalent serialization in the application/link-form
 content format.</t>
 
 </section>
-<section anchor="discovery" title="Discovery">
+<section anchor="discovery" title="Base URI Discovery">
 
 <t>Before an endpoint can make use of an RD, it must first know the RD’s address 
-and port, and the base URI information for its REST API. There can be several
-mechanisms for discovering the RD including assuming a default location
-(e.g. on an Edge Router in a LoWPAN), by assigning an anycast address to the
-RD, using DHCP, or by discovering the RD using the CoRE Link Format (see also
-<xref target="simple_finding"/>). This section defines discovery of the RD using the
-well-known interface of the CoRE Link Format <xref target="RFC6690"/> as the required
-mechanism. It is however expected that RDs will also be discoverable via
+and port, and the base URI information for its REST API. This section defines 
+discovery of the RD and its base URI using the well-known interface of the CoRE Link Format <xref target="RFC6690"/>. It is however expected that RDs will also be discoverable via
 other methods depending on the deployment.</t>
 
 <t>Discovery of the RD base URI is performed by sending either a multicast or
@@ -1891,6 +1888,8 @@ originally developed.</t>
   <t>removed all text concerning DNS-SD.</t>
   <t>removed inconsistency in RDAO text.</t>
   <t>suggestions taken over from various sources</t>
+  <t>replaced “Function Set” with “REST API”, “base URI”, “base path”</t>
+  <t>moved simple registration to registration section</t>
 </list></t>
 
 <t>changes from -08 to -09</t>
