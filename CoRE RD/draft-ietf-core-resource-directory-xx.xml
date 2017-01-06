@@ -520,10 +520,10 @@ Res: 2.05 Content
 <t>After discovering the location of an RD, an endpoint MAY
 register its resources using the registration interface. This interface
 accepts a POST from an endpoint containing the list of resources to be added
-to the directory as the message payload in the CoRE Link Format <xref target="RFC6690"/>, JSON CoRE Link Format (application/link-format+json), or CBOR CoRE Link Format (application/link-format+cbor)  <xref target="I-D.ietf-core-links-json"/>, along with query string
-parameters indicating the name of the endpoint, its domain and the lifetime
-of the registration. All parameters except the endpoint name are optional. It
-is expected that other specifications will define further parameters (see
+to the directory as the message payload in the CoRE Link Format <xref target="RFC6690"/>, JSON CoRE Link Format (application/link-format+json), or CBOR CoRE Link Format (application/link-format+cbor)  <xref target="I-D.ietf-core-links-json"/>, along with query 
+parameters indicating the name of the endpoint, and optionally its domain 
+and the lifetime of the registration. 
+It is expected that other specifications will define further parameters (see
 <xref target="iana-registry"/>). The RD then creates a new resource or updates an existing
 resource in the RD and returns its location. An endpoint MUST use that
 location when refreshing registrations using this interface. Endpoint
@@ -569,7 +569,7 @@ assumed.</t>
         <t hangText='con :='>
         Context (optional). This parameter sets the scheme, address and port at
 which this server is available in the form scheme://host:port. In
-the absence of this parameter the scheme of the protocol, source IP address
+the absence of this parameter the scheme of the protocol, source address
 and source port of the register request are assumed. This parameter is
 mandatory when the directory is filled by a third party such as an
 commissioning tool.</t>
@@ -1003,7 +1003,7 @@ Res: 2.04 Changed
 Req: PATCH /rd/4521?href=/sensors/light
 
 Payload:
-{null}
+{}
 
 Content-Format:
 application/merge-patch+json
@@ -1266,7 +1266,7 @@ Section 4.1 of <xref target="RFC6690"/>, used for resource lookups.</t>
   YES</t>
 </list></t>
 
-<t>The examples in this section assume a CoAP host with IP address FDFD::123 and a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.\</t>
+<t>The examples in this section assume CoAP hosts with a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.\</t>
 
 <t>The following example shows a client performing a resource lookup with the example look-up location /rd-lookup/:</t>
 
@@ -1283,8 +1283,8 @@ Res: 2.05 Content
 Req: GET /rd-lookup/ep?et=power-node
 
 Res: 2.05 Content
-<coap://[FDFD::123]:61616>;ep="node5",
-<coap://[FDFD::123]:61616>;ep="node7"
+<coap://[FDFD::127]:61616>;ep="node5",
+<coap://[FDFD::129]:61616>;ep="node7"
 ]]></artwork></figure>
 
 <t>The following example shows a client performing a domain lookup:</t>
@@ -1315,7 +1315,7 @@ Req: GET /rd-lookup/ep?gp=lights1
 
 Res: 2.05 Content
 <coap://[FDFD::123]:61616>;ep="node1",
-<coap://[FDFD::123]:61616>;ep="node2"
+<coap://[FDFD::124]:61616>;ep="node2"
 ]]></artwork></figure>
 
 <t>The following example shows a client performing a lookup for all groups an
