@@ -308,9 +308,9 @@ groups may defined to allow batched reads from multiple resources.</t>
 </section>
 <section anchor="simple_finding" title="Finding a Resource Directory">
 
-<t>There can be several mechanisms for discovering the RD including assuming a default location (e.g. on an Edge Router in a LoWPAN), by assigning an anycast address to the
-RD, using DHCP, or by discovering the RD using .well-known/core and hyperlinks as 
-specified in CoRE Link Format<xref target="RFC6690"/>.
+<t>Several mechanisms can be employed for discovering the RD, including assuming a default location (e.g. on an Edge Router in a LoWPAN), assigning an anycast address to the
+RD, using DHCP, or discovering the RD using .well-known/core and hyperlinks as
+specified in CoRE Link Format <xref target="RFC6690"/>.
 Endpoints that want to contact a Resource Directory can obtain candidate IP
 addresses for such servers in a number of ways.</t>
 
@@ -1168,7 +1168,7 @@ Res: 2.02 Deleted
 <section anchor="lookup" title="RD Lookup">
 
 <t>In order for an RD to be used for discovering resources registered with it,
-an optional lookup interface may be provided . This lookup interface
+an optional lookup interface may be provided. This lookup interface
 is defined as a default, and it is assumed that RDs may also support lookups
 to return resource descriptions in alternative formats (e.g. Atom or HTML
 Link) or using more advanced interfaces (e.g. supporting context or semantic
@@ -1207,7 +1207,7 @@ corresponding to the type of lookup.  Thus, a domain lookup MUST return a list o
   <t hangText='URI Template Variables:'>
         <list style="hanging">
         <t hangText='rd-lookup-base :='>
-        RD Lookup Base URI path (mandatory). This is the path for RD Lookup requests. The recommended value for this variable is: “rd-lookup”.</t>
+        RD Lookup Base URI path (mandatory). This is the base path for RD Lookup requests. The recommended value for this variable is: “rd-lookup”.</t>
         <t hangText='lookup-type :='>
         (“d”, “ep”, “res”, “gp”) (mandatory) This variable is used to select the
 kind of lookup to perform (domain, endpoint, resource, or group).</t>
@@ -1266,7 +1266,7 @@ Section 4.1 of <xref target="RFC6690"/>, used for resource lookups.</t>
   YES</t>
 </list></t>
 
-<t>The examples in this section assume CoAP hosts with a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.\</t>
+<t>The examples in this section assume CoAP hosts with a default CoAP port 61616. HTTP hosts are possible and do not change the nature of the examples.</t>
 
 <t>The following example shows a client performing a resource lookup with the example look-up location /rd-lookup/:</t>
 
