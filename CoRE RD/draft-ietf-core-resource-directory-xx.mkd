@@ -158,16 +158,24 @@ endpoints for the purpose of group communications. All groups within a domain
 are unique.
 
 Endpoint
-:   Endpoint (EP) is a term used to describe a web server or client in {{RFC7252}}. In the context of this specification an endpoint is used to describe a
+:   Endpoint (EP) is a term used to describe a web server or client in {{RFC7252}}.
+In the context of this specification an endpoint is used to describe a
 web server that registers resources to the Resource Directory. An endpoint
 is identified by its endpoint name, which is included during registration,
 and is unique within the associated domain of the registration.
 
 Context
-:   When registering links to a Resource Directory, the Context refers to the scheme, address, port, and base path for all the links registered on behalf of an endpoint in the form scheme://host:port/path/ where the client may over-ride the scheme and host, and may supply the port and path as optional parameters.
+:   When registering links to a Resource Directory, the Context refers to the
+scheme, address, port, and base path for all the links registered on behalf of
+an endpoint, of the general form scheme://host:port/path/ where the client may
+explicitly set the scheme and host, and may supply the port and path as optional
+parameters. When the context of a registration is explicitly set, the
+URI resolution rules in {{RFC3986}} MUST be applied.
 
 Commissioning Tool
-: Commissioning Tool (CT) is a device that assists during the installation of the network by assigning values to parameters, naming endpoints and groups, or adapting the installation to the needs of the applications.
+: Commissioning Tool (CT) is a device that assists during the installation of the
+network by assigning values to parameters, naming endpoints and groups, or adapting
+the installation to the needs of the applications.
 
 RDAO
 : Resource Directory Address Option.
@@ -190,11 +198,16 @@ by an outside entity. This information hierarchy is shown in {{fig-hierarchy}}.
 
 A mechanism to discover an RD using CoRE Link Format {{RFC6690}} is defined.
 
-Endpoints proactively register and maintain resource directory registration entries on the RD, which are soft state and need to be periodically refreshed.
+Endpoints proactively register and maintain resource directory registration entries
+on the RD, which are soft state and need to be periodically refreshed.
 
-An endpoint is provided with interfaces to register, update and remove a resource directory registration entry. It is also possible for an RD to fetch Web Links from endpoints and add them as resource directory entries.
+An endpoint is provided with interfaces to register, update and remove a resource
+directory registration entry. It is also possible for an RD to fetch Web Links
+from endpoints and add them as resource directory entries.
 
-At the first registration of a set of entries, a "registration resource" is created, the location of which is returned to the registering endpoint. The registering endpoint uses this registration resource to manage the contents of the registration entry.
+At the first registration of a set of entries, a "registration resource" is created,
+the location of which is returned to the registering endpoint. The registering
+endpoint uses this registration resource to manage the contents of the registration entry.
 
 A lookup interface for discovering any of the Web Links held in the RD is
 provided using the CoRE Link Format.
@@ -300,9 +313,12 @@ to the desired resources and endpoints. The Resource Directory service need
 not be coupled with the data intermediary service. Mapping of Resource Directories
 to data intermediaries may be many-to-many.
 
-Metadata in web-link compatible representations are supplied by Resource Directories, which may be internally stored as  triples, or relation/attribute
+Metadata in web link formats like {{RFC6690}} are supplied by Resource Directories,
+which may be internally stored as  triples, or relation/attribute
 pairs providing metadata about resource links. External catalogs that are
-represented in other formats may be converted to common web linking formats for storage and access by Resource Directories. Since it is common practice for these to be URN encoded, simple and lossless structural transforms should
+represented in other formats may be converted to common web linking formats for
+storage and access by Resource Directories. Since it is common practice for these
+to be URN encoded, simple and lossless structural transforms should
 generally be sufficient to store external metadata in Resource Directories.
 
 The additional features of Resource Directory allow domains to be defined
@@ -313,7 +329,8 @@ groups may defined to allow batched reads from multiple resources.
 
 # Finding a Resource Directory {#simple_finding}
 
-Several mechanisms can be employed for discovering the RD, including assuming a default location (e.g. on an Edge Router in a LoWPAN), assigning an anycast address to the
+Several mechanisms can be employed for discovering the RD, including assuming a
+default location (e.g. on an Edge Router in a LoWPAN), assigning an anycast address to the
 RD, using DHCP, or discovering the RD using .well-known/core and hyperlinks as
 specified in CoRE Link Format {{RFC6690}}.
 Endpoints that want to contact a Resource Directory can obtain candidate IP
@@ -405,13 +422,16 @@ RD Address:             IPv6 address of the RD.
 # Resource Directory {#rd}
 
 This section defines the required set of REST interfaces between a Resource Directory
-(RD) and endpoints. Although the examples throughout this section assume the use of CoAP {{RFC7252}}, these REST interfaces can also be realized using HTTP {{RFC7230}}. In all definitions in this section, both CoAP response codes (with dot notation) and HTTP response codes
+(RD) and endpoints. Although the examples throughout this section assume the use of
+CoAP {{RFC7252}}, these REST interfaces can also be realized using HTTP {{RFC7230}}.
+In all definitions in this section, both CoAP response codes (with dot notation) and HTTP response codes
 (without dot notation) are shown. An RD implementing this specification MUST support
 the discovery, registration, update, lookup, and removal interfaces defined in this section.
 
 ## Content Formats
 
-Resource Directory implementations using this specification MUST support the application/link-format content format (ct=40).
+Resource Directory implementations using this specification MUST support the
+application/link-format content format (ct=40).
 
 Resource Directories implementing this specification MAY support additional content formats.
 
@@ -423,8 +443,9 @@ content format.
 
 Before an endpoint can make use of an RD, it must first know the RD's address
 and port, and the base URI information for its REST API. This section defines
-discovery of the RD and its base URI using the well-known interface of the CoRE Link Format {{RFC6690}}. It is however expected that RDs will also be discoverable via
-other methods depending on the deployment.
+discovery of the RD and its base URI using the well-known interface of the
+CoRE Link Format {{RFC6690}}. It is however expected that RDs will also be
+discoverable via other methods depending on the deployment.
 
 Discovery of the RD base URI is performed by sending either a multicast or
 unicast GET request to `/.well-known/core` and including a Resource Type (rt)
@@ -491,9 +512,10 @@ HTTP support :
 : YES (Unicast only)
 
 The following example shows an endpoint discovering an RD using this interface,
-thus learning that the base RD resource is, in this example, at /rd and that the content_format delivered by the server hosting the resource is application/link-format (ct=40).  Note
-that it is up to the RD to choose its base RD resource, although diagnostics
-and debugging is facilitated by using the base paths specified here where
+thus learning that the base RD resource is, in this example, at /rd and that the
+content-format delivered by the server hosting the resource is application/link-format
+(ct=40).  Note that it is up to the RD to choose its base RD resource, although
+diagnostics and debugging is facilitated by using the base paths specified here where
 possible.
 
 ~~~~
@@ -584,11 +606,12 @@ URI Template Variables:
 
   con :=
   : Context (optional). This parameter sets the scheme, address and port at
-    which this server is available in the form scheme://host:port. In
+    which this server is available in the form scheme://host:port/path. In
     the absence of this parameter the scheme of the protocol, source address
     and source port of the register request are assumed. This parameter is
     mandatory when the directory is filled by a third party such as an
-    commissioning tool.
+    commissioning tool. When con is used, scheme and host are mandatory and
+    port and path parameters are optional.
 
 Content-Format:
 : application/link-format
@@ -772,11 +795,12 @@ URI Template Variables:
 
   con :=
   : Context (optional). This parameter sets the scheme, address and port at
-    which this server is available in the form
-    scheme://host:port. Optional. In the absence of this parameter the scheme
-    of the protocol, source IP address and source port set on the previous update or registration are
-    assumed. This parameter is compulsory when the directory is filled by a
-    third party such as a commissioning tool.
+  which this server is available in the form scheme://host:port/path. In
+  the absence of this parameter the scheme of the protocol, source address
+  and source port of the register request are assumed. This parameter is
+  mandatory when the directory is filled by a third party such as an
+  commissioning tool. When con is used, scheme and host are mandatory and
+  port and path parameters are optional.
 
 Content-Format:
 : application/link-format (mandatory)
@@ -1086,11 +1110,13 @@ URI Template Variables:
     domain.
 
   con :=
-  : Context (optional). This parameter is used to set the IP multicast
-    address at which this server is available in the form
-    scheme://multicast-address:port.  Optional. In the absence of this parameter
-    no multicast address is configured.  This parameter is compulsory when the
-    directory is filled by a commissioning tool.
+  : Context (optional). This parameter sets the scheme, address and port at
+    which this server is available in the form scheme://host:port/path. In
+    the absence of this parameter the scheme of the protocol, source address
+    and source port of the register request are assumed. This parameter is
+    mandatory when the directory is filled by a third party such as an
+    commissioning tool. When con is used, scheme and host are mandatory and
+    port and path parameters are optional.
 
 Content-Format:
 : application/link-format
