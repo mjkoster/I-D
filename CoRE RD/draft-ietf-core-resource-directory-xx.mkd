@@ -353,6 +353,12 @@ address may be a well-known multicast address, i.e. directory servers are
 found by simply sending GET requests to that well-known multicast address
 (see {{discovery}}).
 
+Constrained nodes configured in large batches may be configured for an
+anycast address for the RD.  Each target network environment in which
+some of these preconfigured nodes are to be brought up is then
+configured with a route for this anycast address that leads to an RD
+that is appropriate for the environment.
+
 As some of these sources are just (more or less educated) guesses, endpoints
 MUST make use of any error messages to very strictly rate-limit requests to
 candidate IP addresses that don't work out.  For example, an ICMP Destination
