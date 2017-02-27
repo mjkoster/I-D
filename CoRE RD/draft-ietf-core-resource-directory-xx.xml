@@ -595,7 +595,7 @@ RD MAY associate the endpoint with a configured default domain.</t>
 SHOULD be less than 63 bytes.</t>
         <t hangText='lt :='>
         Lifetime (optional). Lifetime of the registration in seconds. Range of 60-4294967295.
-If no lifetime is included, a default value of 86400 (24 hours) SHOULD be
+If no lifetime is included in the initial registration, a default value of 86400 (24 hours) SHOULD be
 assumed.</t>
         <t hangText='con :='>
         Context (optional). This parameter sets the scheme, address and port at
@@ -736,14 +736,21 @@ indicated in the Context parameter of the registration described in <xref target
 
 </section>
 </section>
+<section anchor="operations-on-the-registration-resource" title="Operations on the Registration Resource">
+
+<t>After the initial registration, an endpoint should retain the returned location of the Registration Resource for further operations, including refreshing the registration in order to extend the lifetie and “keep-alive” the registration. If the lifetime of the registration expires, the RD SHOULD NOT respond to discovery queries with information from the endpoint. The RD SHOULD continue to provide access to the Registration Resource after a registration time-out occurs in order to enable the registering endpoint to eventually refresh the registration.</t>
+
+<t>The Registration Resource may also be used to cancel teh registration using DELETE, or update the registration link contents using PATCH.</t>
+
+<t>These operations are described in this section.</t>
+
 <section anchor="update" title="Registration Update">
 
 <t>The update interface is used by an endpoint to refresh or update its
 registration with an RD. To use the interface, the endpoint sends a POST request to the registration resource returned in the Location header option in the response returned from the intial registration operation.</t>
 
 <t>An update MAY update the lifetime or context registration parameters
-“lt”, “con” as in <xref target="registration"/> ) if they have changed since the
-last registration or update. Parameters that have not changed SHOULD NOT
+“lt”, “con” as in <xref target="registration"/> ) if the previous settings are to be retained. Parameters that are not being changed changed SHOULD NOT
 be included in an update. Adding parameters that have not changed increases
 the size of the message but does not have any other implications.
 Parameters MUST be included as query parameters in an update operation as
@@ -754,7 +761,8 @@ endpoint and update the scheme, IP address and port of the endpoint, using
 the source address of the update, or the context (“con”) parameter if present.
 If the lifetime parameter “lt” is included in the received update request,
 the RD MUST update the lifetime of the registration and set the timeout equal
-to the new lifetime.</t>
+to the new lifetime. If the lifetime parameter is not included in the registration 
+update, the most recent setting is re-used for the next registration time-out period.</t>
 
 <t>An update MAY optionally add or replace links for the endpoint by including
 those links in the payload of the update as a CoRE Link Format
@@ -1042,6 +1050,7 @@ application/merge-patch+json
 Res: 2.04 Changed
 ]]></artwork></figure>
 
+</section>
 </section>
 </section>
 <section anchor="group" title="RD Groups">
