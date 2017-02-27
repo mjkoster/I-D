@@ -454,12 +454,13 @@ discoverable via other methods depending on the deployment.</t>
 <t>Discovery of the RD base URI is performed by sending either a multicast or
 unicast GET request to <spanx style="verb">/.well-known/core</spanx> and including a Resource Type (rt)
 parameter <xref target="RFC6690"/> with the value “core.rd” in the query string. Likewise, a
-Resource Type parameter value of “core.rd-lookup” is used to discover the base URI for RD
-Lookup operations.  Upon success, the response will contain a payload with
-a link format entry for each RD discovered, indicating the base URI
- of the RD. When performing multicast discovery, the multicast IP
-address used will depend on the scope required and the multicast capabilities
-of the network.</t>
+Resource Type parameter value of “core.rd-lookup*” is used to discover the base 
+URI for RD Lookup operations, and “core.gp” is used to discover the base URI for RD
+Group operations. Upon success, the response will contain a payload with
+a link format entry for each RD function discovered, indicating the base URI
+of the RD function returned and the corresponding Resource Type. When performing 
+multicast discovery, the multicast IP address used will depend on the scope required
+and the multicast capabilities of the network.</t>
 
 <t>A Resource Directory MAY provide hints about the content-formats it supports in the links it exposes or registers, using the “ct” link attribute, as shown in the example below. Clients MAY use these hints to select alternate content-formats for interaction with the Resource Directory.</t>
 
@@ -482,7 +483,8 @@ the rt parameter as defined in <xref target="RFC6690"/>.</t>
   <t hangText='URI Template Variables:'>
         <list style="hanging">
         <t hangText='rt :='>
-        Resource Type (optional). MAY contain one of the values “core.rd”, “core.rd-lookup”,
+        Resource Type (optional). MAY contain one of the values “core.rd”, “core.rd-lookup*”,
+“core.rd-lookup-d”, “core.rd-lookup-res”, “core.rd-lookup-ep”, “core.rd-lookup-gp”,
 “core.rd-group” or “core.rd*”</t>
       </list>
   </t>
@@ -524,7 +526,8 @@ Req: GET coap://[ff02::1]/.well-known/core?rt=core.rd*
 
 Res: 2.05 Content
 </rd>;rt="core.rd";ct=40,
-</rd-lookup>;rt="core.rd-lookup";ct=40,
+</rd-lookup/ep>;rt="core.rd-lookup-ep";ct=40,
+</rd-lookup/res>;rt="core.rd-lookup-res";ct="40",
 </rd-group>;rt="core.rd-group";ct=40
 ]]></artwork></figure>
 
@@ -542,7 +545,8 @@ Req: GET coap://[ff02::1]/.well-known/core?rt=core.rd*
 
 Res: 2.05 Content
 </rd>;rt="core.rd";ct="40 65225",
-</rd-lookup>;rt="core.rd-lookup";ct="40 65225",
+</rd-lookup/res>;rt="core.rd-lookup-res";ct="40 65225",
+</rd-lookup/ep>;rt="core.rd-lookup-ep";ct="40 65225",
 </rd-group>;rt="core.rd-group";ct="40 65225"
 ]]></artwork></figure>
 
@@ -595,8 +599,10 @@ RD MAY associate the endpoint with a configured default domain.</t>
 SHOULD be less than 63 bytes.</t>
         <t hangText='lt :='>
         Lifetime (optional). Lifetime of the registration in seconds. Range of 60-4294967295.
-If no lifetime is included in the initial registration, a default value of 86400 (24 hours) SHOULD be
-assumed.</t>
+If no lifetime is included in the initial registration, a default value of
+86400 (24 hours) SHOULD be assumed. If the lt parameter is not included in a
+registration refresh  or update operation, the most recently supplied value SHALL be
+re-used.</t>
         <t hangText='con :='>
         Context (optional). This parameter sets the scheme, address and port at
 which this server is available in the form scheme://host:port/path. In
@@ -1257,6 +1263,26 @@ corresponding to the type of lookup.  Thus, a domain lookup MUST return a list o
 
 <t>RD Lookup does not expose registration resources directly, but returns link content from registration resource entries which satisfy RD Lookup queries.</t>
 
+<t>The lookup type is selected by a URI endpoint, which is indicated by a Resource Type as per <xref target="lookup-types"/> below:</t>
+
+<texttable title="Lookup Types" anchor="lookup-types">
+      <ttcol align='left'>Lookup Type</ttcol>
+      <ttcol align='left'>Resource Type</ttcol>
+      <ttcol align='left'>Mandatory</ttcol>
+      <c>Resource</c>
+      <c>core.rd-lookup-res</c>
+      <c>Mandatory</c>
+      <c>Endpoint</c>
+      <c>core.rd-lookup-ep</c>
+      <c>Mandatory</c>
+      <c>Domain</c>
+      <c>core.rd-lookup-d</c>
+      <c>Optional</c>
+      <c>Group</c>
+      <c>core.rd-lookup-gp</c>
+      <c>Optional</c>
+</texttable>
+
 <t>Each endpoint and resource lookup result returns respectively the scheme (IP address and port) followed by the path part of the URI of every endpoint and resource inside angle brackets (“&lt;&gt;”) and followed by the other parameters.</t>
 
 <t>The target of these links SHOULD be the actual location of the domain, endpoint or resource, but MAY be an intermediate proxy e.g. in the case of an HTTP lookup interface for CoAP endpoints.</t>
@@ -1287,8 +1313,11 @@ corresponding to the type of lookup.  Thus, a domain lookup MUST return a list o
         <t hangText='rd-lookup-base :='>
         RD Lookup Base URI path (mandatory). This is the base path for RD Lookup requests. The recommended value for this variable is: “rd-lookup”.</t>
         <t hangText='lookup-type :='>
-        (“d”, “ep”, “res”, “gp”) (mandatory) This variable is used to select the
-kind of lookup to perform (domain, endpoint, resource, or group).</t>
+        (“ep”, “res”) (mandatory), (“d”,”gp”) (optional) This variable is used to select the
+type of lookup to perform (endpoint, resource, domain, or group). The values are
+recommended defaults and MAY use other values as needed.
+The supported lookup-types SHOULD be listed in .well-known/core
+using the specified resource types.</t>
         <t hangText='ep :='>
         Endpoint name (optional). Used for endpoint, group and resource lookups.</t>
         <t hangText='d :='>
@@ -1489,7 +1518,8 @@ attack.</t>
 
 <section anchor="iana-rt" title="Resource Types">
 
-<t>“core.rd”, “core.rd-group” and “core.rd-lookup” resource types need to be
+<t>“core.rd”, “core.rd-group”, “core.rd-lookup-ep”, “core.rd-lookup-res”,
+“core.rd-lookup-d”, and “core.rd-lookup-gp” resource types need to be
 registered with the resource type registry defined by <xref target="RFC6690"/>.</t>
 
 </section>
@@ -1914,17 +1944,6 @@ con - Context
 ]]></artwork></figure>
 
 <t>This link format payload indicates that object ID 1 (LWM2M Server Object) is supported, with a single instance 0 existing, object ID 3 (LWM2M Device object) is supported, with a single instance 0 existing, and object 5 (LWM2M Firmware Object) is supported, with no existing instances.</t>
-
-</section>
-<section anchor="lwm2m-altbase" title="Alternate Base URI">
-
-<t>If the LWM2M endpoint exposes objects at a base URI other than the default empty base path, the endpoint must register the base URI using rt=”oma.lwm2m”. An example link payload using alternate base URI would be:</t>
-
-<figure><artwork type="linkformat"><![CDATA[
-</my_lwm2m>;rt="oma.lwm2m",</my_lwm2m/1>,<my_lwm2m/1/0>,<my_lwm2m/5>
-]]></artwork></figure>
-
-<t>This link payload indicates that the lwm2m objects will be placed under the base URI “/my_lwm2m” and that object ID 1 (server) is supported, with a single instance 0 existing, and object 5 (firmware update) is supported.</t>
 
 </section>
 <section anchor="lwm2m-regupdate" title="LWM2M Update Endpoint Registration">
