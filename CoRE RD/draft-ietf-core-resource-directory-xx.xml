@@ -604,7 +604,14 @@ the absence of this parameter the scheme of the protocol, source address
 and source port of the register request are assumed. This parameter is
 mandatory when the directory is filled by a third party such as an
 commissioning tool. When con is used, scheme and host are mandatory and
-port and path parameters are optional.</t>
+port and path parameters are optional.
+
+If the endpoint uses an ephemeral port to register with, it MUST include the con:
+parameter in the registration to provide a valid network path.
+If the endpoint which is located behind a NAT gateway is registering with a Resource
+Directory which is on the network service side of the NAT gateway, the endpoint MUST
+use a persistent port for the outgoing registration in order to provide the NAT
+gateway with a valid network address for replies and incoming requests.</t>
       </list>
   </t>
   <t hangText='Content-Format:'>
