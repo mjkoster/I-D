@@ -350,6 +350,12 @@ address may be a well-known multicast address, i.e. directory servers are
 found by simply sending GET requests to that well-known multicast address
 (see <xref target="discovery"/>).</t>
 
+<t>Constrained nodes configured in large batches may be configured for an
+anycast address for the RD.  Each target network environment in which
+some of these preconfigured nodes are to be brought up is then
+configured with a route for this anycast address that leads to an RD
+that is appropriate for the environment.</t>
+
 <t>As some of these sources are just (more or less educated) guesses, endpoints
 MUST make use of any error messages to very strictly rate-limit requests to
 candidate IP addresses that don’t work out.  For example, an ICMP Destination
@@ -641,6 +647,8 @@ Payload:
 Res: 2.01 Created
 Location: /rd/4521
 ]]></artwork></figure>
+
+<t>A Resource Directory may optionally support HTTP. Here is an example of the same registration operation above, when done using HTTP.</t>
 
 <figure><artwork><![CDATA[
 Req: POST /rd?ep=node1 HTTP/1.1
@@ -1123,18 +1131,6 @@ Payload:
 <>;ep="node2"
 
 Res: 2.01 Created
-Location: /rd-group/12
-]]></artwork></figure>
-
-<figure><artwork><![CDATA[
-Req: POST /rd-group?gp=lights HTTP/1.1
-Host: example.com
-Content-Type: application/link-format
-Payload:
-<>;ep="node1",
-<>;ep="node2"
-
-Res: 201 Created
 Location: /rd-group/12
 ]]></artwork></figure>
 
