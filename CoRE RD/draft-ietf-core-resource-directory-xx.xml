@@ -738,9 +738,9 @@ indicated in the Context parameter of the registration described in <xref target
 </section>
 <section anchor="operations-on-the-registration-resource" title="Operations on the Registration Resource">
 
-<t>After the initial registration, an endpoint should retain the returned location of the Registration Resource for further operations, including refreshing the registration in order to extend the lifetie and “keep-alive” the registration. If the lifetime of the registration expires, the RD SHOULD NOT respond to discovery queries with information from the endpoint. The RD SHOULD continue to provide access to the Registration Resource after a registration time-out occurs in order to enable the registering endpoint to eventually refresh the registration.</t>
+<t>After the initial registration, an endpoint should retain the returned location of the Registration Resource for further operations, including refreshing the registration in order to extend the lifetie and “keep-alive” the registration. If the lifetime of the registration expires, the RD SHOULD NOT respond to discovery queries with information from the endpoint. The RD SHOULD continue to provide access to the Registration Resource after a registration time-out occurs in order to enable the registering endpoint to eventually refresh the registration. The RD MAY eventually remove the registration resource for the purpose of resource recovery and garbage collection. If teh Registration Resource is removed, the endpoint will need to re-register.</t>
 
-<t>The Registration Resource may also be used to cancel teh registration using DELETE, or update the registration link contents using PATCH.</t>
+<t>The Registration Resource may also be used to inspect the registration resource using GET, update the registration link contents using PATCH, or cancel the registration using DELETE.</t>
 
 <t>These operations are described in this section.</t>
 
@@ -962,6 +962,8 @@ Payload:
 <t>A PATCH update adds, removes or changes links for the endpoint by including link update information in the payload of the update as a merge-patch+json format <xref target="RFC7396"/>
 document.</t>
 
+<t>Other PATCH document formats may be used as appropriate for patching the array of objects format of a Registration Resource. In particular, a select-merge patch document format could combine the function of link selection query and link attribute replacement values.</t>
+
 <t>One or more links are selected for update by using query filtering as specified in <xref target="RFC6690"/> Section 4.1</t>
 
 <t>The query filter selects the links to be modified or deleted, by matching the query parameter values to the values of the link attributes.</t>
@@ -1008,6 +1010,17 @@ earlier registration.</t>
 
 <t>The following examples show an endpoint adding &lt;/sensors/humid&gt;, modifying &lt;/sensors/temp&gt;, and removing &lt;/sensors/light&gt; links in RD using the Update Endpoint Links function with the example location value /rd/4521.</t>
 
+<t>The Registration Resource initial state is:</t>
+
+<figure><artwork><![CDATA[
+Req: GET /rd/4521
+
+Res: 2.01 Content
+Payload:
+</sensors/temp>;ct=41;rt="temperature",
+</sensors/light>;ct=41;rt="light-lux";if="sensor"
+]]></artwork></figure>
+
 <t>The following example shows an EP adding the link &lt;/sensors/humid&gt;;ct=41;rt=”humid-s”;if=”sensor” to the collection of links at the location /rd/4521.</t>
 
 <figure><artwork><![CDATA[
@@ -1020,6 +1033,16 @@ Content-Format:
 application/merge-patch+json
 
 Res: 2.04 Changed
+]]></artwork></figure>
+
+<figure><artwork><![CDATA[
+Req: GET /rd/4521
+
+Res: 2.01 Content
+Payload:
+</sensors/temp>;ct=41;rt="temperature",
+</sensors/light>;ct=41;rt="light-lux";if="sensor",
+</sensors/humid>;ct=41;rt="humid-s";if="sensor"
 ]]></artwork></figure>
 
 <t>The following example shows an EP modifying all links at the example location /rd/4521 which are  identified by href=”/sensors/temp”, from the initial link-value of &lt;/sensors/temp&gt;;rt=”temperature” to the new link-value &lt;/sensors/temp&gt;;rt=”temperature-c”;if=”sensor” by changing the value of the link attribute “rt” and adding the link attribute if=”sensor” using the PATCH operation with the supplied merge-patch+json document payload.</t>
@@ -1036,6 +1059,16 @@ application/merge-patch+json
 Res: 2.04 Changed
 ]]></artwork></figure>
 
+<figure><artwork><![CDATA[
+Req: GET /rd/4521
+
+Res: 2.01 Content
+Payload:
+</sensors/temp>;ct=41;rt="temperature-c";if="sensor",
+</sensors/light>;ct=41;rt="light-lux";if="sensor",
+</sensors/humid>;ct=41;rt="humid-s";if="sensor"
+]]></artwork></figure>
+
 <t>This example shows an EP removing all links at the example location /rd/4521 which are identified by href=”/sensors/light”.</t>
 
 <figure><artwork><![CDATA[
@@ -1048,6 +1081,15 @@ Content-Format:
 application/merge-patch+json
 
 Res: 2.04 Changed
+]]></artwork></figure>
+
+<figure><artwork><![CDATA[
+Req: GET /rd/4521
+
+Res: 2.01 Content
+Payload:
+</sensors/temp>;ct=41;rt="temperature-c";if="sensor",
+</sensors/humid>;ct=41;rt="humid-s";if="sensor"
 ]]></artwork></figure>
 
 </section>
