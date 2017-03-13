@@ -43,7 +43,7 @@
     <abstract>
 
 
-<t>The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group <xref target="T2TRG"/> has a charter to investigate the use of REST design style <xref target="REST"/>for machine interactions. The W3C Web of Things Interest Group <xref target="W3C-WoT"/> are investigating abstract hypermedia controls and interaction models for machines. Machine optimized content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.ietf-core-senml"/>.</t>
+<t>The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group <xref target="T2TRG"/> has a charter to investigate the use of REST design style <xref target="REST"/>for machine interactions. The W3C Web of Things Interest Group <xref target="W3C-WoT"/> are investigating abstract hypermedia controls and interaction models for machines. Machine optimized content formats exist for web links <xref target="RFC5988"/> <xref target="RFC6690"/> and for data items <xref target="I-D.ietf-core-senml"/>.</t>
 
 <t>Structured data which contains both links and items is known as the collection pattern. This draft describes media types for representation of machine resources structured as collections. A simple, reusable data model is described with a representation format, using a well known set of keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible with SenML and CoRE Link-format by reusing the keyword identifiers and element structures from these content formats. Representations of HSML document content may be obtained in CoRE Link-Format and SenML content formats.</t>
 
@@ -189,7 +189,7 @@
 ]]></artwork></figure>
 
 <section anchor="items-embedded-in-the-collection" title="Items embedded in the collection">
-<t>Items may be stored as simple sets of key-value pairs in the context of the collection. Items stored in this way may only offer item representations. Links about these items may be obtained from the collection that contains them.</t>
+<t>Items may be stored as simple sets of key-value pairs in the context of the collection. Links about these items may be obtained from the collection that contains them.</t>
 
 <figure title="Items Embedded in a Collection" align="left" anchor="fig-example-item"><artwork><![CDATA[
    [ 
@@ -217,7 +217,7 @@
 
 </section>
 <section anchor="items-stored-as-collections" title="Items stored as collections">
-<t>Alternatively, items themselves may be stored as single-item collections, pointed to by links in another collection. Items stored as collections may contain an item with a zero length name, and a self link for the item as shown in the collection representation of the item in <xref target="fig-example-coll-item"/>. Items stored in this way may be augmented by adding additional resources and link content to the collection. Items stored as collections may offer link format and collection format representations.</t>
+<t>Alternatively, items themselves may be stored as single-item collections, pointed to by links in another collection. Items stored as collections may contain an item with a zero length href and name, and a self link for the item as shown in the collection representation of the item in <xref target="fig-example-coll-item"/>. Items stored in this way may be augmented by adding additional resources and link content to the collection. Items stored as collections may offer link format and collection format representations.</t>
 
 <figure title="Items as Separate Collections" align="left" anchor="fig-example-coll-item"><artwork><![CDATA[
    base collection:
@@ -239,9 +239,11 @@
        "bi": "/sensors/temp/"
      },
      {
+       "href": "", //may be elided
        "rel": ["self","item"]
      },
      {
+       "n": "", //may be elided
        "v": 27
      }
    ]
@@ -1138,19 +1140,30 @@
     {
       "rel": "action",
       "type": "st.on",
-      "href": "commands",
+      "href": "switchcommand",
       "method": "create",
-      "accept": "application/json",
-      "schema": {"value": "on"}
+      "accept": "text/plain",
+      "schema": {"type": "string", "enum": ["on"]}
+    }
+
+    {
+      "rel": "action",
+      "type": "st.off",
+      "href": "switchcommand",
+      "method": "create",
+      "accept": "text/plain",
+      "schema": {"enum": ["off"]}
     }
 ]]></artwork></figure>
 
-<t>This Action element informs the client that to perform a type “st.on” action on the context resource, perform a CREATE method on the “commands” URI relative to the context URI, using the application/json content type, with a payload as defined by the “Schema” parameter.</t>
+<t>These Action elements inform the client that to perform a type “st.on” or “st.off” action on the context resource, perform a CREATE method on the “switchcommand” URI relative to the context URI, using the text/plain content type, with a payload as defined by the “schema” parameter. This example uses a free-form fragment of JSON-Schema language to differentiate, by action payloads, the “st.on” and “st.off” actions, which are mapped to the same URI and method.</t>
 
 </section>
-<section anchor="monitors" title="Monitors">
+<section anchor="link-bindings-and-monitors" title="Link Bindings and Monitors">
 
-<t>Monitors are hypermedia controls, indicated by a rel=monitor value in a link, used to construct transfer operations that expose state changes of resources. A monitor invokes an outbound transfer operation on a target resource. Monitors use the IANA registered link relation “monitor”, defined in <xref target="RFC5989"/>.</t>
+<t>Link Bindings and Monitors are hypermedia controls, indicated by a rel=boundto or rel=monitor value in a link, used to construct transfer operations that consume or expose state changes of resources. A monitor invokes a state transfer operation from the link context to a target resource. A Link Binding follows the semantics defined in <xref target="I-D.groves-core-dynlink"/>, and invokes a state transfer in the opposite direction, that is from the link target to the link context.</t>
+
+<t>Monitors use the IANA registered link relation “monitor”, defined in <xref target="RFC5989"/>. Link Bindings use the link relation type “boundto”, defined in <xref target="I-D.groves-core-dynlink"/>.</t>
 
 <t>Monitors have a set of accept parameters that indicate how the context resource is being observed, a set of filter parameters that indicate the conditions for generating a state change in the monitor, and a set of target parameters that indicate how state changes are to be applied to the monitor resource. See <xref target="monitor-params"/> for more information.</t>
 
@@ -1161,7 +1174,7 @@
       "rel": "monitor",
       "href": "tank-level-events",
       "content-type": "application/senml+json",
-      "target-method": "create",
+      "transfer-method": "create",
       "pmin": 600,
       "pmax": 3600,
       "nbul": 20,
@@ -1181,13 +1194,11 @@
 
 <t>New definitions are summarized in <xref target="iana-cons"/>.</t>
 
-<section anchor="default-curie" title="Default CURIE">
+<section anchor="default-namespace" title="Default namespace">
 
-<t>Identifiers in representations using the HSML media types are assumed to use the default CURIE “hsml”. An identifier that is not matched to an existing namespace is assumed to carry the prefix “hsml”.</t>
+<t>Identifiers in representations using the HSML media types are assumed to use the default namespace defined in <xref target="reserved-identifiers"/> of this document. An identifier that does not containan explicit namespace identifier is assumed to be in the default namespace.</t>
 
-<t>For example, if the identifier “method” is encountered and it doesn’t resolve to an IANA registered parameter (reg-parameter in <xref target="RFC5988"/>) resolution should be attempted using “hsml:method”.</t>
-
-<t>The default CURIE “hsml” identifies a namespace defined by the identifiers in <xref target="reserved-identifiers"/> of this document.</t>
+<t>For example, if the identifier “method” is encountered and it doesn’t resolve to an IANA registered parameter (reg-parameter in <xref target="RFC5988"/>) resolution should be attempted using the definition of “method” in this document.</t>
 
 </section>
 <section anchor="uri-params" title="URI Processing Parameters">
@@ -1225,7 +1236,7 @@
   <t hangText='“self”'><vspace blankLines='0'/>
   Refers to the collection that contains the link</t>
   <t hangText='“item”'><vspace blankLines='0'/>
-  The link points to an item in the collection</t>
+  The link points to an item in the collection, indicating eligibility for collective interaction using link embedding as described in <xref target="link-embedding"/> and <xref target="link-embedding-items"/>.</t>
   <t hangText='“grp”'><vspace blankLines='0'/>
   The item the link points to is available for collective interaction through the collection URI according to group semantics described in <xref target="groups"/>.</t>
 </list></t>
@@ -1296,13 +1307,13 @@
 </list></t>
 
 </section>
-<section anchor="monitor-params" title="Link Parameters used in Monitors">
+<section anchor="monitor-params" title="Link Parameters used in Link Bindings and Monitors">
 
 <t><list style="hanging">
   <t hangText='“anchor”'><vspace blankLines='0'/>
-  May override the context URI of a monitor with any observable resource</t>
+  May override the context URI of a link binding or monitor with any observable resource</t>
   <t hangText='“rel”'><vspace blankLines='0'/>
-  Indicates that this control is a monitor when rel contains the value “monitor”</t>
+  Indicates that this control is a monitor when rel contains the value “monitor” or a link binding when rel contains the value “boundto”</t>
   <t hangText='“href”'><vspace blankLines='0'/>
   The URI of the resource used to monitor context URI, where transfer operations will be sent.</t>
   <t hangText='“accept”'><vspace blankLines='0'/>
@@ -1312,13 +1323,13 @@
   <t hangText='“ct”'><vspace blankLines='0'/>
   the CoAP content-format number to use in the transfer operation</t>
   <t hangText='“accept-method”'><vspace blankLines='0'/>
-  Transfer method to use in request from the observed resource, default is OBSERVE</t>
-  <t hangText='“target-method”'><vspace blankLines='0'/>
-  Transfer method to use for notifications, default is UPDATE</t>
+  (HSML extension) Transfer method to use in request from the observed resource, default is OBSERVE</t>
+  <t hangText='“transfer-method”'><vspace blankLines='0'/>
+  (HSML extension) Transfer method to use for notifications, default is UPDATE</t>
   <t hangText='“accept-schema”'><vspace blankLines='0'/>
-  Schema to use in interpreting the observed resource payload, required if target-schema is used.</t>
-  <t hangText='“target-schema”'><vspace blankLines='0'/>
-  Schema to use in constructing the notification transfer payload, default is to transfer the accepted payload unmodified to the target resource.</t>
+  (HSML extension) Schema to use in interpreting the observed resource payload, required if transfer-schema is used.</t>
+  <t hangText='“transfer-schema”'><vspace blankLines='0'/>
+  (HSML extension) Schema to use in constructing the notification transfer payload, default is to transfer the accepted payload unmodified to the target resource.</t>
 </list></t>
 
 </section>
@@ -1329,19 +1340,19 @@
   Minimum time between notifications from a monitor</t>
   <t hangText='“pmax”'><vspace blankLines='0'/>
   Maximum time between notifications from a monitor</t>
-  <t hangText='“gt”'><vspace blankLines='0'/>
+  <t hangText='“gth”'><vspace blankLines='0'/>
   Value to match or exceed to determine notification condition</t>
-  <t hangText='“lt”'><vspace blankLines='0'/>
+  <t hangText='“lth”'><vspace blankLines='0'/>
   Value to match or be less than to determine notification condition</t>
   <t hangText='“st”'><vspace blankLines='0'/>
   Value change +/- from last report to determine notification condition</t>
   <t hangText='“eq”'><vspace blankLines='0'/>
   Value to match, or change from, to determine notification condition</t>
-  <t hangText='“nbll”'><vspace blankLines='0'/>
+  <t hangText='“bmn”'><vspace blankLines='0'/>
   Defines a lower limit, at or above which notification is enabled</t>
-  <t hangText='“nbul”'><vspace blankLines='0'/>
+  <t hangText='“bmx”'><vspace blankLines='0'/>
   Defines an upper limit, at or below which notification is enabled</t>
-  <t hangText='“init”'><vspace blankLines='0'/>
+  <t hangText='“iv”'><vspace blankLines='0'/>
   Starts the notification state machine with an initial value</t>
 </list></t>
 
@@ -1366,7 +1377,7 @@
 </section>
 <section anchor="iana-cons" title="IANA Considerations">
 
-<section anchor="new-media-types" title="New Media Types">
+<section anchor="media-types" title="Media Types">
 
 <t>Type</t>
 
@@ -1397,7 +1408,7 @@
 </list></t>
 
 </section>
-<section anchor="new-core-parameters-content-formats" title="New CoRE Parameters Content Formats">
+<section anchor="core-parameters-content-formats" title="CoRE Parameters Content Formats">
 
 <t>(subject to Structured Syntax encoding rules TBD)</t>
 
@@ -1408,7 +1419,7 @@
 </list></t>
 
 </section>
-<section anchor="new-link-parameters" title="New Link Parameters">
+<section anchor="link-parameters" title="Link Parameters">
 
 <t><list style="symbols">
   <t>method</t>
@@ -1416,9 +1427,9 @@
   <t>content-type</t>
   <t>ct</t>
   <t>accept-method</t>
-  <t>target-method</t>
+  <t>transfer-method</t>
   <t>accept-schema</t>
-  <t>target-schema</t>
+  <t>transfer-schema</t>
 </list></t>
 
 <t>The following should be registered in the CoRE dynamic linking draft <xref target="I-D.groves-core-dynlink"/>.</t>
@@ -1426,17 +1437,17 @@
 <t><list style="symbols">
   <t>pmin</t>
   <t>pmax</t>
-  <t>nbll</t>
-  <t>nbul</t>
-  <t>init</t>
-  <t>lt</t>
-  <t>gt</t>
+  <t>bmn</t>
+  <t>bmx</t>
+  <t>iv</t>
+  <t>lth</t>
+  <t>gth</t>
   <t>st</t>
   <t>eq</t>
 </list></t>
 
 </section>
-<section anchor="new-link-relation-types" title="New Link Relation Types">
+<section anchor="link-relation-types-1" title="Link Relation Types">
 
 <t><list style="symbols">
   <t>grp</t>
@@ -1453,14 +1464,14 @@
 
 </section>
 <section anchor="transfer-layer-methods" title="Transfer Layer Methods">
-<t>These definitions may use the default CURIE and do not need to be registered with IANA</t>
+<t>These definitions may use the default namespace and do not need to be registered with IANA</t>
 
 <t><list style="symbols">
-  <t>hsml:create</t>
-  <t>hsml:retrieve</t>
-  <t>hsml:update</t>
-  <t>hsml:delete</t>
-  <t>hsml:observe</t>
+  <t>create</t>
+  <t>retrieve</t>
+  <t>update</t>
+  <t>delete</t>
+  <t>observe</t>
 </list></t>
 
 </section>
@@ -1690,15 +1701,15 @@
     <organization />
 </author>
 
-<date month='July' day='8' year='2016' />
+<date month='February' day='23' year='2017' />
 
-<abstract><t>This document defines a set of reusable REST resource design patterns suitable for use in constrained environments, based on IETF CoRE standards for information representation and information exchange.  Interface types for Sensors, Actuators, Parameters, and resource Collections are defined using the "if" link attribute defined by CoRE Link Format [RFC6690].  Clients may use the "if" attribute to determine how to consume resources.  Editor's note: This version removes the observe notify functionality. Further work is needed on this draft to</t></abstract>
+<abstract><t>This document defines a set of Constrained RESTful Environments (CoRE) Link Format Interface Descriptions [RFC6690] applicable for use in constrained environments.  These include the: Actuator, Paramter, Read-only parameter, Sensor, Batch, Linked Batch and Link List interfaces.  The Batch, Linked Batch and Link List interfaces make use of resource collections.  This document further describes how collections relate to interfaces.  Many applications require a set of interface descriptions in order provide the required functionality.  This document defines the concept of function sets to specify this set of interfaces and resources.  _Editor's note: The git repository for the draft is found at https://github.com/core-wg/interfaces_</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-interfaces-05' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-interfaces-08' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-05.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-interfaces-08.txt' />
 </reference>
 
 
@@ -1723,22 +1734,22 @@
     <organization />
 </author>
 
-<date month='July' day='8' year='2016' />
+<date month='October' day='31' year='2016' />
 
-<abstract><t>In many M2M applications, direct discovery of resources is not practical due to sleeping nodes, disperse networks, or networks where multicast traffic is inefficient.  These problems can be solved by employing an entity called a Resource Directory (RD), which hosts descriptions of resources held on other servers, allowing lookups to be performed for those resources.  This document specifies the web interfaces that a Resource Directory supports in order for web servers to discover the RD and to register, maintain, lookup and remove resources descriptions.  Furthermore, new link attributes useful in conjunction with an RD are defined.</t></abstract>
+<abstract><t>In many M2M applications, direct discovery of resources is not practical due to sleeping nodes, disperse networks, or networks where multicast traffic is inefficient.  These problems can be solved by employing an entity called a Resource Directory (RD), which hosts descriptions of resources held on other servers, allowing lookups to be performed for those resources.  This document specifies the web interfaces that a Resource Directory supports in order for web servers to discover the RD and to register, maintain, lookup and remove resource descriptions.  Furthermore, new link attributes useful in conjunction with an RD are defined.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-resource-directory-08' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-resource-directory-09' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-resource-directory-08.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-resource-directory-09.txt' />
 </reference>
 
 
 
 <reference anchor='I-D.ietf-core-senml'>
 <front>
-<title>Media Types for Sensor Markup Language (SenML)</title>
+<title>Media Types for Sensor Measurement Lists (SenML)</title>
 
 <author initials='C' surname='Jennings' fullname='Cullen Jennings'>
     <organization />
@@ -1760,15 +1771,15 @@
     <organization />
 </author>
 
-<date month='July' day='8' year='2016' />
+<date month='October' day='31' year='2016' />
 
-<abstract><t>This specification defines media types for representing simple sensor measurements and device parameters in the Sensor Markup Language (SenML).  Representations are defined in JavaScript Object Notation (JSON), Concise Binary Object Representation (CBOR), eXtensible Markup Language (XML), and Efficient XML Interchange (EXI), which share the common SenML data model.  A simple sensor, such as a temperature sensor, could use this media type in protocols such as HTTP or CoAP to transport the measurements of the sensor or to be configured.</t></abstract>
+<abstract><t>This specification defines media types for representing simple sensor measurements and device parameters in the Sensor Measurement Lists (SenML).  Representations are defined in JavaScript Object Notation (JSON), Concise Binary Object Representation (CBOR), eXtensible Markup Language (XML), and Efficient XML Interchange (EXI), which share the common SenML data model.  A simple sensor, such as a temperature sensor, could use this media type in protocols such as HTTP or CoAP to transport the measurements of the sensor or to be configured.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-core-senml-02' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-core-senml-04' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-core-senml-02.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-core-senml-04.txt' />
 </reference>
 
 
@@ -1781,15 +1792,15 @@
     <organization />
 </author>
 
-<date month='July' day='25' year='2016' />
+<date month='November' day='22' year='2016' />
 
-<abstract><t>Concise Binary Object Representation (CBOR) is data format designed for small code size and small message size.  There is a need for the ability to have the basic security services defined for this data format.  This document defines the CBOR Object Signing and Encryption (COSE) specification.  This specification describes how to create and process signature, message authentication codes and encryption using CBOR for serialization.  This specification additionally specifies how to represent cryptographic keys using CBOR.</t></abstract>
+<abstract><t>Concise Binary Object Representation (CBOR) is data format designed for small code size and small message size.  There is a need for the ability to have basic security services defined for this data format. This document defines the CBOR Object Signing and Encryption (COSE) specification.  This specification describes how to create and process signature, message authentication codes and encryption using CBOR for serialization.  This specification additionally specifies how to represent cryptographic keys using CBOR.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-cose-msg-15' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-cose-msg-24' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-cose-msg-15.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-cose-msg-24.txt' />
 </reference>
 
 
@@ -1847,15 +1858,15 @@
     <organization />
 </author>
 
-<date month='July' day='7' year='2016' />
+<date month='October' day='11' year='2016' />
 
 <abstract><t>This memo defines Object Security of CoAP (OSCOAP), a method for application layer protection of message exchanges with the Constrained Application Protocol (CoAP), using the CBOR Object Signing and Encryption (COSE) format.  OSCOAP provides end-to-end encryption, integrity and replay protection to CoAP payload, options, and header fields, as well as a secure binding between CoAP request and response messages.  The use of OSCOAP is signaled with the CoAP option Object-Security, also defined in this memo.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-selander-ace-object-security-05' />
+<seriesInfo name='Internet-Draft' value='draft-selander-ace-object-security-06' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-selander-ace-object-security-05.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-selander-ace-object-security-06.txt' />
 </reference>
 
 

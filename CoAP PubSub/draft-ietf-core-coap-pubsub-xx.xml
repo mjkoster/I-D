@@ -13,7 +13,7 @@
 <?rfc compact="no"?>
 <?rfc subcompact="no"?>
 
-<rfc category="std" ipr="trust200902" docName="draft-ietf-core-coap-pubsub-00">
+<rfc category="std" ipr="trust200902" docName="draft-ietf-core-coap-pubsub-01">
 
   <front>
   <title abbrev="Publish-Subscribe Broker for CoAP">Publish-Subscribe Broker for the Constrained Application Protocol (CoAP)</title>
@@ -353,7 +353,7 @@ Client                                          Broker
 </t>
 <t>Create on PUBLISH: A Broker MAY accept PUBLISH operations to new topics using the PUT method. If a Broker accepts a PUBLISH using PUT to a topic that does not exist, the Broker MUST create the topic using the information in the PUT operation. The Broker MUST create a topic with the URI-Path of the request, including all of the sub-topics necessary, and create a topic link with the ct attribute set to the content-format of the payload of the PUT request. If topic is created, the Broker MUST return the response "2.01 Created" with the URI of the created topic, including all of the created path segments, returned via the Location-Path option.
 </t>
-<t>A Broker MAY accept PUBLISH operations using the POST method. If a broker accepts PUBLISH using POST it MAY store an ordered list of representations, with an element of the list for each published representation. A Broker MAY reject, or delay responses to, POST requests if the internal capacity to store representations is exceeded. 
+<t>A Broker MAY accept PUBLISH operations using the POST method. If a broker accepts PUBLISH using POST it MAY store an ordered list of published representations, with an element of the list for each published representation. A Broker MAY reject, or delay responses to, POST requests if the internal capacity to store representations is exceeded. 
 </t>
 <t>A Broker MAY perform garbage collection of stored representations which have been delivered to all subscribers or which have timed out. A Broker MAY retain at least one most recently published representation to return in response to SUBSRCIBE and READ requests.
 </t>
