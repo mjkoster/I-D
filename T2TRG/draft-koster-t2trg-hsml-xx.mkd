@@ -76,7 +76,7 @@ informative:
 
     
 --- abstract
-The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common markup format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group {{T2TRG}} has a charter to investigate the use of REST design style {{REST}}for machine interactions. The W3C Web of Things Interest Group {{W3C-WoT}} are investigating abstract hypermedia controls and interaction models for machines. Machine optimized content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{I-D.ietf-core-senml}}. 
+The scale and scope of the worldwide web has been in part driven by the availability of HTML as a common serialization, data model, and interaction model for structured resources on the web. By contrast, the general use of appropriate hypermedia techniques for machine interfaces has been limited by the lack of a common format for serialization and exchange of structured machine resources and sensor/actuator data which includes or embeds standardized hypermedia controls. The IRTF Thing to Thing Research Group {{T2TRG}} has a charter to investigate the use of REST design style {{REST}}for machine interactions. The W3C Web of Things Interest Group {{W3C-WoT}} are investigating abstract hypermedia controls and interaction models for machines. Machine optimized content formats exist for web links {{RFC5988}} {{RFC6690}} and for data items {{I-D.ietf-core-senml}}. 
 
 Structured data which contains both links and items is known as the collection pattern. This draft describes media types for representation of machine resources structured as collections. A simple, reusable data model is described with a representation format, using a well known set of keywords to expose hypermedia controls, which inform clients how to perform state transfer operations on resources. The underlying assumptions regarding transfer layer processing are specified in this document. The HSML media type described in this document is compatible with SenML and CoRE Link-format by reusing the keyword identifiers and element structures from these content formats. Representations of HSML document content may be obtained in CoRE Link-Format and SenML content formats.
 
@@ -210,7 +210,7 @@ Items may be embedded in the collection, they may be subresources of the collect
 {: #fig-item-element title='Example Item Element' align="left"}
 
 ### Items embedded in the collection
-Items may be stored as simple sets of key-value pairs in the context of the collection. Items stored in this way may only offer item representations. Links about these items may be obtained from the collection that contains them.
+Items may be stored as simple sets of key-value pairs in the context of the collection. Links about these items may be obtained from the collection that contains them.
 
 ~~~
    [ 
@@ -238,7 +238,7 @@ Items may be stored as simple sets of key-value pairs in the context of the coll
 {: #fig-example-item title='Items Embedded in a Collection' align="left"}
 
 ### Items stored as collections
-Alternatively, items themselves may be stored as single-item collections, pointed to by links in another collection. Items stored as collections may contain an item with a zero length name, and a self link for the item as shown in the collection representation of the item in {{fig-example-coll-item}}. Items stored in this way may be augmented by adding additional resources and link content to the collection. Items stored as collections may offer link format and collection format representations.
+Alternatively, items themselves may be stored as single-item collections, pointed to by links in another collection. Items stored as collections may contain an item with a zero length href and name, and a self link for the item as shown in the collection representation of the item in {{fig-example-coll-item}}. Items stored in this way may be augmented by adding additional resources and link content to the collection. Items stored as collections may offer link format and collection format representations.
 
 ~~~
    base collection:
@@ -260,9 +260,11 @@ Alternatively, items themselves may be stored as single-item collections, pointe
        "bi": "/sensors/temp/"
      },
      {
+       "href": "", //may be elided
        "rel": ["self","item"]
      },
      {
+       "n": "", //may be elided
        "v": 27
      }
    ]
@@ -776,7 +778,7 @@ Whan a collection is referenced and the item format is indicated, either by incl
 
 Specifying item interaction with a collection invokes the link embedding operations.
 
-### Link Embedding Items
+### Link Embedding Items {#link-embedding-items}
 
 Collective operations on items in collections are invoked by using the URI of the collections, along with URI parameters, to select one or more items in the collection. 
 
@@ -1147,19 +1149,30 @@ An example Action element is shown in {{fig-action-element}}.
     {
       "rel": "action",
       "type": "st.on",
-      "href": "commands",
+      "href": "switchcommand",
       "method": "create",
-      "accept": "application/json",
-      "schema": {"value": "on"}
+      "accept": "text/plain",
+      "schema": {"type": "string", "enum": ["on"]}
+    }
+
+    {
+      "rel": "action",
+      "type": "st.off",
+      "href": "switchcommand",
+      "method": "create",
+      "accept": "text/plain",
+      "schema": {"enum": ["off"]}
     }
 ~~~~
 {: #fig-action-element title='Example Action Element' align="left"}
 
-This Action element informs the client that to perform a type "st.on" action on the context resource, perform a CREATE method on the "commands" URI relative to the context URI, using the application/json content type, with a payload as defined by the "Schema" parameter.
+These Action elements inform the client that to perform a type "st.on" or "st.off" action on the context resource, perform a CREATE method on the "switchcommand" URI relative to the context URI, using the text/plain content type, with a payload as defined by the "schema" parameter. This example uses a free-form fragment of JSON-Schema language to differentiate, by action payloads, the "st.on" and "st.off" actions, which are mapped to the same URI and method.
 
-## Monitors
+## Link Bindings and Monitors
 
-Monitors are hypermedia controls, indicated by a rel=monitor value in a link, used to construct transfer operations that expose state changes of resources. A monitor invokes an outbound transfer operation on a target resource. Monitors use the IANA registered link relation "monitor", defined in {{RFC5989}}.
+Link Bindings and Monitors are hypermedia controls, indicated by a rel=boundto or rel=monitor value in a link, used to construct transfer operations that consume or expose state changes of resources. A monitor invokes a state transfer operation from the link context to a target resource. A Link Binding follows the semantics defined in {{I-D.groves-core-dynlink}}, and invokes a state transfer in the opposite direction, that is from the link target to the link context. 
+
+Monitors use the IANA registered link relation "monitor", defined in {{RFC5989}}. Link Bindings use the link relation type "boundto", defined in {{I-D.groves-core-dynlink}}.
 
 Monitors have a set of accept parameters that indicate how the context resource is being observed, a set of filter parameters that indicate the conditions for generating a state change in the monitor, and a set of target parameters that indicate how state changes are to be applied to the monitor resource. See {{monitor-params}} for more information.
 
@@ -1170,7 +1183,7 @@ An example Monitor element is shown in {{fig-monitor-element}}.
       "rel": "monitor",
       "href": "tank-level-events",
       "content-type": "application/senml+json",
-      "target-method": "create",
+      "transfer-method": "create",
       "pmin": 600,
       "pmax": 3600,
       "nbul": 20,
@@ -1189,13 +1202,11 @@ Many of the keywords listed are defined in other RFCs and IETF documents. This d
 
 New definitions are summarized in {{iana-cons}}.
 
-## Default CURIE
+## Default namespace
 
-Identifiers in representations using the HSML media types are assumed to use the default CURIE "hsml". An identifier that is not matched to an existing namespace is assumed to carry the prefix "hsml".
+Identifiers in representations using the HSML media types are assumed to use the default namespace defined in {{reserved-identifiers}} of this document. An identifier that does not containan explicit namespace identifier is assumed to be in the default namespace.
 
-For example, if the identifier "method" is encountered and it doesn't resolve to an IANA registered parameter (reg-parameter in {{RFC5988}}) resolution should be attempted using "hsml:method".
-
-The default CURIE "hsml" identifies a namespace defined by the identifiers in {{reserved-identifiers}} of this document.
+For example, if the identifier "method" is encountered and it doesn't resolve to an IANA registered parameter (reg-parameter in {{RFC5988}}) resolution should be attempted using the definition of "method" in this document.
 
 ## URI Processing Parameters {#uri-params}
 
@@ -1233,7 +1244,7 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 :    Refers to the collection that contains the link
 
 "item"
-:    The link points to an item in the collection
+:    The link points to an item in the collection, indicating eligibility for collective interaction using link embedding as described in {{link-embedding}} and {{link-embedding-items}}.
 
 "grp"
 :    The item the link points to is available for collective interaction through the collection URI according to group semantics described in {{groups}}.
@@ -1316,13 +1327,13 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 :    Indicates the schema to use for constructing or interpreting transfer payloads, may be a literal value or a URI pointing to an instance of a schema
 {: vspace='0'}
 
-## Link Parameters used in Monitors {#monitor-params}
+## Link Parameters used in Link Bindings and Monitors {#monitor-params}
 
 "anchor"
-:    May override the context URI of a monitor with any observable resource
+:    May override the context URI of a link binding or monitor with any observable resource
 
 "rel"
-:    Indicates that this control is a monitor when rel contains the value "monitor"
+:    Indicates that this control is a monitor when rel contains the value "monitor" or a link binding when rel contains the value "boundto"
 
 "href"
 :    The URI of the resource used to monitor context URI, where transfer operations will be sent.
@@ -1337,16 +1348,16 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 :    the CoAP content-format number to use in the transfer operation
 
 "accept-method"
-:    Transfer method to use in request from the observed resource, default is OBSERVE
+:    (HSML extension) Transfer method to use in request from the observed resource, default is OBSERVE
 
-"target-method"
-:    Transfer method to use for notifications, default is UPDATE
+"transfer-method"
+:    (HSML extension) Transfer method to use for notifications, default is UPDATE
 
 "accept-schema"
-:    Schema to use in interpreting the observed resource payload, required if target-schema is used.
+:    (HSML extension) Schema to use in interpreting the observed resource payload, required if transfer-schema is used.
 
-"target-schema"
-:    Schema to use in constructing the notification transfer payload, default is to transfer the accepted payload unmodified to the target resource.
+"transfer-schema"
+:    (HSML extension) Schema to use in constructing the notification transfer payload, default is to transfer the accepted payload unmodified to the target resource.
 {: vspace='0'}
 
 ## Conditional Observe Parameters used in Monitors
@@ -1357,10 +1368,10 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 "pmax"
 :    Maximum time between notifications from a monitor
 
-"gt"
+"gth"
 :    Value to match or exceed to determine notification condition
 
-"lt"
+"lth"
 :    Value to match or be less than to determine notification condition
 
 "st"
@@ -1369,13 +1380,13 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 "eq"
 :    Value to match, or change from, to determine notification condition
 
-"nbll"
+"bmn"
 :    Defines a lower limit, at or above which notification is enabled
 
-"nbul"
+"bmx"
 :    Defines an upper limit, at or below which notification is enabled
 
-"init"
+"iv"
 :    Starts the notification state machine with an initial value
 {: vspace='0'}
 
@@ -1401,7 +1412,7 @@ The following keywords are reserved for use in a HSML serialization to indicate 
 
 # IANA Considerations {#iana-cons}
 
-## New Media Types 
+## Media Types 
 
 Type
 
@@ -1426,7 +1437,7 @@ Media type strings
 * application/hsml.link+json
 * application/hsml.item+json
 
-## New CoRE Parameters Content Formats
+## CoRE Parameters Content Formats
 
 (subject to Structured Syntax encoding rules TBD)
 
@@ -1434,7 +1445,7 @@ Media type strings
 * 22001 - application/hsml.link+json
 * 22002 - application/hsml.item+json
 
-## New Link Parameters
+## Link Parameters
 
 * method
 * schema
@@ -1442,24 +1453,24 @@ Media type strings
 * ct
 
 * accept-method
-* target-method
+* transfer-method
 * accept-schema
-* target-schema
+* transfer-schema
 
 The following should be registered in the CoRE dynamic linking draft {{I-D.groves-core-dynlink}}.
 
 * pmin
 * pmax
-* nbll
-* nbul
-* init
-* lt
-* gt
+* bmn
+* bmx
+* iv
+* lth
+* gth
 * st
 * eq
 
 
-## New Link Relation Types
+## Link Relation Types
 
 * grp
 
@@ -1470,13 +1481,13 @@ The following should be registered in the CoRE dynamic linking draft {{I-D.grove
 * hsml.link
 
 ## Transfer Layer Methods 
-These definitions may use the default CURIE and do not need to be registered with IANA
+These definitions may use the default namespace and do not need to be registered with IANA
 
-* hsml:create
-* hsml:retrieve
-* hsml:update
-* hsml:delete
-* hsml:observe
+* create
+* retrieve
+* update
+* delete
+* observe
 
 # Security Considerations
 
