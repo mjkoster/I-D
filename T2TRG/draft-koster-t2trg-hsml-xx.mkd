@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-koster-t2trg-hsml-00
+docname: draft-koster-t2trg-hsml-01
 cat: exp
 pi:
   strict: 'yes'
@@ -17,7 +17,7 @@ title: Media Types for Hypertext Sensor Markup
 area: Internet
 wg: Thing-to-Thing Research Group
 kw: IoT, T2TRG, Web of Things, Hypermedia, Semantic Interoperability, HATEOAS, Web Linking, CoRE, Constrained Resources, REST, Hyperlinks
-date: 2016-7-29
+date: 2017-3-13
 author:
 - ins: M. Koster
   name: Michael Koster
