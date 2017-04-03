@@ -5,3 +5,5 @@ draft-*.txt
 # Previous versions used by Makefile
 draft-*.r*.xml*
 draft-*-diff.html
+
+.DS_Store
